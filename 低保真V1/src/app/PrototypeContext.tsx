@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { initialProjects, initialSkills, initialTasks } from "../data/mock";
-import type { PptProject, ScheduledTask, Skill, ToastMessage } from "../types";
+import { conversations as initialConversations, initialProjects, initialSkills, initialTasks } from "../data/mock";
+import type { Conversation, PptProject, ScheduledTask, Skill, ToastMessage } from "../types";
 
 type PrototypeContextValue = {
   sidebarCollapsed: boolean;
@@ -11,6 +11,8 @@ type PrototypeContextValue = {
   setActiveDialog: (dialog: "plans" | "binding" | "chart" | null) => void;
   pinnedConversationIds: string[];
   togglePinnedConversation: (id: string) => void;
+  conversations: Conversation[];
+  renameConversation: (id: string, title: string) => void;
   tasks: ScheduledTask[];
   saveTask: (task: ScheduledTask) => void;
   deleteTask: (id: string) => void;
@@ -40,6 +42,7 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeDialog, setActiveDialog] = useState<"plans" | "binding" | "chart" | null>(null);
   const [pinnedConversationIds, setPinnedConversationIds] = useState(["industry"]);
+  const [conversations, setConversations] = useState(initialConversations);
   const [tasks, setTasks] = useState(initialTasks);
   const [projects, setProjects] = useState(initialProjects);
   const [favoriteTemplateIds, setFavoriteTemplateIds] = useState(["official-finance"]);
@@ -63,6 +66,8 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     setActiveDialog,
     pinnedConversationIds,
     togglePinnedConversation: (id) => setPinnedConversationIds((items) => items.includes(id) ? items.filter((item) => item !== id) : [id, ...items]),
+    conversations,
+    renameConversation: (id, title) => setConversations((items) => items.map((item) => item.id === id ? { ...item, title } : item)),
     tasks,
     saveTask: (task) => setTasks((items) => {
       const exists = items.some((item) => item.id === task.id);
@@ -86,7 +91,7 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     toggleTheme: () => setTheme((value) => value === "light" ? "dark" : "light"),
     toasts,
     notify,
-  }), [sidebarCollapsed, mobileSidebarOpen, activeDialog, pinnedConversationIds, tasks, projects, favoriteTemplateIds, customTemplates, skills, theme, toasts]);
+  }), [sidebarCollapsed, mobileSidebarOpen, activeDialog, pinnedConversationIds, conversations, tasks, projects, favoriteTemplateIds, customTemplates, skills, theme, toasts]);
 
   return <PrototypeContext.Provider value={value}>{children}</PrototypeContext.Provider>;
 }

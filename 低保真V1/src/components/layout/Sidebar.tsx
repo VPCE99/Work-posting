@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { FormEvent, MouseEvent as ReactMouseEvent } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
-import { conversations } from "../../data/mock";
 import type { Conversation } from "../../types";
-import { ConfirmDialog } from "../ui/Modal";
+import { ConfirmDialog, Modal } from "../ui/Modal";
 
 const groups = ["今天", "昨天", "过去 7 天", "更早"] as const;
 
@@ -18,21 +18,41 @@ export function Sidebar() {
     setActiveDialog,
     pinnedConversationIds,
     togglePinnedConversation,
+    conversations,
+    renameConversation,
     notify,
   } = usePrototype();
   const [historyQuery, setHistoryQuery] = useState("");
   const [accountOpen, setAccountOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [historyMenu, setHistoryMenu] = useState<{ id: string; left: number; top: number } | null>(null);
+  const [renameTarget, setRenameTarget] = useState<Conversation | null>(null);
+  const [renameDraft, setRenameDraft] = useState("");
+
+  useEffect(() => {
+    if (!historyMenu) return;
+    const close = () => setHistoryMenu(null);
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") close(); };
+    window.addEventListener("click", close);
+    window.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("resize", close);
+    };
+  }, [historyMenu]);
 
   const filteredConversations = useMemo(
     () => conversations.filter((item) => `${item.title}${item.preview}`.includes(historyQuery)),
-    [historyQuery],
+    [conversations, historyQuery],
   );
   const pinnedConversations = filteredConversations.filter((item) => pinnedConversationIds.includes(item.id));
 
   const closeMobile = () => setMobileSidebarOpen(false);
   const openConversation = (id: string) => {
     setActiveDialog(null);
+    setHistoryMenu(null);
     closeMobile();
     navigate(`/chat/${id}`);
   };
@@ -42,8 +62,33 @@ export function Sidebar() {
     navigate("/chat");
   };
 
+  const openHistoryMenu = (event: ReactMouseEvent, item: Conversation) => {
+    event.preventDefault();
+    const width = 190;
+    const height = 132;
+    setHistoryMenu({
+      id: item.id,
+      left: Math.min(event.clientX, window.innerWidth - width - 8),
+      top: Math.min(event.clientY, window.innerHeight - height - 8),
+    });
+  };
+
+  const beginRename = (item: Conversation) => {
+    setHistoryMenu(null);
+    setRenameTarget(item);
+    setRenameDraft(item.title);
+  };
+
+  const submitRename = (event: FormEvent) => {
+    event.preventDefault();
+    if (!renameTarget || !renameDraft.trim()) return;
+    renameConversation(renameTarget.id, renameDraft.trim());
+    notify("对话已重命名", "success");
+    setRenameTarget(null);
+  };
+
   const historyItem = (item: Conversation, pinned: boolean) => (
-    <div className="history-item" key={item.id}>
+    <div className="history-item" key={item.id} onContextMenu={(event) => openHistoryMenu(event, item)}>
       <button className="history-item__open" onClick={() => openConversation(item.id)} title={item.preview}>
         <strong>{item.title}</strong><span>{item.preview}</span>
       </button>
@@ -109,6 +154,17 @@ export function Sidebar() {
       </aside>
 
       {mobileSidebarOpen && <button className="mobile-scrim" aria-label="关闭导航" onClick={closeMobile} />}
+      {historyMenu && (() => {
+        const item = conversations.find((conversation) => conversation.id === historyMenu.id);
+        if (!item) return null;
+        const pinned = pinnedConversationIds.includes(item.id);
+        return <div className="history-context-menu" role="menu" aria-label={`${item.title}操作`} style={{ left: historyMenu.left, top: historyMenu.top }} onClick={(event) => event.stopPropagation()}>
+          <button type="button" role="menuitem" onClick={() => openConversation(item.id)}>打开对话</button>
+          <button type="button" role="menuitem" onClick={() => beginRename(item)}>重命名</button>
+          <button type="button" role="menuitem" onClick={() => { togglePinnedConversation(item.id); setHistoryMenu(null); }}>{pinned ? "取消置顶" : "置顶对话"}</button>
+        </div>;
+      })()}
+      {renameTarget && <Modal title="重命名对话" size="sm" onClose={() => setRenameTarget(null)} footer={<><button className="button" onClick={() => setRenameTarget(null)}>取消</button><button className="button button--primary" type="submit" form="rename-conversation-form" disabled={!renameDraft.trim()}>保存</button></>}><form id="rename-conversation-form" className="form-stack" onSubmit={submitRename}><label>对话名称<input autoFocus value={renameDraft} onChange={(event) => setRenameDraft(event.target.value)} maxLength={40} /></label><small>{renameDraft.trim().length}/40</small></form></Modal>}
       {logoutOpen && <ConfirmDialog title="退出登录" message="确定退出当前测试账号吗？本原型不会清除任何真实数据。" confirmText="退出登录" onClose={() => setLogoutOpen(false)} onConfirm={() => { setLogoutOpen(false); navigate("/chat"); }} />}
     </>
   );
