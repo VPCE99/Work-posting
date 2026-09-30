@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { usePrototype } from "../../app/PrototypeContext";
 import { MenuIcon } from "../ui/MenuIcon";
+import { FormSelect } from "../ui/FormSelect";
 import { Modal } from "../ui/Modal";
 
 const officialTemplates = [
@@ -50,7 +51,7 @@ export function NewPptDialog({ onClose, onCreated }: { onClose: () => void; onCr
             <label className={source === "从现有对话生成" ? "source-choice source-choice--selected" : "source-choice"}>
               <input type="radio" checked={source === "从现有对话生成"} onChange={() => setSource("从现有对话生成")} />
               <span className="source-choice__visual">☷</span><strong>从现有对话生成</strong><span>使用所选对话上下文自动生成大纲。</span>
-              {source === "从现有对话生成" && <select><option>行业研究报告</option><option>竞品分析</option><option>财务数据复盘</option></select>}
+              {source === "从现有对话生成" && <FormSelect label="选择对话" options={["行业研究报告", "竞品分析", "财务数据复盘"]} />}
             </label>
             <label className={source === "导入文件" ? "source-choice source-choice--selected" : "source-choice"}>
               <input type="radio" checked={source === "导入文件"} onChange={() => setSource("导入文件")} />

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
-import { AppShell } from "../../components/layout/AppShell";
 import { TaskDialog } from "../../components/tasks/TaskDialog";
 import { ConfirmDialog } from "../../components/ui/Modal";
 import type { ScheduledTask } from "../../types";
@@ -13,7 +12,7 @@ export function TasksPage() {
   const [deletingTask, setDeletingTask] = useState<ScheduledTask | null>(null);
 
   return (
-    <AppShell>
+    <>
       <section className="page-stack task-page">
         <header className="page-header">
           <div><p className="eyebrow">自动化</p><h1>定时任务</h1><p>集中管理周期性研究任务，历史聊天始终保留在左侧。</p></div>
@@ -42,6 +41,6 @@ export function TasksPage() {
 
       {editingTask !== undefined && <TaskDialog initial={editingTask ?? undefined} onClose={() => setEditingTask(undefined)} onSave={(task) => { saveTask(task); setEditingTask(undefined); notify("任务已保存", "success"); }} />}
       {deletingTask && <ConfirmDialog title="删除定时任务" message={`将永久删除“${deletingTask.name}”，此操作不可撤销。`} confirmText="确认删除" danger onClose={() => setDeletingTask(null)} onConfirm={() => { deleteTask(deletingTask.id); setDeletingTask(null); notify("任务已删除"); }} />}
-    </AppShell>
+    </>
   );
 }

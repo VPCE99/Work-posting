@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AppShell } from "../../components/layout/AppShell";
 import { Modal } from "../../components/ui/Modal";
 import { usePrototype } from "../../app/PrototypeContext";
 import { TemplateManagerDialog } from "../../components/ppt/PptAssistantDialog";
 import { MenuIcon } from "../../components/ui/MenuIcon";
+import { Reveal } from "../../components/ui/Reveal";
+import { FormSelect } from "../../components/ui/FormSelect";
 
 const slideTitles = ["封面", "核心结论", "市场规模", "区域表现", "重点项目", "总结"];
 
@@ -137,7 +138,7 @@ export function PptEditorPage() {
   const chooseInsertTool = (tool: string) => notify(`已选择“${tool}”工具`);
 
   return (
-    <AppShell fullBleed>
+    <>
       <section className="ppt-editor">
         <header className="ppt-editor__topbar">
           <div className="ppt-editor__identity">
@@ -156,11 +157,11 @@ export function PptEditorPage() {
                 <span>文件与数据</span>
                 <LucideIcon name="chevron-down" size={13} />
               </button>
-              {actionsOpen && <div className="menu-popover editor-action-popover" role="group" aria-label="文件与数据操作">
+              <Reveal open={actionsOpen} className="menu-popover editor-action-popover" role="group" aria-label="文件与数据操作">
                 <button onClick={() => runDataAction("parse")}><MenuIcon name="upload" /><span><strong>上传并智能解析</strong><small>识别现有 PPT 的结构、版式与数据</small></span></button>
                 <button onClick={() => runDataAction("refresh")}><MenuIcon name="refresh-cw" /><span><strong>刷新数据</strong><small>更新已识别的图表、表格和文字</small></span></button>
                 <button onClick={() => runDataAction("report")}><MenuIcon name="file-text" /><span><strong>更新报告</strong><small>重新获取制作 PPT 所依据的报告</small></span></button>
-              </div>}
+              </Reveal>
             </div>
             <button className="button" onClick={save}>{saved.startsWith("保存中") ? "保存中……" : "保存"}</button>
             <button className="button button--primary" onClick={() => setExportOpen(true)}>预览并生成</button>
@@ -175,7 +176,6 @@ export function PptEditorPage() {
                 <button type="button" role="tab" aria-selected={leftTab === "design"} className={leftTab === "design" ? "active" : ""} onClick={() => setLeftTab("design")}>视觉样式</button>
                 <button type="button" role="tab" aria-selected={leftTab === "draft"} className={leftTab === "draft" ? "active" : ""} onClick={() => setLeftTab("draft")}>大纲草稿</button>
               </div>
-              <button type="button" className="ppt-add-icon" aria-label="新增页面" onClick={() => notify("已新增一页空白幻灯片", "success")}><LucideIcon name="plus" size={14} /></button>
             </div>
             {leftTab === "pages" && <div className="ppt-left-panel__content">
                 <div className="tab-row ppt-page-view-tabs">
@@ -186,7 +186,7 @@ export function PptEditorPage() {
                 {pageView === "outline" && <div className="ppt-outline-list">{slideTitles.map((title, index) => <button key={title} className={activeSlide === index ? "ppt-outline-item ppt-outline-item--active" : "ppt-outline-item"} onClick={() => setActiveSlide(index)}><span>{index + 1}</span><strong>{title}</strong></button>)}</div>}
                 <button className="button button--block ppt-add-page" onClick={() => notify("已新增一页空白幻灯片", "success")}>+ 添加页面</button>
               </div>}
-            {leftTab === "design" && <div className="tool-panel ppt-side-panel"><div><h2>视觉样式</h2><p className="muted">调整当前项目的模板与整体风格。</p></div><label>当前模板<select><option>系统模板 A</option>{customTemplates.map((item) => <option key={item}>{item}</option>)}</select></label><div className="style-preview-grid"><button className="style-preview style-preview--active">经典</button><button className="style-preview">简约</button><button className="style-preview">深色</button><button className="style-preview">杂志</button></div><button className="button button--block" onClick={() => setTemplatesOpen(true)}>管理模板</button></div>}
+            {leftTab === "design" && <div className="tool-panel ppt-side-panel"><div><h2>视觉样式</h2><p className="muted">调整当前项目的模板与整体风格。</p></div><label>当前模板<FormSelect label="当前模板" options={["系统模板 A", ...customTemplates]} /></label><div className="style-preview-grid"><button className="style-preview style-preview--active">经典</button><button className="style-preview">简约</button><button className="style-preview">深色</button><button className="style-preview">杂志</button></div><button className="button button--block" onClick={() => setTemplatesOpen(true)}>管理模板</button></div>}
             {leftTab === "draft" && <div className="tool-panel ppt-side-panel"><div><h2>大纲草稿</h2><p className="muted">保存当前结构，或载入已有草稿继续编辑。</p></div><button className="button button--primary button--block" onClick={() => notify("当前大纲已保存", "success")}>保存当前大纲</button><article className="mini-card"><strong>行业报告草稿</strong><span>6 页 · 更新于昨天</span></article></div>}
           </aside>
 
@@ -215,6 +215,6 @@ export function PptEditorPage() {
       {parseOpen && <Modal title="上传 PPT 智能解析" onClose={() => setParseOpen(false)} footer={<button className="button" onClick={() => setParseOpen(false)}>后台继续解析</button>}><div className="progress-list"><p><strong>文件：</strong>行业报告模板.pptx</p><p>✓ 上传文件</p><p>✓ 解析提纲结构</p><p>◉ 识别版式与视觉风格 <strong>68%</strong></p><progress value="68" max="100" /><p>○ 识别可更新文字、图表和表格</p><small>当前识别：18 页 / 6 个图表 / 3 个表格 / 12 张图片</small></div></Modal>}
       {exportOpen && <Modal title="预览并生成 PPT" size="lg" onClose={() => setExportOpen(false)} footer={<><button className="button" onClick={() => setExportOpen(false)}>返回编辑</button><button className="button button--primary" disabled={generating} onClick={() => { setGenerating(true); window.setTimeout(() => { setGenerating(false); notify("PPT 已生成，可下载", "success"); }, 1200); }}>{generating ? "生成中……" : "继续生成 PPT"}</button></>}><div className="export-review"><div className="preview-slide"><h2>{project?.name}</h2><p>当前 PPT 预览</p></div><div><h3>导出前检查</h3><p>✓ 页数：18</p><p>✓ 图表：6</p><p>✓ 表格：3</p><p>! 图片：12，其中 1 张清晰度低</p><button className="text-button">定位第 9 页</button></div></div></Modal>}
       {templatesOpen && <TemplateManagerDialog onClose={() => setTemplatesOpen(false)} />}
-    </AppShell>
+    </>
   );
 }

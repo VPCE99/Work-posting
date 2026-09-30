@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { AppShell } from "../../components/layout/AppShell";
 import { usePrototype } from "../../app/PrototypeContext";
 import { ConnectionToggle } from "../../components/ui/ConnectionToggle";
 import { MenuIcon, type MenuIconName } from "../../components/ui/MenuIcon";
+import { ModelSelect } from "../../components/ui/ModelSelect";
+import { Reveal } from "../../components/ui/Reveal";
 
 const exportFormats: Array<{ label: string; icon: MenuIconName }> = [
   { label: "PDF", icon: "file-text" },
@@ -58,13 +59,12 @@ export function ConversationPage() {
   };
 
   return (
-    <AppShell>
-      <section className="conversation-page">
+    <section className="conversation-page">
         <header className="conversation-compact-header">
           <strong>{conversation?.title ?? "新对话"}</strong>
           <div className="conversation-compact-actions" ref={headerActionsRef}>
-            <div className="popover-anchor"><button className="conversation-icon-action" aria-label="导出对话" aria-expanded={exportOpen} onClick={() => { setExportOpen((open) => !open); setMoreOpen(false); }}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12" /><path d="m7 8 5-5 5 5" /><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" /></svg><span>导出</span></button>{exportOpen && <div className="menu-popover conversation-header-menu conversation-export-menu" role="menu" aria-label="导出格式">{exportFormats.map((item) => <button type="button" role="menuitem" key={item.label} onClick={() => { notify(`已创建 ${item.label} 导出任务`, "success"); setExportOpen(false); }}><MenuIcon name={item.icon} /><span>{item.label}</span></button>)}</div>}</div>
-            <div className="popover-anchor"><button className="conversation-icon-action conversation-icon-action--square" aria-label="更多操作" aria-expanded={moreOpen} onClick={() => { setMoreOpen((open) => !open); setExportOpen(false); }}>•••</button>{moreOpen && <div className="menu-popover conversation-header-menu conversation-more-menu" role="menu" aria-label="更多对话操作"><button type="button" role="menuitem" onClick={() => { togglePinnedConversation(conversationId); setMoreOpen(false); notify(pinned ? "已取消置顶" : "对话已置顶", "success"); }}><MenuIcon name="pin" /><span>{pinned ? "取消置顶" : "置顶对话"}</span></button><button type="button" role="menuitem" onClick={() => { notify("已显示当前对话信息"); setMoreOpen(false); }}><MenuIcon name="info" /><span>对话信息</span></button></div>}</div>
+            <div className="popover-anchor"><button className="conversation-icon-action" aria-label="导出对话" aria-expanded={exportOpen} onClick={() => { setExportOpen((open) => !open); setMoreOpen(false); }}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12" /><path d="m7 8 5-5 5 5" /><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" /></svg><span>导出</span></button><Reveal open={exportOpen} className="menu-popover conversation-header-menu conversation-export-menu" role="menu" aria-label="导出格式">{exportFormats.map((item) => <button type="button" role="menuitem" key={item.label} onClick={() => { notify(`已创建 ${item.label} 导出任务`, "success"); setExportOpen(false); }}><MenuIcon name={item.icon} /><span>{item.label}</span></button>)}</Reveal></div>
+            <div className="popover-anchor"><button className="conversation-icon-action conversation-icon-action--square" aria-label="更多操作" aria-expanded={moreOpen} onClick={() => { setMoreOpen((open) => !open); setExportOpen(false); }}>•••</button><Reveal open={moreOpen} className="menu-popover conversation-header-menu conversation-more-menu" role="menu" aria-label="更多对话操作"><button type="button" role="menuitem" onClick={() => { togglePinnedConversation(conversationId); setMoreOpen(false); notify(pinned ? "已取消置顶" : "对话已置顶", "success"); }}><MenuIcon name="pin" /><span>{pinned ? "取消置顶" : "置顶对话"}</span></button><button type="button" role="menuitem" onClick={() => { notify("已显示当前对话信息"); setMoreOpen(false); }}><MenuIcon name="info" /><span>对话信息</span></button></Reveal></div>
           </div>
         </header>
 
@@ -108,8 +108,7 @@ export function ConversationPage() {
           {generating && <article className="message message--assistant"><small>ChopChat</small><p>正在整理数据……</p><progress value="62" max="100" /><button className="text-button" onClick={() => setGenerating(false)}>停止生成</button></article>}
         </div>
 
-        <div className="composer composer--sticky"><textarea rows={3} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="继续追问；输入 / 调用技能" /><div className="composer__toolbar"><div><button className="button button--small"><MenuIcon name="upload" />上传图片</button><ConnectionToggle online={online} onToggle={() => setOnline(!online)} /><select aria-label="模型选择"><option>智能选择</option></select></div><button className="button button--primary composer__send" aria-label="发送" aria-disabled={!draft.trim()} onClick={submit}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg></button></div></div>
-      </section>
-    </AppShell>
+        <div className="composer composer--sticky"><textarea rows={3} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="继续追问；输入 / 调用技能" /><div className="composer__toolbar"><div><button className="button button--small"><MenuIcon name="upload" />上传图片</button><ConnectionToggle online={online} onToggle={() => setOnline(!online)} /><ModelSelect placement="up" /></div><button className="button button--primary composer__send" aria-label="发送" aria-disabled={!draft.trim()} onClick={submit}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg></button></div></div>
+    </section>
   );
 }

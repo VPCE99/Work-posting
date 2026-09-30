@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { usePrototype } from "../../app/PrototypeContext";
+import { FormSelect } from "../ui/FormSelect";
 import { Modal } from "../ui/Modal";
 
 type Field = { name: string; type: "维度" | "数值" | "日期" };
@@ -35,16 +36,14 @@ export function ChartDialog() {
         <div className="chart-workspace">
           <aside className="data-panel">
             <h2>数据集与字段</h2>
-            <label>数据集<select><option>回答 #3 · 行业规模数据</option></select></label>
+            <label>数据集<FormSelect label="数据集" options={["回答 #3 · 行业规模数据"]} /></label>
             <small>来源：当前对话回答 #3</small>
             <div className="field-list">
               {fields.map((field) => (
                 <article key={field.name}>
                   <div>
                     <strong>{field.type === "数值" ? "#" : field.type === "日期" ? "◷" : "Aa"} {field.name}</strong>
-                    <select value={field.type} onChange={(event) => changeType(field.name, event.target.value as Field["type"])}>
-                      <option>维度</option><option>数值</option><option>日期</option>
-                    </select>
+                    <FormSelect label={`${field.name}字段类型`} value={field.type} onChange={(next) => changeType(field.name, next as Field["type"])} options={["维度", "数值", "日期"]} />
                   </div>
                   {field.name === "同比增长率" && field.type === "维度" && <small className="field-error">建议改为数值后放入 Y 轴</small>}
                 </article>
@@ -71,11 +70,11 @@ export function ChartDialog() {
           <aside className="config-panel">
             <h2>图表配置</h2>
             <label>标题<input value={title} onChange={(event) => setTitle(event.target.value)} /></label>
-            <label>图形类型<select><option>柱状图</option><option>折线图</option><option>组合图</option></select></label>
-            <label>X 轴<select value={xAxis} onChange={(event) => setXAxis(event.target.value)}>{dimensions.map((field) => <option key={field.name}>{field.name}</option>)}</select></label>
-            <label>左 Y 轴<select value={leftY} onChange={(event) => setLeftY(event.target.value)}><option value="">请选择</option>{numeric.map((field) => <option key={field.name}>{field.name}</option>)}</select></label>
-            <label>右 Y 轴（选填）<select value={rightY} onChange={(event) => setRightY(event.target.value)}><option value="">不使用</option>{numeric.filter((field) => field.name !== leftY).map((field) => <option key={field.name}>{field.name}</option>)}</select></label>
-            <label>分组（选填）<select value={group} onChange={(event) => setGroup(event.target.value)}><option value="">不分组</option>{dimensions.map((field) => <option key={field.name}>{field.name}</option>)}</select></label>
+            <label>图形类型<FormSelect label="图形类型" options={["柱状图", "折线图", "组合图"]} /></label>
+            <label>X 轴<FormSelect label="X 轴" value={xAxis} onChange={setXAxis} options={dimensions.map((field) => field.name)} /></label>
+            <label>左 Y 轴<FormSelect label="左 Y 轴" value={leftY} onChange={setLeftY} options={[{ value: "", label: "请选择" }, ...numeric.map((field) => field.name)]} /></label>
+            <label>右 Y 轴（选填）<FormSelect label="右 Y 轴" value={rightY} onChange={setRightY} options={[{ value: "", label: "不使用" }, ...numeric.filter((field) => field.name !== leftY).map((field) => field.name)]} /></label>
+            <label>分组（选填）<FormSelect label="分组" value={group} onChange={setGroup} options={[{ value: "", label: "不分组" }, ...dimensions.map((field) => field.name)]} /></label>
             <div className="button-row"><button className="button" onClick={() => { setTitle(""); setRightY(""); setGenerated(false); }}>重置</button><button className="button button--primary" disabled={!xAxis || !leftY} onClick={() => setGenerated(true)}>生成图表</button></div>
             <hr />
             <button className="button button--block" disabled={!generated} onClick={() => notify("已创建数据下载任务", "success")}>下载数据</button>

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
-import { AppShell } from "../../components/layout/AppShell";
 import { ImportPptDialog, NewPptDialog, TemplateManagerDialog } from "../../components/ppt/PptAssistantDialog";
 import { ConfirmDialog } from "../../components/ui/Modal";
+import { Reveal } from "../../components/ui/Reveal";
 import type { PptProject } from "../../types";
 import { FavoriteStarIcon } from "../../components/ui/FavoriteStarIcon";
 
@@ -49,7 +49,7 @@ export function PptProjectsPage() {
   };
 
   return (
-    <AppShell>
+    <>
       <section className="page-stack ppt-library ppt-projects-page">
         <header className="page-header ppt-library__header">
           <div>
@@ -131,7 +131,7 @@ export function PptProjectsPage() {
       {importOpen && <ImportPptDialog onClose={() => setImportOpen(false)} onImported={(id) => { setImportOpen(false); openEditor(id); }} />}
       {templatesOpen && <TemplateManagerDialog onClose={() => setTemplatesOpen(false)} />}
       {deleting && <ConfirmDialog title="删除 PPT 项目" message={`将永久删除“${deleting.name}”，此操作不可撤销。`} danger confirmText="确认删除" onClose={() => setDeleting(null)} onConfirm={() => { deleteProject(deleting.id); setDeleting(null); notify("项目已删除"); }} />}
-    </AppShell>
+    </>
   );
 }
 
@@ -176,15 +176,13 @@ function ProjectCard({ project, menuOpen, onOpen, onToggleMenu, onToggleFavorite
               <circle cx="16" cy="2" r="1.5" />
             </svg>
           </button>
-          {menuOpen && (
-            <div className="project-menu" role="menu">
-              <button role="menuitem" onClick={onOpen}>打开</button>
-              <button role="menuitem" onClick={onToggleFavorite}>{project.favorite ? "取消收藏" : "加入收藏夹"}</button>
-              <button role="menuitem" onClick={onRename}>重命名</button>
-              {project.status === "自动保存失败" && <button role="menuitem" onClick={onRetry}>重试保存</button>}
-              <button role="menuitem" className="project-menu__danger" onClick={onDelete}>删除</button>
-            </div>
-          )}
+          <Reveal open={menuOpen} className="project-menu" role="menu">
+            <button role="menuitem" onClick={onOpen}>打开</button>
+            <button role="menuitem" onClick={onToggleFavorite}>{project.favorite ? "取消收藏" : "加入收藏夹"}</button>
+            <button role="menuitem" onClick={onRename}>重命名</button>
+            {project.status === "自动保存失败" && <button role="menuitem" onClick={onRetry}>重试保存</button>}
+            <button role="menuitem" className="project-menu__danger" onClick={onDelete}>删除</button>
+          </Reveal>
         </div>
       </footer>
     </article>

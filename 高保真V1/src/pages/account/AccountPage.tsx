@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { AppShell } from "../../components/layout/AppShell";
 import { usePrototype } from "../../app/PrototypeContext";
 
 const heat = Array.from({ length: 84 }, (_, index) => (index * 7) % 5);
@@ -51,8 +50,7 @@ export function AccountPage() {
   const [tokenTip, setTokenTip] = useState<TipState | null>(null);
 
   return (
-    <AppShell>
-      <section className="page-stack account-page">
+    <section className="page-stack account-page">
         <header className="page-header">
           <div><p className="eyebrow">账户</p><h1>客户后台</h1><p>统一查看套餐、用量、余额和订单。</p></div>
           <div className="button-row"><Link className="button" to="/chat">返回对话</Link><button className="button button--primary" onClick={() => setActiveDialog("plans")}>购买套餐</button></div>
@@ -110,8 +108,7 @@ export function AccountPage() {
           <div className="panel__title"><h2>购买记录</h2><div className="tab-row"><button className="tab tab--active">有效订单</button><button className="tab">全部订单</button></div></div>
           <div className="table-scroll"><table><thead><tr><th>商品</th><th>金额</th><th>状态</th><th>创建时间</th><th>发票</th><th>操作</th></tr></thead><tbody><tr><td>标准加油包</td><td>¥259</td><td><span className="status status--success">已支付</span></td><td>2026-09-20</td><td>未申请</td><td><button className="text-button">查看</button> <button className="text-button">申请发票</button></td></tr><tr><td>入门加油包</td><td>¥39</td><td><span className="status">已关闭</span></td><td>2026-08-12</td><td>—</td><td><button className="text-button">查看</button></td></tr></tbody></table></div>
         </article>
-      </section>
-    </AppShell>
+    </section>
   );
 }
 

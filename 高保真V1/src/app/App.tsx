@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { AppShell } from "../components/layout/AppShell";
 import { AccountPage } from "../pages/account/AccountPage";
 import { ConversationPage } from "../pages/chat/ConversationPage";
 import { HomePage } from "../pages/chat/HomePage";
@@ -11,7 +12,11 @@ import { TasksPage } from "../pages/tasks/TasksPage";
 import { usePrototype } from "./PrototypeContext";
 
 export function App() {
+  const { pathname } = useLocation();
+  const fullBleed = /^\/ppt\/.+/.test(pathname);
+
   return (
+    <AppShell fullBleed={fullBleed}>
     <Routes>
       <Route path="/" element={<Navigate to="/chat" replace />} />
       <Route path="/chat" element={<HomePage />} />
@@ -25,6 +30,7 @@ export function App() {
       <Route path="/account" element={<AccountPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </AppShell>
   );
 }
 

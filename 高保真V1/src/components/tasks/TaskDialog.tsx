@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { FormSelect } from "../ui/FormSelect";
 import { Modal } from "../ui/Modal";
 import type { ScheduledTask } from "../../types";
 
@@ -49,9 +50,7 @@ export function TaskDialog({ initial, onSave, onClose }: {
         </label>
         <div className="form-grid form-grid--2">
           <label>执行频率
-            <select value={frequency} onChange={(event) => setFrequency(event.target.value)}>
-              <option>每天</option><option>工作日</option><option>每周一</option><option>每月 1 日</option>
-            </select>
+            <FormSelect label="执行频率" value={frequency} onChange={setFrequency} options={["每天", "工作日", "每周一", "每月 1 日"]} />
           </label>
           <label>执行时间
             <input type="time" value={time} onChange={(event) => setTime(event.target.value)} />

@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { useModalReveal } from "./Reveal";
 
 type ModalProps = {
   title: string;
@@ -9,6 +10,8 @@ type ModalProps = {
 };
 
 export function Modal({ title, children, onClose, footer, size = "md" }: ModalProps) {
+  const { panelRef, veilRef } = useModalReveal();
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -19,7 +22,8 @@ export function Modal({ title, children, onClose, footer, size = "md" }: ModalPr
 
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <section className={`modal modal--${size}`} role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}>
+      <div className="modal-backdrop__veil" ref={veilRef} />
+      <section ref={panelRef} className={`modal modal--${size}`} role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}>
         <header className="modal__header">
           <h2>{title}</h2>
           <button className="icon-button" onClick={onClose} aria-label="关闭弹窗">×</button>

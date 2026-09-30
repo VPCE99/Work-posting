@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { AppShell } from "../../components/layout/AppShell";
 import { usePrototype } from "../../app/PrototypeContext";
 import type { Skill } from "../../types";
+import { FormSelect } from "../../components/ui/FormSelect";
 import { ConfirmDialog, Modal } from "../../components/ui/Modal";
 
 const skillVisuals: Record<string, { meta: string }> = {
@@ -92,7 +92,7 @@ export function SkillsPage() {
   const visible = skills.filter((item) => item.kind === tab && `${item.name}${item.description}`.includes(query));
 
   return (
-    <AppShell>
+    <>
       <section className="page-stack skills-page">
         <header className="page-header">
           <div><p className="eyebrow">能力中心</p><h1>我的技能</h1><p>管理用于对话分析、写作与研究的技能</p></div>
@@ -101,7 +101,7 @@ export function SkillsPage() {
 
         <div className="toolbar skills-toolbar">
           <div className="tab-row">{(["公用技能", "我的技能", "未开通"] as const).map((item) => <button key={item} className={tab === item ? "tab tab--active" : "tab"} onClick={() => setTab(item)}>{item}{item === "我的技能" ? ` ${skills.filter((skill) => skill.kind === item).length}/20` : ""}</button>)}</div>
-          <div className="skills-toolbar__filters"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索技能" /><select aria-label="技能类型"><option>全部类型</option><option>研究分析</option><option>内容生成</option></select></div>
+          <div className="skills-toolbar__filters"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索技能" /><FormSelect label="技能类型" options={["全部类型", "研究分析", "内容生成"]} /></div>
         </div>
 
         <div className="card-grid card-grid--3 skills-grid">
@@ -123,7 +123,7 @@ export function SkillsPage() {
       {detail && <Modal title={detail.name} onClose={() => setDetail(null)} footer={<><button className="button" onClick={() => setDetail(null)}>关闭</button>{detail.kind !== "未开通" && <button className="button button--primary" onClick={() => { setDetail(null); notify("已带入新问题", "success"); }}>用于新问题</button>}</>}><div className="skill-detail"><p className="skill-detail__kind">{detail.kind}</p><section><h3>用途</h3><p>{detail.description}</p></section><section><h3>输入要求</h3><p>提供研究主题、材料或需要分析的数据。</p></section><section><h3>输出预期</h3><p>结构化结论、关键依据和可继续追问的问题。</p></section></div></Modal>}
       {editing && <SkillDialog onClose={() => setEditing(false)} onSave={(skill) => { addSkill(skill); setEditing(false); notify("技能已保存", "success"); }} />}
       {deleting && <ConfirmDialog title="删除技能" message={`将删除“${deleting.name}”，历史对话不会受到影响。`} danger confirmText="确认删除" onClose={() => setDeleting(null)} onConfirm={() => { deleteSkill(deleting.id); setDeleting(null); }} />}
-    </AppShell>
+    </>
   );
 }
 
