@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Brand } from "../../components/ui/Brand";
 import { ConnectionToggle } from "../../components/ui/ConnectionToggle";
@@ -9,12 +9,21 @@ const prompts = ["对比不同园区的出租率差异", "解释收入增长的�
 
 export function HomePage() {
   const navigate = useNavigate();
+  const composerRef = useRef<HTMLDivElement>(null);
   const [prompt, setPrompt] = useState("");
   const [online, setOnline] = useState(true);
 
   const send = () => {
     if (!prompt.trim()) return;
-    navigate("/chat/new", { state: { prompt } });
+    const rect = composerRef.current?.getBoundingClientRect();
+    navigate("/chat/new", {
+      state: {
+        prompt,
+        origin: rect
+          ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+          : undefined,
+      },
+    });
   };
 
   return (
@@ -25,7 +34,7 @@ export function HomePage() {
           <h1>ChopChat</h1>
           <p className="lead">今天想研究什么？</p>
 
-          <div className="composer composer--hero">
+          <div className="composer composer--hero" ref={composerRef}>
             <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="输入问题；输入 / 调用技能" rows={4} onKeyDown={(event) => { if ((event.metaKey || event.ctrlKey) && event.key === "Enter") send(); }} />
             <div className="composer__toolbar">
               <div><button className="button button--small"><MenuIcon name="upload" />上传图片</button><ConnectionToggle online={online} onToggle={() => setOnline(!online)} /><ModelSelect /></div>

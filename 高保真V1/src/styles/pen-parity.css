@@ -515,6 +515,7 @@
 .conversation-icon-action--square { width: 32px; min-width: 32px; padding: 0; letter-spacing: 2px; }
 .message-stream { position: static; display: block; }
 .message--user { width: 620px; height: 66px; min-height: 66px; position: absolute; top: 64px; right: -12px; margin: 0; padding: 9px 16px; border: 1px solid #343842; border-radius: 10px; background: #17191e; }
+.message--user-flying { z-index: 4; }
 .message--user small { margin: 0 0 2px; font-size: 11px; line-height: 17px; }
 .message--user p { font-size: 14px; line-height: 20px; }
 .message--assistant.rich-response { width: 896px; height: 408px; min-height: 408px; position: absolute; left: 0; top: 148px; margin: 0; padding: 0; overflow: hidden; border: 1px solid #343842; border-radius: 10px; background: #111318; }
@@ -551,6 +552,75 @@
 .message__actions button svg { width: 14px; height: 14px; }
 .conversation-page .composer--sticky { width: 760px; height: 122px; position: absolute; left: 68px; top: auto; bottom: 65px; margin: 0; box-shadow: none; }
 .conversation-page .composer--sticky textarea { height: 48px; min-height: 48px; padding: 6px; resize: none; border-bottom: 1px solid #25272d; border-radius: 0; }
+.follow-up-thinking { position: absolute; left: 0; top: 591px; z-index: 1; display: flex; align-items: center; gap: 10px; height: 28px; opacity: 0; animation: follow-up-thinking-in 480ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.follow-up-thinking--intro { top: 178px; }
+.follow-up-thinking--leaving { animation: follow-up-thinking-out 480ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.thinking-mark { width: 28px; height: 28px; overflow: visible; flex: none; }
+.thinking-petal, .thinking-bar { transform-box: fill-box; opacity: 0.8; animation-duration: 4s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); animation-iteration-count: infinite; }
+.thinking-petal { transform-origin: center; }
+.thinking-bar { transform-origin: center bottom; }
+.thinking-petal--1 { animation-name: thinking-petal-1; }
+.thinking-petal--2 { animation-name: thinking-petal-2; }
+.thinking-petal--3 { animation-name: thinking-petal-3; }
+.thinking-petal--4 { animation-name: thinking-petal-4; }
+.thinking-bar--1 { animation-name: thinking-bar-1; }
+.thinking-bar--2 { animation-name: thinking-bar-2; }
+.thinking-bar--3 { animation-name: thinking-bar-3; }
+.follow-up-thinking__label { color: #c5ccd6; font-size: 14px; line-height: 20px; letter-spacing: 0.04em; animation: thinking-label-blink 2.2s ease-in-out infinite; }
+@keyframes thinking-petal-1 {
+  0%, 5%, 20%, 100% { opacity: 0.8; transform: scale(1); }
+  15% { opacity: 1; transform: scale(1.035); }
+}
+@keyframes thinking-petal-2 {
+  0%, 20%, 35%, 100% { opacity: 0.8; transform: scale(1); }
+  30% { opacity: 1; transform: scale(1.035); }
+}
+@keyframes thinking-petal-3 {
+  0%, 35%, 50%, 100% { opacity: 0.8; transform: scale(1); }
+  45% { opacity: 1; transform: scale(1.035); }
+}
+@keyframes thinking-petal-4 {
+  0%, 50%, 65%, 100% { opacity: 0.8; transform: scale(1); }
+  60% { opacity: 1; transform: scale(1.035); }
+}
+@keyframes thinking-bar-1 {
+  0%, 25%, 50%, 100% { transform: scaleY(1); }
+  12.5% { transform: scaleY(0.88); }
+  37.5% { transform: scaleY(0.94); }
+}
+@keyframes thinking-bar-2 {
+  0%, 35%, 60%, 100% { transform: scaleY(1); }
+  22.5% { transform: scaleY(0.9); }
+  47.5% { transform: scaleY(0.93); }
+}
+@keyframes thinking-bar-3 {
+  0%, 45%, 70%, 100% { transform: scaleY(1); }
+  32.5% { transform: scaleY(0.92); }
+  57.5% { transform: scaleY(0.91); }
+}
+@keyframes thinking-label-blink {
+  0%, 38% { opacity: 1; }
+  56%, 84% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.answer-reveal { transform-origin: left top; animation: answer-expand 780ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes answer-expand {
+  from { opacity: 0; transform: scale(0.42); clip-path: inset(0 100% 100% 0 round 10px); }
+  to { opacity: 1; transform: none; clip-path: inset(0 0 0 0 round 10px); }
+}
+@keyframes follow-up-thinking-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes follow-up-thinking-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thinking-petal, .thinking-bar, .follow-up-thinking__label, .follow-up-thinking, .follow-up-thinking--leaving, .answer-reveal { animation: none; }
+  .follow-up-thinking, .follow-up-thinking__label { opacity: 1; }
+}
+[data-theme="light"] .follow-up-thinking__label { color: #53666b; }
 .menu-popover.conversation-header-menu { top: 37px; right: auto; display: grid; gap: 2px; padding: 6px; border: 1px solid #343842; border-radius: 10px; background: #15181d; box-shadow: 0 8px 24px rgb(0 0 0 / 40%); }
 .conversation-header-menu > button, .history-context-menu > button { height: 38px; min-height: 38px; display: flex; align-items: center; gap: 9px; padding: 0 10px; border: 0; border-radius: 7px; color: #dde2e8; background: transparent; font-size: 13px; text-align: left; cursor: pointer; }
 .conversation-header-menu > button:hover, .history-context-menu > button:hover { background: #20242b; }

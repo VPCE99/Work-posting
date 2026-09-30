@@ -1,10 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
 import { ConnectionToggle } from "../../components/ui/ConnectionToggle";
 import { MenuIcon, type MenuIconName } from "../../components/ui/MenuIcon";
 import { ModelSelect } from "../../components/ui/ModelSelect";
 import { Reveal } from "../../components/ui/Reveal";
+import { ThinkingMark } from "../../components/ui/ThinkingMark";
+
+const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+const FLY_MS = 680;
+const THINK_MS = 8000;
+const THINK_FADE_MS = 480;
+const REVEAL_MS = 780;
+
+type SendOrigin = { left: number; top: number; width: number; height: number };
+type IntroStage = "fly" | "think" | "reveal" | "settled";
 
 const exportFormats: Array<{ label: string; icon: MenuIconName }> = [
   { label: "PDF", icon: "file-text" },
@@ -18,9 +28,15 @@ export function ConversationPage() {
   const location = useLocation();
   const { conversations, pinnedConversationIds, togglePinnedConversation, notify } = usePrototype();
   const conversation = conversations.find((item) => item.id === conversationId);
-  const initialPrompt = (location.state as { prompt?: string } | null)?.prompt ?? "请分析近三年产业园 REITs 的出租率和收入变化，并总结主要结论。";
+  const sent = location.state as { prompt?: string; origin?: SendOrigin } | null;
+  const fromNewSend = Boolean(sent?.prompt);
+  const initialPrompt = sent?.prompt ?? "请分析近三年产业园 REITs 的出租率和收入变化，并总结主要结论。";
   const [draft, setDraft] = useState("");
-  const [generating, setGenerating] = useState(false);
+  const [introStage, setIntroStage] = useState<IntroStage>(fromNewSend ? "fly" : "settled");
+  const [thinkingPhase, setThinkingPhase] = useState<"off" | "on" | "leaving">(fromNewSend ? "on" : "off");
+  const userMessageRef = useRef<HTMLElement>(null);
+  const thinkingTimer = useRef<number | null>(null);
+  const thinkingFadeTimer = useRef<number | null>(null);
   const [online, setOnline] = useState(true);
   const [exportOpen, setExportOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -51,11 +67,77 @@ export function ConversationPage() {
     };
   }, [exportOpen, moreOpen]);
 
+  const clearThinkingTimers = () => {
+    if (thinkingTimer.current !== null) window.clearTimeout(thinkingTimer.current);
+    if (thinkingFadeTimer.current !== null) window.clearTimeout(thinkingFadeTimer.current);
+    thinkingTimer.current = null;
+    thinkingFadeTimer.current = null;
+  };
+
+  const beginThinking = () => {
+    clearThinkingTimers();
+    setThinkingPhase("on");
+    thinkingTimer.current = window.setTimeout(() => {
+      thinkingTimer.current = null;
+      setThinkingPhase("leaving");
+      thinkingFadeTimer.current = window.setTimeout(() => {
+        thinkingFadeTimer.current = null;
+        setThinkingPhase("off");
+      }, 480);
+    }, 8000);
+  };
+
+  useEffect(() => clearThinkingTimers, []);
+
+  useLayoutEffect(() => {
+    if (!fromNewSend) return;
+    const bubble = userMessageRef.current;
+    if (!bubble) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const bubbleRect = bubble.getBoundingClientRect();
+    const origin = sent?.origin;
+    const dx = origin ? origin.left + 16 - bubbleRect.left : 0;
+    const dy = origin ? origin.top + 14 - bubbleRect.top : 72;
+    const animation = bubble.animate(
+      [
+        { transform: `translate(${dx}px, ${dy}px)` },
+        { transform: "translate(0px, 0px)" },
+      ],
+      { duration: FLY_MS, easing: EASE, fill: "both" },
+    );
+    return () => animation.cancel();
+  }, [fromNewSend, sent?.origin]);
+
+  useEffect(() => {
+    if (!fromNewSend) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setIntroStage("settled");
+      setThinkingPhase("off");
+      return;
+    }
+
+    setIntroStage("fly");
+    setThinkingPhase("on");
+    const toThink = window.setTimeout(() => setIntroStage("think"), FLY_MS);
+    const toLeave = window.setTimeout(() => setThinkingPhase("leaving"), THINK_MS);
+    const toReveal = window.setTimeout(() => {
+      setThinkingPhase("off");
+      setIntroStage("reveal");
+    }, THINK_MS + THINK_FADE_MS);
+    const toSettle = window.setTimeout(() => setIntroStage("settled"), THINK_MS + THINK_FADE_MS + REVEAL_MS);
+    return () => {
+      window.clearTimeout(toThink);
+      window.clearTimeout(toLeave);
+      window.clearTimeout(toReveal);
+      window.clearTimeout(toSettle);
+    };
+  }, [fromNewSend]);
+
   const submit = () => {
     if (!draft.trim()) return;
-    setGenerating(true);
     setDraft("");
-    window.setTimeout(() => setGenerating(false), 1600);
+    beginThinking();
   };
 
   return (
@@ -69,8 +151,8 @@ export function ConversationPage() {
         </header>
 
         <div className="message-stream">
-          <article className="message message--user"><small>你</small><p>{initialPrompt}</p></article>
-          <article className="message message--assistant rich-response">
+          <article ref={userMessageRef} className={introStage === "fly" ? "message message--user message--user-flying" : "message message--user"}><small>你</small><p>{initialPrompt}</p></article>
+          {(introStage === "reveal" || introStage === "settled") && <article className={introStage === "reveal" ? "message message--assistant rich-response answer-reveal" : "message message--assistant rich-response"}>
             <header className="rich-response__header">
               <span className="rich-response__agent-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3-1.8 5.4a2 2 0 0 1-1.3 1.3L3.5 11.5l5.4 1.8a2 2 0 0 1 1.3 1.3L12 20l1.8-5.4a2 2 0 0 1 1.3-1.3l5.4-1.8-5.4-1.8a2 2 0 0 1-1.3-1.3L12 3Z" /></svg></span>
               <div><small>CHOPCHAT · REITs ANALYST</small><h2>产业园 REITs 经营趋势摘要</h2></div>
@@ -102,10 +184,10 @@ export function ConversationPage() {
             <div className="message__actions">
               <button onClick={() => notify("已复制回答", "success")}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg>复制</button>
               <button onClick={() => notify("感谢反馈", "success")}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v12" /><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 7A2 2 0 0 1 17.5 21H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2.8L10 2h0a3.1 3.1 0 0 1 3 3.9Z" /></svg>有帮助</button>
-              <button onClick={() => setGenerating(true)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7L20 8" /><path d="M20 3v5h-5" /></svg>重新生成</button>
+              <button onClick={beginThinking}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7L20 8" /><path d="M20 3v5h-5" /></svg>重新生成</button>
             </div>
-          </article>
-          {generating && <article className="message message--assistant"><small>ChopChat</small><p>正在整理数据……</p><progress value="62" max="100" /><button className="text-button" onClick={() => setGenerating(false)}>停止生成</button></article>}
+          </article>}
+          {thinkingPhase !== "off" && <ThinkingMark intro={introStage === "fly" || introStage === "think"} leaving={thinkingPhase === "leaving"} />}
         </div>
 
         <div className="composer composer--sticky"><textarea rows={3} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="继续追问；输入 / 调用技能" /><div className="composer__toolbar"><div><button className="button button--small"><MenuIcon name="upload" />上传图片</button><ConnectionToggle online={online} onToggle={() => setOnline(!online)} /><ModelSelect placement="up" /></div><button className="button button--primary composer__send" aria-label="发送" aria-disabled={!draft.trim()} onClick={submit}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg></button></div></div>
