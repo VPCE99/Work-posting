@@ -1,9 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
-import { ConnectionToggle } from "../../components/ui/ConnectionToggle";
+import { ChatComposer } from "../../components/chat/ChatComposer";
+import { fitColumnTemplate } from "../../components/chat/fitTableColumns";
 import { MenuIcon, type MenuIconName } from "../../components/ui/MenuIcon";
-import { ModelSelect } from "../../components/ui/ModelSelect";
 import { Reveal } from "../../components/ui/Reveal";
 import { ThinkingMark } from "../../components/ui/ThinkingMark";
 
@@ -15,6 +15,14 @@ const REVEAL_MS = 780;
 
 type SendOrigin = { left: number; top: number; width: number; height: number };
 type IntroStage = "fly" | "think" | "reveal" | "settled";
+
+const reitTable: Array<{ cells: string[]; emphasize?: number[] }> = [
+  { cells: ["年度", "平均出租率", "营业收入"] },
+  { cells: ["2023", "89.6%", "26.6 亿元"], emphasize: [1] },
+  { cells: ["2024", "91.7%", "28.9 亿元"], emphasize: [1] },
+  { cells: ["2025", "93.8%", "31.4 亿元"], emphasize: [1] },
+];
+const reitTableColumns = fitColumnTemplate(reitTable.map((row) => row.cells));
 
 const exportFormats: Array<{ label: string; icon: MenuIconName }> = [
   { label: "PDF", icon: "file-text" },
@@ -162,18 +170,22 @@ export function ConversationPage() {
                 <article><strong>01</strong><div><h3>出租率连续修复</h3><p>平均出租率由 89.6% 升至 93.8%，运营韧性增强。</p></div></article>
                 <article><strong>02</strong><div><h3>收入保持稳定增长</h3><p>样本营业收入三年复合增速约 8.6%，达到 31.4 亿元。</p></div></article>
                 <article><strong>03</strong><div><h3>量价改善更为均衡</h3><p>需求与续租价格共同贡献增长，区域分化仍需持续跟踪。</p></div></article>
-                <div className="reit-data-table" role="table" aria-label="REITs 经营数据">
-                  <div className="reit-data-table__row reit-data-table__head" role="row"><span>年度</span><span>平均出租率</span><span>营业收入</span></div>
-                  <div className="reit-data-table__row" role="row"><span>2023</span><strong>89.6%</strong><span>26.6 亿元</span></div>
-                  <div className="reit-data-table__row" role="row"><span>2024</span><strong>91.7%</strong><span>28.9 亿元</span></div>
-                  <div className="reit-data-table__row" role="row"><span>2025</span><strong>93.8%</strong><span>31.4 亿元</span></div>
+                <div className="reit-data-table" role="table" aria-label="REITs 经营数据" style={{ "--fit-columns": reitTableColumns }}>
+                  {reitTable.map((row, rowIndex) => (
+                    <div className={rowIndex === 0 ? "reit-data-table__row reit-data-table__head" : "reit-data-table__row"} role="row" key={row.cells.join("-")}>
+                      {row.cells.map((cell, cellIndex) => {
+                        const emphasized = row.emphasize?.includes(cellIndex);
+                        return emphasized ? <strong role="cell" key={cell}>{cell}</strong> : <span role="cell" key={cell}>{cell}</span>;
+                      })}
+                    </div>
+                  ))}
                 </div>
               </section>
               <section className="reit-chart" aria-label="出租率与营业收入趋势图">
                 <div className="reit-chart__title"><strong>出租率与营业收入</strong><small>2023—2025</small></div>
                 <div className="reit-chart__legend"><span><i />出租率</span><span><i />营业收入</span></div>
                 <svg viewBox="0 0 296 194" role="img" aria-label="2023 至 2025 年出租率与营业收入均上升">
-                  <g className="reit-chart__grid"><path d="M0 20H296" /><path d="M0 60H296" /><path d="M0 100H296" /><path d="M0 140H296" /></g>
+                  <g className="reit-chart__grid"><path d="M0 16H296" /><path d="M0 64H296" /><path d="M0 112H296" /><path d="M0 160H296" /></g>
                   <g className="reit-chart__bars"><rect x="36" y="82" width="28" height="78" /><rect x="126" y="54" width="28" height="106" /><rect x="216" y="22" width="28" height="138" /></g>
                   <path className="reit-chart__line" d="M50 108 140 64 230 30" />
                   <g className="reit-chart__points"><circle cx="50" cy="108" r="4" /><circle cx="140" cy="64" r="4" /><circle cx="230" cy="30" r="4" /></g>
@@ -190,7 +202,7 @@ export function ConversationPage() {
           {thinkingPhase !== "off" && <ThinkingMark intro={introStage === "fly" || introStage === "think"} leaving={thinkingPhase === "leaving"} />}
         </div>
 
-        <div className="composer composer--sticky"><textarea rows={3} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="继续追问；输入 / 调用技能" /><div className="composer__toolbar"><div><button className="button button--small"><MenuIcon name="upload" />上传图片</button><ConnectionToggle online={online} onToggle={() => setOnline(!online)} /><ModelSelect placement="up" /></div><button className="button button--primary composer__send" aria-label="发送" aria-disabled={!draft.trim()} onClick={submit}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg></button></div></div>
+        <ChatComposer className="composer--sticky" value={draft} onChange={setDraft} onSubmit={submit} placeholder="继续追问；输入 / 调用技能" online={online} onToggleOnline={() => setOnline((current) => !current)} modelPlacement="up" />
     </section>
   );
 }

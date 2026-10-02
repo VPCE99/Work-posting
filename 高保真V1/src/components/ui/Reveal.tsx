@@ -119,6 +119,10 @@ export const Reveal = forwardRef<HTMLDivElement, RevealProps>(function Reveal({ 
   );
 });
 
+function motionRoot() {
+  return document.querySelector("[data-theme]") ?? document.body;
+}
+
 function placeClone(clone: HTMLElement, rect: DOMRect) {
   const style = clone.style;
   style.position = "fixed";
@@ -185,7 +189,8 @@ export function useModalReveal() {
       clone.setAttribute("aria-hidden", "true");
       placeClone(clone, panelRect);
       clone.style.zIndex = "210";
-      document.body.appendChild(clone);
+      const root = motionRoot();
+      root.appendChild(clone);
       const exit = playSurface(clone, savedOrigin, true);
       exit.finished.then(() => clone.remove()).catch(() => clone.remove());
 
@@ -196,7 +201,8 @@ export function useModalReveal() {
       else veilClone.style.cssText = "position:fixed;inset:0;";
       veilClone.style.zIndex = "200";
       veilClone.style.pointerEvents = "none";
-      document.body.appendChild(veilClone);
+      veilClone.style.backdropFilter = "none";
+      root.appendChild(veilClone);
       const veilExit = veilClone.animate([{ opacity: 1 }, { opacity: 0 }], { duration: CLOSE_MS, easing: EASE, fill: "forwards" });
       veilExit.finished.then(() => veilClone.remove()).catch(() => veilClone.remove());
 

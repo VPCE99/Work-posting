@@ -111,7 +111,7 @@ export function FormSelect({ options, value, onChange, label }: FormSelectProps)
             </button>
           ))}
         </Reveal>,
-        document.body,
+        document.querySelector("[data-theme]") ?? document.body,
       )}
     </div>
   );

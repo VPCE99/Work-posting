@@ -1,9 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ChatComposer } from "../../components/chat/ChatComposer";
 import { Brand } from "../../components/ui/Brand";
-import { ConnectionToggle } from "../../components/ui/ConnectionToggle";
-import { MenuIcon } from "../../components/ui/MenuIcon";
-import { ModelSelect } from "../../components/ui/ModelSelect";
 
 const prompts = ["对比不同园区的出租率差异", "解释收入增长的主要驱动因素", "把结论整理成投资备忘录"];
 
@@ -34,15 +32,16 @@ export function HomePage() {
           <h1>ChopChat</h1>
           <p className="lead">今天想研究什么？</p>
 
-          <div className="composer composer--hero" ref={composerRef}>
-            <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="输入问题；输入 / 调用技能" rows={4} onKeyDown={(event) => { if ((event.metaKey || event.ctrlKey) && event.key === "Enter") send(); }} />
-            <div className="composer__toolbar">
-              <div><button className="button button--small"><MenuIcon name="upload" />上传图片</button><ConnectionToggle online={online} onToggle={() => setOnline(!online)} /><ModelSelect /></div>
-              <button className="button button--primary composer__send" type="button" onClick={send} aria-label="发送" aria-disabled={!prompt.trim()}>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>
-              </button>
-            </div>
-          </div>
+          <ChatComposer
+            className="composer--hero"
+            composerRef={composerRef}
+            value={prompt}
+            onChange={setPrompt}
+            onSubmit={send}
+            placeholder="输入问题；输入 / 调用技能"
+            online={online}
+            onToggleOnline={() => setOnline((current) => !current)}
+          />
 
           <p className="home-page__suggestion-label">试试这样问</p>
           <div className="prompt-grid" aria-label="推荐问题">

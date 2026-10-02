@@ -14,9 +14,9 @@
   --color-warning: #d49a38;
   --color-focus: #00c9c3;
   --shadow-modal: 0 24px 80px rgb(4 10 13 / 34%);
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
+  --radius-sm: 28px;
+  --radius-md: 28px;
+  --radius-lg: 28px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -29,6 +29,7 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --color-bg: #0b0d10;
   --color-surface: #111318;
   --color-surface-muted: #171a20;

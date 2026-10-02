@@ -88,7 +88,14 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     addSkill: (skill) => setSkills((items) => [skill, ...items]),
     deleteSkill: (id) => setSkills((items) => items.filter((item) => item.id !== id)),
     theme,
-    toggleTheme: () => setTheme((value) => value === "light" ? "dark" : "light"),
+    toggleTheme: () => {
+      const root = document.querySelector<HTMLElement>(".app");
+      root?.setAttribute("data-theme-switching", "");
+      setTheme((value) => value === "light" ? "dark" : "light");
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => root?.removeAttribute("data-theme-switching"));
+      });
+    },
     toasts,
     notify,
   }), [sidebarCollapsed, mobileSidebarOpen, activeDialog, pinnedConversationIds, conversations, tasks, projects, favoriteTemplateIds, customTemplates, skills, theme, toasts]);

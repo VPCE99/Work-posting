@@ -1,87 +1,300 @@
-import { useState } from "react";
+import { useState, type DragEvent } from "react";
 import { usePrototype } from "../../app/PrototypeContext";
-import { FormSelect } from "../ui/FormSelect";
 import { Modal } from "../ui/Modal";
 
-type Field = { name: string; type: "维度" | "数值" | "日期" };
+type FieldKind = "dimension" | "measure";
+type Slot = "x" | "yLeft" | "yRight";
 
-const baseFields: Field[] = [
-  { name: "年份", type: "日期" },
-  { name: "市场规模", type: "数值" },
-  { name: "同比增长率", type: "维度" },
-  { name: "地区", type: "维度" },
+type ChartField = {
+  id: string;
+  name: string;
+  kind: FieldKind;
+  unit?: string;
+};
+
+type Dataset = {
+  id: string;
+  name: string;
+  source: string;
+  fields: ChartField[];
+  rows: Array<Record<string, string | number>>;
+};
+
+const datasets: Dataset[] = [
+  {
+    id: "reit-trend",
+    name: "产业园 REITs 经营趋势",
+    source: "当前对话 · 经营趋势表",
+    fields: [
+      { id: "year", name: "年度", kind: "dimension" },
+      { id: "occupancy", name: "平均出租率", kind: "measure", unit: "%" },
+      { id: "revenue", name: "营业收入", kind: "measure", unit: "亿元" },
+    ],
+    rows: [
+      { year: "2023", occupancy: 89.6, revenue: 26.6 },
+      { year: "2024", occupancy: 91.7, revenue: 28.9 },
+      { year: "2025", occupancy: 93.8, revenue: 31.4 },
+    ],
+  },
 ];
+
+const fields = datasets.flatMap((dataset) => dataset.fields);
+const fieldById = (id: string | null) => fields.find((field) => field.id === id) ?? null;
+
+const emptySlots: Record<Slot, string | null> = { x: null, yLeft: null, yRight: null };
 
 export function ChartDialog() {
   const { notify, setActiveDialog } = usePrototype();
-  const [fields, setFields] = useState(baseFields);
-  const [title, setTitle] = useState("市场规模与增长率");
-  const [xAxis, setXAxis] = useState("年份");
-  const [leftY, setLeftY] = useState("市场规模");
-  const [rightY, setRightY] = useState("");
-  const [group, setGroup] = useState("地区");
+  const [openDatasets, setOpenDatasets] = useState<string[]>(datasets.map((dataset) => dataset.id));
+  const [title, setTitle] = useState("");
+  const [slots, setSlots] = useState(emptySlots);
+  const [over, setOver] = useState<Slot | null>(null);
   const [generated, setGenerated] = useState(false);
 
   const close = () => setActiveDialog(null);
-  const changeType = (name: string, type: Field["type"]) => {
-    setFields((items) => items.map((item) => item.name === name ? { ...item, type } : item));
+  const xField = fieldById(slots.x);
+  const leftField = fieldById(slots.yLeft);
+  const rightField = fieldById(slots.yRight);
+  const canGenerate = Boolean(xField && leftField);
+
+  const assign = (slot: Slot, id: string) => {
+    const field = fieldById(id);
+    if (!field) return;
+    if (slot === "x" && field.kind !== "dimension") {
+      notify("X 轴请拖入维度字段");
+      return;
+    }
+    if (slot !== "x" && field.kind !== "measure") {
+      notify("Y 轴请拖入度量字段");
+      return;
+    }
+    setSlots((current) => {
+      const next = { ...current };
+      (Object.keys(next) as Slot[]).forEach((key) => {
+        if (next[key] === id) next[key] = null;
+      });
+      next[slot] = id;
+      return next;
+    });
+    setGenerated(false);
   };
-  const numeric = fields.filter((item) => item.type === "数值");
-  const dimensions = fields.filter((item) => item.type !== "数值");
+
+  const onDrop = (slot: Slot) => (event: DragEvent) => {
+    event.preventDefault();
+    setOver(null);
+    assign(slot, event.dataTransfer.getData("text/plain"));
+  };
+
+  const clearSlot = (slot: Slot) => {
+    setSlots((current) => ({ ...current, [slot]: null }));
+    setGenerated(false);
+  };
+
+  const datasetOf = (fieldId: string) => datasets.find((dataset) => dataset.fields.some((field) => field.id === fieldId)) ?? datasets[0];
 
   return (
-    <Modal title="自定义作图" size="xl" onClose={close} footer={<button className="button" onClick={close}>关闭</button>}>
-      <div className="chart-dialog-meta">数据来自：当前对话 · 行业研究报告</div>
+    <Modal
+      title="自定义作图"
+      size="xl"
+      onClose={close}
+      footer={
+        <>
+          <button className="button button--primary" disabled={!canGenerate} onClick={() => setGenerated(true)}>生成图表</button>
+          <div className="chart-dialog__downloads">
+            <button className="button" disabled={!generated} onClick={() => notify("已创建数据下载任务", "success")}>下载数据</button>
+            <button className="button" disabled={!generated} onClick={() => notify("已创建图片下载任务", "success")}>下载图片</button>
+          </div>
+        </>
+      }
+    >
       <div className="chart-dialog">
-        <div className="chart-workspace">
-          <aside className="data-panel">
-            <h2>数据集与字段</h2>
-            <label>数据集<FormSelect label="数据集" options={["回答 #3 · 行业规模数据"]} /></label>
-            <small>来源：当前对话回答 #3</small>
-            <div className="field-list">
-              {fields.map((field) => (
-                <article key={field.name}>
-                  <div>
-                    <strong>{field.type === "数值" ? "#" : field.type === "日期" ? "◷" : "Aa"} {field.name}</strong>
-                    <FormSelect label={`${field.name}字段类型`} value={field.type} onChange={(next) => changeType(field.name, next as Field["type"])} options={["维度", "数值", "日期"]} />
+        <aside className="chart-sources">
+          <h2>数据集</h2>
+          {datasets.map((dataset) => {
+            const open = openDatasets.includes(dataset.id);
+            const dimensions = dataset.fields.filter((field) => field.kind === "dimension");
+            const measures = dataset.fields.filter((field) => field.kind === "measure");
+            return (
+              <section className="chart-source" key={dataset.id}>
+                <button
+                  type="button"
+                  className="chart-source__toggle"
+                  aria-expanded={open}
+                  onClick={() => setOpenDatasets((current) => open ? current.filter((id) => id !== dataset.id) : [...current, dataset.id])}
+                >
+                  <span className="chart-source__caret" aria-hidden="true" />
+                  <strong>{dataset.name}</strong>
+                </button>
+                {open && (
+                  <div className="chart-source__body">
+                    <small>{dataset.source}</small>
+                    <FieldGroup label="维度" fields={dimensions} />
+                    <FieldGroup label="度量" fields={measures} />
                   </div>
-                  {field.name === "同比增长率" && field.type === "维度" && <small className="field-error">建议改为数值后放入 Y 轴</small>}
-                </article>
-              ))}
-            </div>
-            <button className="button button--block">预览数据</button>
-          </aside>
+                )}
+              </section>
+            );
+          })}
+        </aside>
 
-          <main className="chart-preview">
-            <div className="tab-row"><button className="tab tab--active">图表预览</button><button className="tab">数据预览</button></div>
-            <div className="chart-stage">
-              <h2>{title || "未命名图表"}</h2>
-              {generated ? (
-                <div className="combo-chart">
-                  <div className="combo-chart__bars">{[44, 62, 78, 91].map((height, index) => <span key={index} style={{ height: `${height}%` }} />)}</div>
-                  {rightY && <svg viewBox="0 0 400 180" preserveAspectRatio="none" aria-label="增长率折线"><polyline points="0,150 130,108 260,78 400,28" fill="none" stroke="currentColor" strokeWidth="4" /></svg>}
-                  <div className="combo-chart__labels"><span>2023</span><span>2024</span><span>2025</span><span>2026E</span></div>
-                </div>
-              ) : <div className="chart-placeholder">配置完成后点击“生成图表”</div>}
+        <main className="chart-canvas">
+          {generated && xField && leftField ? (
+            <ChartResult title={title} dataset={datasetOf(xField.id)} x={xField} left={leftField} right={rightField} />
+          ) : (
+            <div className="chart-canvas__empty">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 34V18M20 34V12M30 34V22M38 34H8" /></svg>
+              <p>拖拽左侧字段到右侧配置区</p>
             </div>
-            {rightY && <p className="notice">双 Y 轴使用独立刻度，请避免误导性比较。</p>}
-          </main>
+          )}
+        </main>
 
-          <aside className="config-panel">
-            <h2>图表配置</h2>
-            <label>标题<input value={title} onChange={(event) => setTitle(event.target.value)} /></label>
-            <label>图形类型<FormSelect label="图形类型" options={["柱状图", "折线图", "组合图"]} /></label>
-            <label>X 轴<FormSelect label="X 轴" value={xAxis} onChange={setXAxis} options={dimensions.map((field) => field.name)} /></label>
-            <label>左 Y 轴<FormSelect label="左 Y 轴" value={leftY} onChange={setLeftY} options={[{ value: "", label: "请选择" }, ...numeric.map((field) => field.name)]} /></label>
-            <label>右 Y 轴（选填）<FormSelect label="右 Y 轴" value={rightY} onChange={setRightY} options={[{ value: "", label: "不使用" }, ...numeric.filter((field) => field.name !== leftY).map((field) => field.name)]} /></label>
-            <label>分组（选填）<FormSelect label="分组" value={group} onChange={setGroup} options={[{ value: "", label: "不分组" }, ...dimensions.map((field) => field.name)]} /></label>
-            <div className="button-row"><button className="button" onClick={() => { setTitle(""); setRightY(""); setGenerated(false); }}>重置</button><button className="button button--primary" disabled={!xAxis || !leftY} onClick={() => setGenerated(true)}>生成图表</button></div>
-            <hr />
-            <button className="button button--block" disabled={!generated} onClick={() => notify("已创建数据下载任务", "success")}>下载数据</button>
-            <button className="button button--block" disabled={!generated} onClick={() => notify("已创建图片下载任务", "success")}>下载图片</button>
-          </aside>
-        </div>
+        <aside className="chart-config">
+          <label className="chart-config__title">图表标题<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="输入图表标题..." /></label>
+          <DropSlot slot="x" label="X 轴" hint="拖入 1 个维度" field={xField} active={over === "x"} onDrop={onDrop("x")} onOver={() => setOver("x")} onLeave={() => setOver(null)} onClear={() => clearSlot("x")} />
+          <DropSlot slot="yLeft" label="Y 轴 · 左" hint="拖入 1 个度量" field={leftField} active={over === "yLeft"} onDrop={onDrop("yLeft")} onOver={() => setOver("yLeft")} onLeave={() => setOver(null)} onClear={() => clearSlot("yLeft")} />
+          <DropSlot slot="yRight" label="Y 轴 · 右" hint="可选，独立刻度" field={rightField} active={over === "yRight"} onDrop={onDrop("yRight")} onOver={() => setOver("yRight")} onLeave={() => setOver(null)} onClear={() => clearSlot("yRight")} />
+        </aside>
       </div>
     </Modal>
+  );
+}
+
+function FieldGroup({ label, fields: items }: { label: string; fields: ChartField[] }) {
+  return (
+    <div className="chart-field-group">
+      <span>{label}</span>
+      <div>
+        {items.map((field) => (
+          <button
+            key={field.id}
+            type="button"
+            className={`chart-chip chart-chip--${field.kind}`}
+            draggable
+            onDragStart={(event) => {
+              event.dataTransfer.setData("text/plain", field.id);
+              event.dataTransfer.effectAllowed = "move";
+            }}
+          >
+            <i>{field.kind === "dimension" ? "Aa" : "#"}</i>
+            {field.name}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DropSlot({
+  label,
+  hint,
+  field,
+  active,
+  onDrop,
+  onOver,
+  onLeave,
+  onClear,
+}: {
+  slot: Slot;
+  label: string;
+  hint: string;
+  field: ChartField | null;
+  active: boolean;
+  onDrop: (event: DragEvent) => void;
+  onOver: () => void;
+  onLeave: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <label className="chart-drop">
+      <span>{label}</span>
+      <small>{hint}</small>
+      <div
+        className={active ? "chart-drop__zone is-over" : "chart-drop__zone"}
+        onDragOver={(event) => {
+          event.preventDefault();
+          onOver();
+        }}
+        onDragLeave={onLeave}
+        onDrop={onDrop}
+      >
+        {field ? (
+          <button type="button" className={`chart-chip chart-chip--${field.kind}`} onClick={onClear}>
+            <i>{field.kind === "dimension" ? "Aa" : "#"}</i>
+            {field.name}
+            <b aria-hidden="true">×</b>
+          </button>
+        ) : (
+          <em>拖拽字段到此处</em>
+        )}
+      </div>
+    </label>
+  );
+}
+
+function ChartResult({
+  title,
+  dataset,
+  x,
+  left,
+  right,
+}: {
+  title: string;
+  dataset: Dataset;
+  x: ChartField;
+  left: ChartField;
+  right: ChartField | null;
+}) {
+  const labels = dataset.rows.map((row) => String(row[x.id]));
+  const leftValues = dataset.rows.map((row) => Number(row[left.id]));
+  const rightValues = right ? dataset.rows.map((row) => Number(row[right.id])) : [];
+  const width = 640;
+  const height = 320;
+  const pad = { top: 24, right: right ? 54 : 24, bottom: 36, left: 54 };
+  const innerW = width - pad.left - pad.right;
+  const innerH = height - pad.top - pad.bottom;
+  const domain = (values: number[]) => {
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const slack = (max - min) * 0.6 || max * 0.08;
+    return { min: Math.max(0, min - slack), max: max + slack };
+  };
+  const leftDomain = domain(leftValues);
+  const rightDomain = domain(rightValues.length ? rightValues : [1]);
+  const band = innerW / labels.length;
+  const barW = Math.min(46, band * 0.42);
+  const yOf = (value: number, axis: { min: number; max: number }) => pad.top + innerH - ((value - axis.min) / (axis.max - axis.min)) * innerH;
+  const line = rightValues.map((value, index) => `${pad.left + band * index + band / 2},${yOf(value, rightDomain)}`).join(" ");
+  const ticks = [0, 0.5, 1];
+
+  return (
+    <div className="chart-result">
+      <header>
+        <strong>{title || "未命名图表"}</strong>
+        <div>
+          <span><i className="is-bar" />{left.name}</span>
+          {right && <span><i className="is-line" />{right.name}</span>}
+        </div>
+      </header>
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={title || "生成的图表"}>
+        {ticks.map((tick) => {
+          const y = pad.top + innerH - tick * innerH;
+          return <path key={tick} className="chart-result__grid" d={`M${pad.left} ${y}H${width - pad.right}`} />;
+        })}
+        {leftValues.map((value, index) => {
+          const xPos = pad.left + band * index + (band - barW) / 2;
+          const y = yOf(value, leftDomain);
+          return <rect key={labels[index]} className="chart-result__bar" x={xPos} y={y} width={barW} height={pad.top + innerH - y} rx="3" />;
+        })}
+        {right && <polyline className="chart-result__line" points={line} />}
+        {right && rightValues.map((value, index) => (
+          <circle key={labels[index]} className="chart-result__point" cx={pad.left + band * index + band / 2} cy={yOf(value, rightDomain)} r="4.5" />
+        ))}
+        {labels.map((label, index) => (
+          <text key={label} className="chart-result__label" x={pad.left + band * index + band / 2} y={height - 12} textAnchor="middle">{label}</text>
+        ))}
+        <text className="chart-result__unit" x={pad.left - 10} y={18} textAnchor="end">{left.unit}</text>
+        {right && <text className="chart-result__unit" x={width - pad.right + 10} y={18}>{right.unit}</text>}
+      </svg>
+    </div>
   );
 }

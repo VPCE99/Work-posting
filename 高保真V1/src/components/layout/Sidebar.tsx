@@ -132,8 +132,8 @@ export function Sidebar() {
 
   const historyItem = (item: Conversation, pinned: boolean) => (
     <div className="history-item" key={item.id} onContextMenu={(event) => openHistoryMenu(event, item)}>
-      <button className="history-item__open" onClick={() => openConversation(item.id)} title={item.preview}>
-        <strong>{item.title}</strong><span>{item.preview}</span>
+      <button className="history-item__open" onClick={() => openConversation(item.id)} title={item.title}>
+        <strong>{item.title}</strong>
       </button>
       <button className={`history-item__pin ${pinned ? "history-item__pin--active" : ""}`} onClick={() => togglePinnedConversation(item.id)} aria-label={pinned ? `取消置顶${item.title}` : `置顶${item.title}`} title={pinned ? "取消置顶" : "置顶"}><svg className="history-pin-icon" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M8.2 3.2h7.6c.75 0 1.25.5 1.25 1.15V9c0 .5.18.9.58 1.28l1.12 1.05c.4.38.65.72.65 1.22 0 .82-.62 1.4-1.5 1.4h-4.95V20.7c0 .55-.42.95-.95.95s-.95-.4-.95-.95v-6.75H6.15c-.88 0-1.5-.58-1.5-1.4 0-.5.25-.84.65-1.22l1.12-1.05c.4-.38.58-.78.58-1.28V4.35c0-.65.5-1.15 1.2-1.15zm2.15 2.15c-.28 0-.5.22-.5.5V9.1c0 .72-.28 1.25-.82 1.78l-.38.36h6.7l-.38-.36c-.54-.53-.82-1.06-.82-1.78V5.85c0-.28-.22-.5-.5-.5H10.35z" /></svg></button>
     </div>
