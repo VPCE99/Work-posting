@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
 import { ChatComposer } from "../../components/chat/ChatComposer";
@@ -170,7 +170,7 @@ export function ConversationPage() {
                 <article><strong>01</strong><div><h3>出租率连续修复</h3><p>平均出租率由 89.6% 升至 93.8%，运营韧性增强。</p></div></article>
                 <article><strong>02</strong><div><h3>收入保持稳定增长</h3><p>样本营业收入三年复合增速约 8.6%，达到 31.4 亿元。</p></div></article>
                 <article><strong>03</strong><div><h3>量价改善更为均衡</h3><p>需求与续租价格共同贡献增长，区域分化仍需持续跟踪。</p></div></article>
-                <div className="reit-data-table" role="table" aria-label="REITs 经营数据" style={{ "--fit-columns": reitTableColumns }}>
+                <div className="reit-data-table" role="table" aria-label="REITs 经营数据" style={{ "--fit-columns": reitTableColumns } as CSSProperties}>
                   {reitTable.map((row, rowIndex) => (
                     <div className={rowIndex === 0 ? "reit-data-table__row reit-data-table__head" : "reit-data-table__row"} role="row" key={row.cells.join("-")}>
                       {row.cells.map((cell, cellIndex) => {
