@@ -1,13 +1,29 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Modal } from "../../components/ui/Modal";
 import { usePrototype } from "../../app/PrototypeContext";
 import { TemplateManagerDialog } from "../../components/ppt/PptAssistantDialog";
+import { Brand } from "../../components/ui/Brand";
 import { MenuIcon } from "../../components/ui/MenuIcon";
 import { Reveal } from "../../components/ui/Reveal";
 import { FormSelect } from "../../components/ui/FormSelect";
 
+type AgentPanelMode = "open" | "closing" | "closed" | "opening";
+const AGENT_COLLAPSE_MS = 580;
+
 const slideTitles = ["封面", "核心结论", "市场规模", "区域表现", "重点项目", "总结"];
+const CANVAS_WIDTH = 760;
+const CANVAS_HEIGHT = 428;
+const ZOOM_MIN = 25;
+const ZOOM_MAX = 300;
+const ZOOM_STEP = 10;
+const ZOOM_WHEEL_STEP = 5;
+const ZOOM_DEFAULT = 82;
+
+function clampZoom(value: number) {
+  return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(value)));
+}
 
 type EditorToolName = "pointer" | "layout" | "text" | "chart" | "table" | "image" | "shapes" | "palette" | "hand" | "undo" | "redo";
 
@@ -39,6 +55,7 @@ const lucidePaths: Record<string, string> = {
   "redo-2": '<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5 5.5 5.5 0 0 0 9.5 20H13"/>',
   "folder-open": '<path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/>',
   "chevron-down": '<path d="m6 9 6 6 6-6"/>',
+  "chevron-right": '<path d="m9 18 6-6-6-6"/>',
   "arrow-left": '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
   minus: '<path d="M5 12h14"/>',
   plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
@@ -75,7 +92,7 @@ function MarketScaleSlide() {
     <span className="market-slide__metric-two-note">较 2023 年提升 4.6 个百分点</span>
     <span className="market-slide__chart-title">规模与出租率趋势</span>
     <span className="market-slide__bar market-slide__bar--1" /><span className="market-slide__bar market-slide__bar--2" /><span className="market-slide__bar market-slide__bar--3" /><span className="market-slide__bar market-slide__bar--4" />
-    <svg className="market-slide__trend" viewBox="0 0 260 120" aria-hidden="true"><path d="M14 100l74-26 74-24 74-32" /></svg>
+    <svg className="market-slide__trend" viewBox="0 0 260 120" aria-hidden="true"><path d="M19 100L93 74L167 50L241 18" /></svg>
     <span className="market-slide__dot market-slide__dot--1" /><span className="market-slide__dot market-slide__dot--2" /><span className="market-slide__dot market-slide__dot--3" /><span className="market-slide__dot market-slide__dot--4" />
     <span className="market-slide__axis" />
     <span className="market-slide__year market-slide__year--1">2023</span><span className="market-slide__year market-slide__year--2">2024</span><span className="market-slide__year market-slide__year--3">2025</span><span className="market-slide__year market-slide__year--4">2026E</span>
@@ -92,12 +109,22 @@ export function PptEditorPage() {
   const [activeSlide, setActiveSlide] = useState(2);
   const [leftTab, setLeftTab] = useState<"pages" | "design" | "draft">("pages");
   const [pageView, setPageView] = useState<"thumbnail" | "outline">("thumbnail");
+  /** PPT 画布配色独立于全局深浅色主题，可在浅色 UI 下预览深色 PPT，反之亦然 */
+  const [slideTone, setSlideTone] = useState<"dark" | "light">("dark");
   const [actionsOpen, setActionsOpen] = useState(false);
   const [parseOpen, setParseOpen] = useState(project?.status === "解析中");
   const [exportOpen, setExportOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [saved, setSaved] = useState("已保存 14:32");
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [zoom, setZoom] = useState(ZOOM_DEFAULT);
+  const [agentMode, setAgentMode] = useState<AgentPanelMode>("open");
+  const [agentPrompt, setAgentPrompt] = useState("");
+  const useLightSlide = slideTone === "light";
+  const canvasStageRef = useRef<HTMLDivElement>(null);
+  const agentTimerRef = useRef<number | null>(null);
+  const agentDocked = agentMode === "closing" || agentMode === "closed";
+  const agentDockVisible = agentMode === "closing" || agentMode === "closed";
 
   useEffect(() => {
     setSidebarCollapsed(true);
@@ -118,6 +145,75 @@ export function PptEditorPage() {
     };
   }, [actionsOpen]);
 
+  const zoomBy = useCallback((delta: number) => {
+    setZoom((current) => clampZoom(current + delta));
+  }, []);
+
+  const fitZoom = useCallback(() => {
+    const stage = canvasStageRef.current;
+    if (!stage) return;
+    const padX = 24;
+    const padY = 24;
+    const scale = Math.min(
+      (stage.clientWidth - padX) / CANVAS_WIDTH,
+      (stage.clientHeight - padY) / CANVAS_HEIGHT,
+    );
+    setZoom(clampZoom(scale * 100));
+  }, []);
+
+  useEffect(() => {
+    const stage = canvasStageRef.current;
+    if (!stage) return;
+    const onWheel = (event: WheelEvent) => {
+      if (!event.shiftKey) return;
+      event.preventDefault();
+      // macOS / 部分浏览器在按住 Shift 时会把纵向滚轮映射为 deltaX，deltaY 常为 0。
+      const rawDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      if (rawDelta === 0) return;
+      zoomBy(rawDelta > 0 ? -ZOOM_WHEEL_STEP : ZOOM_WHEEL_STEP);
+    };
+    stage.addEventListener("wheel", onWheel, { passive: false });
+    return () => stage.removeEventListener("wheel", onWheel);
+  }, [zoomBy]);
+
+  useEffect(() => () => {
+    if (agentTimerRef.current != null) window.clearTimeout(agentTimerRef.current);
+  }, []);
+
+  const collapseAgent = useCallback(() => {
+    if (agentMode !== "open") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setAgentMode("closed");
+      return;
+    }
+    setAgentMode("closing");
+    if (agentTimerRef.current != null) window.clearTimeout(agentTimerRef.current);
+    agentTimerRef.current = window.setTimeout(() => setAgentMode("closed"), AGENT_COLLAPSE_MS);
+  }, [agentMode]);
+
+  const generateAgentEdit = useCallback(() => {
+    if (agentMode !== "open") return;
+    notify("已生成当前页修改", "success");
+    collapseAgent();
+  }, [agentMode, collapseAgent, notify]);
+
+  const expandAgent = useCallback(() => {
+    if (agentMode !== "closed" && agentMode !== "closing") return;
+    if (agentTimerRef.current != null) window.clearTimeout(agentTimerRef.current);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setAgentMode("open");
+      return;
+    }
+    setAgentMode("opening");
+    agentTimerRef.current = window.setTimeout(() => setAgentMode("open"), AGENT_COLLAPSE_MS);
+  }, [agentMode]);
+
+  const onAgentPromptKeyDown = (event: ReactKeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    generateAgentEdit();
+  };
+
   const exitEditor = () => {
     setSidebarCollapsed(false);
     navigate("/ppt");
@@ -136,6 +232,8 @@ export function PptEditorPage() {
   };
 
   const chooseInsertTool = (tool: string) => notify(`已选择“${tool}”工具`);
+  const zoomLabel = `${zoom}%`;
+  const scale = zoom / 100;
 
   return (
     <>
@@ -168,7 +266,7 @@ export function PptEditorPage() {
           </div>
         </header>
 
-        <div className="ppt-editor__workspace">
+        <div className={agentDocked ? "ppt-editor__workspace ppt-editor__workspace--agent-docked" : "ppt-editor__workspace"}>
           <aside className="ppt-left-panel" aria-label="PPT 编辑功能">
             <div className="ppt-left-mode-tabs">
               <div className="ppt-left-mode-tabs__group" role="tablist" aria-label="编辑功能">
@@ -186,30 +284,104 @@ export function PptEditorPage() {
                 {pageView === "outline" && <div className="ppt-outline-list">{slideTitles.map((title, index) => <button key={title} className={activeSlide === index ? "ppt-outline-item ppt-outline-item--active" : "ppt-outline-item"} onClick={() => setActiveSlide(index)}><span>{index + 1}</span><strong>{title}</strong></button>)}</div>}
                 <button className="button button--block ppt-add-page" onClick={() => notify("已新增一页空白幻灯片", "success")}>+ 添加页面</button>
               </div>}
-            {leftTab === "design" && <div className="tool-panel ppt-side-panel"><div><h2>视觉样式</h2><p className="muted">调整当前项目的模板与整体风格。</p></div><label>当前模板<FormSelect label="当前模板" options={["系统模板 A", ...customTemplates]} /></label><div className="style-preview-grid"><button className="style-preview style-preview--active">经典</button><button className="style-preview">简约</button><button className="style-preview">深色</button><button className="style-preview">杂志</button></div><button className="button button--block" onClick={() => setTemplatesOpen(true)}>管理模板</button></div>}
+            {leftTab === "design" && <div className="tool-panel ppt-side-panel"><div><h2>视觉样式</h2><p className="muted">调整当前项目的模板与整体风格。</p></div><label>当前模板<FormSelect label="当前模板" options={["系统模板 A", ...customTemplates]} /></label><div className="style-preview-grid" role="group" aria-label="演示配色"><button type="button" className={slideTone === "dark" ? "style-preview style-preview--active" : "style-preview"} onClick={() => setSlideTone("dark")}>深色</button><button type="button" className={slideTone === "light" ? "style-preview style-preview--active" : "style-preview"} onClick={() => setSlideTone("light")}>浅色</button><button type="button" className="style-preview">经典</button><button type="button" className="style-preview">杂志</button></div><button className="button button--block" onClick={() => setTemplatesOpen(true)}>管理模板</button></div>}
             {leftTab === "draft" && <div className="tool-panel ppt-side-panel"><div><h2>大纲草稿</h2><p className="muted">保存当前结构，或载入已有草稿继续编辑。</p></div><button className="button button--primary button--block" onClick={() => notify("当前大纲已保存", "success")}>保存当前大纲</button><article className="mini-card"><strong>行业报告草稿</strong><span>6 页 · 更新于昨天</span></article></div>}
           </aside>
 
           <main className="slide-canvas-wrap">
-            <div className="canvas-toolbar"><strong>第 {activeSlide + 1} 页 · {slideTitles[activeSlide]}</strong><div className="canvas-zoom-controls"><button aria-label="缩小画布"><LucideIcon name="minus" size={14} /></button><span>82%</span><button aria-label="放大画布"><LucideIcon name="plus" size={14} /></button><button>适应</button></div></div>
+            <div className="canvas-toolbar">
+              <strong>第 {activeSlide + 1} 页 · {slideTitles[activeSlide]}</strong>
+              <div className="canvas-toolbar__trailing">
+                <div className="canvas-zoom-controls" role="group" aria-label="画布缩放">
+                  <button type="button" aria-label="缩小画布" disabled={zoom <= ZOOM_MIN} onClick={() => zoomBy(-ZOOM_STEP)}><LucideIcon name="minus" size={14} /></button>
+                  <span aria-live="polite">{zoomLabel}</span>
+                  <button type="button" aria-label="放大画布" disabled={zoom >= ZOOM_MAX} onClick={() => zoomBy(ZOOM_STEP)}><LucideIcon name="plus" size={14} /></button>
+                  <button type="button" aria-label="适应画布" onClick={fitZoom}>适应</button>
+                </div>
+                <button
+                  type="button"
+                  className={agentDockVisible ? "canvas-agent-dock canvas-agent-dock--visible" : "canvas-agent-dock"}
+                  aria-label="打开 AI 助手"
+                  aria-hidden={!agentDockVisible}
+                  tabIndex={agentDockVisible ? 0 : -1}
+                  onClick={expandAgent}
+                  title="打开 AI 助手"
+                >
+                  <Brand compact />
+                </button>
+              </div>
+            </div>
             <div className="slide-work-area">
               <aside className="canvas-floating-tools" aria-label="画布编辑工具">
                 <div className="canvas-tool-pill">
                   {editorTools.map((tool, index) => <button key={tool.name} className={index === 0 ? "canvas-tool canvas-tool--active" : tool.name === "undo" || tool.name === "redo" ? "canvas-tool canvas-tool--muted" : "canvas-tool"} title={tool.label} aria-label={`${tool.label}工具`} onClick={() => chooseInsertTool(tool.label)}><LucideIcon name={toolIcons[tool.name]} size={17} /></button>)}
                 </div>
               </aside>
-              <div className="slide-canvas-stage">
-                <div className="slide-canvas">{activeSlide === 2 ? <MarketScaleSlide /> : <div className="slide-canvas__placeholder"><small>第 {activeSlide + 1} 页</small><h1>{slideTitles[activeSlide]}</h1><p>聚焦核心经营数据与市场趋势，为投资判断提供结构化依据。</p></div>}</div>
+              <div
+                className="slide-canvas-stage"
+                ref={canvasStageRef}
+                title="按住 Shift 并滚动鼠标滚轮可缩放画布"
+              >
+                <div
+                  className={useLightSlide ? "slide-canvas slide-canvas--light" : "slide-canvas slide-canvas--dark"}
+                  style={{
+                    width: CANVAS_WIDTH * scale,
+                    height: CANVAS_HEIGHT * scale,
+                    // 用真实布局尺寸 + --slide-scale 重排内容，避免 transform/zoom 放大导致发糊。
+                    ["--slide-scale" as string]: String(scale),
+                  }}
+                >
+                  {activeSlide === 2 ? <MarketScaleSlide /> : <div className="slide-canvas__placeholder"><small>第 {activeSlide + 1} 页</small><h1>{slideTitles[activeSlide]}</h1><p>聚焦核心经营数据与市场趋势，为投资判断提供结构化依据。</p></div>}
+                </div>
               </div>
             </div>
           </main>
 
-          <aside className="ppt-agent" aria-label="AI 助手">
-            <header className="ppt-agent-tabs"><h2>AI 助手</h2></header>
-            <div className="ppt-agent-main"><textarea rows={4} placeholder="描述你想如何修改当前页…" /><div className="editor-quick-actions"><button>优化排版</button><button>改写文案</button><button>生成图表</button><button>提取结论</button></div><article className="agent-suggestion"><strong>AI 建议</strong><p>建议突出 2025 年出租率改善，并将规模增长作为主视觉。</p></article><button className="button button--primary button--block agent-generate" onClick={() => notify("已生成当前页修改", "success")}>生成修改</button></div>
+          <aside
+            className={
+              agentMode === "closing" || agentMode === "closed"
+                ? "ppt-agent ppt-agent--collapsing"
+                : agentMode === "opening"
+                  ? "ppt-agent ppt-agent--expanding"
+                  : "ppt-agent"
+            }
+            aria-label="AI 助手"
+            aria-hidden={agentMode === "closed"}
+            inert={agentMode === "closed" || agentMode === "closing" ? true : undefined}
+          >
+            <header className="ppt-agent-tabs">
+              <h2>AI 助手</h2>
+              <button
+                type="button"
+                className="ppt-agent-collapse"
+                aria-label="收起 AI 助手"
+                title="收起"
+                onClick={collapseAgent}
+              >
+                <LucideIcon name="chevron-right" size={16} />
+              </button>
+            </header>
+            <div className="ppt-agent-main">
+              <textarea
+                rows={4}
+                placeholder="描述你想如何修改当前页…"
+                value={agentPrompt}
+                onChange={(event) => setAgentPrompt(event.target.value)}
+                onKeyDown={onAgentPromptKeyDown}
+              />
+              <div className="editor-quick-actions">
+                <button type="button" onClick={() => setAgentPrompt("优化当前页排版")}>优化排版</button>
+                <button type="button" onClick={() => setAgentPrompt("改写当前页文案")}>改写文案</button>
+                <button type="button" onClick={() => setAgentPrompt("为当前页生成图表")}>生成图表</button>
+                <button type="button" onClick={() => setAgentPrompt("提取当前页核心结论")}>提取结论</button>
+              </div>
+              <article className="agent-suggestion"><strong>AI 建议</strong><p>建议突出 2025 年出租率改善，并将规模增长作为主视觉。</p></article>
+              <button className="button button--primary button--block agent-generate" type="button" onClick={generateAgentEdit}>生成修改</button>
+            </div>
+            <span className="ppt-agent__morph-logo" aria-hidden="true"><Brand compact /></span>
           </aside>
         </div>
-        <footer className="ppt-editor__status"><span>第 {activeSlide + 1} / {slideTitles.length} 页</span><span>自动保存已开启</span><span className="ppt-editor__shortcuts">⌘ Z 撤销   ⌘ ⇧ Z 重做</span><span>82%</span></footer>
+        <footer className="ppt-editor__status"><span>第 {activeSlide + 1} / {slideTitles.length} 页</span><span>自动保存已开启</span><span className="ppt-editor__shortcuts">⌘ Z 撤销   ⌘ ⇧ Z 重做   Shift + 滚轮缩放</span><span aria-live="polite">{zoomLabel}</span></footer>
       </section>
 
       {parseOpen && <Modal title="上传 PPT 智能解析" onClose={() => setParseOpen(false)} footer={<button className="button" onClick={() => setParseOpen(false)}>后台继续解析</button>}><div className="progress-list"><p><strong>文件：</strong>行业报告模板.pptx</p><p>✓ 上传文件</p><p>✓ 解析提纲结构</p><p>◉ 识别版式与视觉风格 <strong>68%</strong></p><progress value="68" max="100" /><p>○ 识别可更新文字、图表和表格</p><small>当前识别：18 页 / 6 个图表 / 3 个表格 / 12 张图片</small></div></Modal>}

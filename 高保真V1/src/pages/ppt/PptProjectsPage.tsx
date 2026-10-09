@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
 import { ImportPptDialog, NewPptDialog, TemplateManagerDialog } from "../../components/ppt/PptAssistantDialog";
-import { ConfirmDialog } from "../../components/ui/Modal";
+import { ConfirmDialog, Modal } from "../../components/ui/Modal";
 import { Reveal } from "../../components/ui/Reveal";
 import type { PptProject } from "../../types";
 import { FavoriteStarIcon } from "../../components/ui/FavoriteStarIcon";
@@ -21,6 +21,8 @@ export function PptProjectsPage() {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [menuProjectId, setMenuProjectId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<PptProject | null>(null);
+  const [renaming, setRenaming] = useState<PptProject | null>(null);
+  const [renameDraft, setRenameDraft] = useState("");
 
   useEffect(() => {
     if (!menuProjectId) return;
@@ -113,7 +115,11 @@ export function PptProjectsPage() {
                   setMenuProjectId(null);
                   notify("已重新提交保存", "success");
                 }}
-                onRename={() => { setMenuProjectId(null); notify("重命名入口已触发"); }}
+                onRename={() => {
+                  setMenuProjectId(null);
+                  setRenaming(project);
+                  setRenameDraft(project.name);
+                }}
                 onDelete={() => { setDeleting(project); setMenuProjectId(null); }}
               />
             ))}
@@ -131,6 +137,7 @@ export function PptProjectsPage() {
       {importOpen && <ImportPptDialog onClose={() => setImportOpen(false)} onImported={(id) => { setImportOpen(false); openEditor(id); }} />}
       {templatesOpen && <TemplateManagerDialog onClose={() => setTemplatesOpen(false)} />}
       {deleting && <ConfirmDialog title="删除 PPT 项目" message={`将永久删除“${deleting.name}”，此操作不可撤销。`} danger confirmText="确认删除" onClose={() => setDeleting(null)} onConfirm={() => { deleteProject(deleting.id); setDeleting(null); notify("项目已删除"); }} />}
+      {renaming && <Modal title="重命名 PPT" size="sm" onClose={() => setRenaming(null)} footer={<><button className="button" onClick={() => setRenaming(null)}>取消</button><button className="button button--primary" type="submit" form="rename-ppt-form" disabled={!renameDraft.trim() || renameDraft.trim() === renaming.name}>保存</button></>}><form id="rename-ppt-form" className="form-stack" onSubmit={(event) => { event.preventDefault(); const name = renameDraft.trim(); if (!name || name === renaming.name) return; updateProject(renaming.id, { name, updatedAt: "刚刚" }); setRenaming(null); notify("项目已重命名", "success"); }}><label>项目名称<input autoFocus value={renameDraft} onChange={(event) => setRenameDraft(event.target.value)} maxLength={40} /></label></form></Modal>}
     </>
   );
 }

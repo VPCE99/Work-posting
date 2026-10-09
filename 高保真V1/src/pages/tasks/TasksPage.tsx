@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
+import { formatNextRun } from "../../app/taskSchedule";
 import { TaskDialog } from "../../components/tasks/TaskDialog";
 import { ConfirmDialog } from "../../components/ui/Modal";
 import type { ScheduledTask } from "../../types";
 
 export function TasksPage() {
   const navigate = useNavigate();
-  const { tasks, saveTask, deleteTask, toggleTask, notify } = usePrototype();
+  const { tasks, saveTask, deleteTask, toggleTask, runTask, notify } = usePrototype();
   const [editingTask, setEditingTask] = useState<ScheduledTask | null | undefined>(undefined);
   const [deletingTask, setDeletingTask] = useState<ScheduledTask | null>(null);
 
@@ -29,8 +30,8 @@ export function TasksPage() {
               <p>{task.prompt}</p>
               <dl className="task-meta"><div><dt>频率</dt><dd>{task.frequency} {task.time}</dd></div><div><dt>下次执行</dt><dd>{task.nextRun}</dd></div><div><dt>结果</dt><dd>{task.result}</dd></div></dl>
               <div className="button-row">
-                {task.result === "已生成报告" && <button className="button" onClick={() => navigate("/chat/industry")}>查看网页对话</button>}
-                <button className="button" onClick={() => notify(`${task.name} 已进入运行队列`, "success")}>立即运行</button>
+                {(task.result === "已生成报告" || task.result === "刚刚完成") && <button className="button" onClick={() => navigate("/chat/industry")}>查看网页对话</button>}
+                <button className="button" onClick={() => { runTask(task.id); notify(`${task.name} 已运行，下次执行 ${formatNextRun(task.frequency, task.time, true)}`, "success"); }}>立即运行</button>
                 <button className="button" onClick={() => setEditingTask(task)}>编辑</button>
                 <button className="button" onClick={() => setDeletingTask(task)}>删除</button>
               </div>

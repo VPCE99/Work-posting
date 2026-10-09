@@ -1,4 +1,5 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { focusableElements, inertOutside, trapTab } from "./focusContainment";
 import { useModalReveal } from "./Reveal";
 
 type ModalProps = {
@@ -11,19 +12,39 @@ type ModalProps = {
 
 export function Modal({ title, children, onClose, footer, size = "md" }: ModalProps) {
   const { panelRef, veilRef } = useModalReveal();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
+    const panel = panelRef.current;
+    const backdrop = panel?.closest<HTMLElement>(".modal-backdrop");
+    if (!panel || !backdrop) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const release = inertOutside(backdrop);
+    const initial = focusableElements(panel);
+    (initial[0] ?? panel).focus();
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        if (document.querySelector(".form-select__menu")) return;
+        event.preventDefault();
+        event.stopPropagation();
+        onCloseRef.current();
+        return;
+      }
+      trapTab(event, panel);
     };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      release();
+      previous?.focus();
+    };
+  }, [panelRef]);
 
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <div className="modal-backdrop__veil" ref={veilRef} />
-      <section ref={panelRef} className={`modal modal--${size}`} role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}>
+      <section ref={panelRef} className={`modal modal--${size}`} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} onMouseDown={(event) => event.stopPropagation()}>
         <header className="modal__header">
           <h2>{title}</h2>
           <button className="icon-button" onClick={onClose} aria-label="关闭弹窗">×</button>

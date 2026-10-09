@@ -1,13 +1,27 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
 import type { Conversation } from "../../types";
+import { focusableElements, trapTab } from "../ui/focusContainment";
 import { ConfirmDialog, Modal } from "../ui/Modal";
 import { MenuIcon } from "../ui/MenuIcon";
 import { Reveal } from "../ui/Reveal";
 
 const groups = ["今天", "昨天", "过去 7 天", "更早"] as const;
+
+/** 头像内固定展示两个字：中文名取末两字，其它取前两字。 */
+function avatarInitials(displayName: string) {
+  const text = displayName.replace(/\s+/g, "");
+  if (!text) return "用户";
+  const cjk = text.match(/[\u4e00-\u9fff]/g)?.join("") ?? "";
+  if (cjk.length >= 2) return cjk.slice(-2);
+  if (cjk.length === 1) return `${cjk}用户`.slice(0, 2);
+  return text.slice(0, 2).toUpperCase();
+}
+
+const ACCOUNT_DISPLAY_NAME = "测试账号";
+const ACCOUNT_AVATAR_LABEL = avatarInitials("用户");
 
 type NavIconName = "alarm-clock" | "presentation" | "sparkles" | "layout-dashboard" | "chart-no-axes-combined";
 
@@ -52,6 +66,55 @@ export function Sidebar() {
   const [historyMenu, setHistoryMenu] = useState<{ id: string; left: number; top: number } | null>(null);
   const [renameTarget, setRenameTarget] = useState<Conversation | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
+  const sidebarRef = useRef<HTMLElement>(null);
+  const [isDrawer, setIsDrawer] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1180px)");
+    const sync = () => setIsDrawer(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    const sidebar = sidebarRef.current;
+    const main = document.querySelector<HTMLElement>(".main");
+    const topbar = document.querySelector<HTMLElement>(".topbar");
+    if (!isDrawer) {
+      sidebar?.removeAttribute("inert");
+      sidebar?.removeAttribute("aria-hidden");
+      return;
+    }
+    if (!mobileSidebarOpen) {
+      sidebar?.setAttribute("inert", "");
+      sidebar?.setAttribute("aria-hidden", "true");
+      return () => {
+        sidebar?.removeAttribute("inert");
+        sidebar?.removeAttribute("aria-hidden");
+      };
+    }
+    sidebar?.removeAttribute("inert");
+    sidebar?.removeAttribute("aria-hidden");
+    main?.setAttribute("inert", "");
+    topbar?.setAttribute("inert", "");
+    focusableElements(sidebar ?? document.body)[0]?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMobileSidebarOpen(false);
+        return;
+      }
+      if (sidebar) trapTab(event, sidebar);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      main?.removeAttribute("inert");
+      topbar?.removeAttribute("inert");
+      document.querySelector<HTMLElement>(".mobile-menu-button")?.focus();
+    };
+  }, [isDrawer, mobileSidebarOpen, setMobileSidebarOpen]);
 
   useEffect(() => {
     if (!historyMenu) return;
@@ -141,7 +204,7 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className={`sidebar ${sidebarCollapsed ? "sidebar--collapsed" : ""} ${mobileSidebarOpen ? "sidebar--mobile-open" : ""}`} onPointerDown={flashSidebarPress}>
+      <aside ref={sidebarRef} className={`sidebar ${sidebarCollapsed ? "sidebar--collapsed" : ""} ${mobileSidebarOpen ? "sidebar--mobile-open" : ""}`} onPointerDown={flashSidebarPress}>
         <div className="sidebar__heading">
           <strong className="sidebar__title">功能导航</strong>
           <button className="icon-button sidebar-collapse-button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)} aria-label={sidebarCollapsed ? "展开导航栏" : "收起导航栏"}>
@@ -163,7 +226,7 @@ export function Sidebar() {
           <button className="nav-item nav-item--new" onClick={startNewConversation} title="新对话"><span>＋</span><span className="nav-item__label">新对话</span></button>
         </nav>
 
-        <section className="sidebar-history" aria-label="常驻历史聊天" inert={sidebarCollapsed}>
+        <section className="sidebar-history" aria-label="常驻历史聊天" inert={sidebarCollapsed && !mobileSidebarOpen ? true : undefined}>
             <label className="sidebar-search"><span className="sr-only">搜索历史</span><input value={historyQuery} onChange={(event) => setHistoryQuery(event.target.value)} placeholder="搜索历史聊天" /></label>
             <div className="sidebar-history__scroll">
               <div className="history-section">
@@ -184,12 +247,12 @@ export function Sidebar() {
 
         <div className="sidebar-account popover-anchor">
           <button type="button" className="sidebar-account__trigger" onClick={() => setAccountOpen((open) => !open)} aria-expanded={accountOpen} aria-controls="sidebar-account-menu" title="账户信息">
-            <span className="account-avatar">C</span>
-            <span className="sidebar-account__copy"><strong>测试账号</strong><small>试用版</small></span>
+            <span className="account-avatar" aria-hidden="true">{ACCOUNT_AVATAR_LABEL}</span>
+            <span className="sidebar-account__copy"><strong>{ACCOUNT_DISPLAY_NAME}</strong><small>试用版</small></span>
             <span className="sidebar-account__more" aria-hidden="true">…</span>
           </button>
           <Reveal open={accountOpen} id="sidebar-account-menu" className="sidebar-account-menu" role="menu" aria-label="账户信息菜单">
-            <strong>测试账号</strong><small>当前套餐：试用版</small><hr />
+            <strong>{ACCOUNT_DISPLAY_NAME}</strong><small>当前套餐：试用版</small><hr />
             <button type="button" role="menuitem" onClick={() => { setActiveDialog("plans"); setAccountOpen(false); }}><span>账户与套餐</span><span aria-hidden="true">›</span></button>
             <button type="button" role="menuitem" onClick={() => { setActiveDialog("binding"); setAccountOpen(false); }}><span>绑定手机端</span><span aria-hidden="true">›</span></button>
             <button type="button" role="menuitem" onClick={() => { notify("当前暂无新的更新提醒"); setAccountOpen(false); }}><span>更新提醒</span></button>

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
 import type { Skill } from "../../types";
 import { FormSelect } from "../../components/ui/FormSelect";
@@ -83,6 +84,7 @@ function SkillGlyph({ id }: { id: string }) {
 }
 
 export function SkillsPage() {
+  const navigate = useNavigate();
   const { skills, addSkill, deleteSkill, notify } = usePrototype();
   const [tab, setTab] = useState<Skill["kind"]>("公用技能");
   const [query, setQuery] = useState("");
@@ -90,6 +92,11 @@ export function SkillsPage() {
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState<Skill | null>(null);
   const visible = skills.filter((item) => item.kind === tab && `${item.name}${item.description}`.includes(query));
+  const useSkill = (skill: Skill) => {
+    setDetail(null);
+    navigate("/chat", { state: { skillDraft: `请使用「${skill.name}」：${skill.description}` } });
+    notify(`已将「${skill.name}」带入新对话`, "success");
+  };
 
   return (
     <>
@@ -113,14 +120,14 @@ export function SkillsPage() {
               <h2>{skill.name}</h2>
               <p>{skill.description}</p>
               <small className="skill-card__meta">{visual.meta}</small>
-              <div className="button-row"><button className="button" onClick={() => setDetail(skill)}>查看</button>{skill.kind === "公用技能" && <button className="button button--primary" onClick={() => notify("已带入新问题", "success")}>用于新问题</button>}{skill.kind === "我的技能" && <><button className="button" onClick={() => setEditing(true)}>编辑</button><button className="button" onClick={() => setDeleting(skill)}>删除</button></>}{skill.kind === "未开通" && <button className="button" disabled>联系管理员</button>}</div>
+              <div className="button-row"><button className="button" onClick={() => setDetail(skill)}>查看</button>{skill.kind === "公用技能" && <button className="button button--primary" onClick={() => useSkill(skill)}>用于新问题</button>}{skill.kind === "我的技能" && <><button className="button" onClick={() => setEditing(true)}>编辑</button><button className="button" onClick={() => setDeleting(skill)}>删除</button></>}{skill.kind === "未开通" && <button className="button" disabled>联系管理员</button>}</div>
             </article>;
           })}
         </div>
         <small className="skills-count">{visible.length} 个技能</small>
       </section>
 
-      {detail && <Modal title={detail.name} onClose={() => setDetail(null)} footer={<><button className="button" onClick={() => setDetail(null)}>关闭</button>{detail.kind !== "未开通" && <button className="button button--primary" onClick={() => { setDetail(null); notify("已带入新问题", "success"); }}>用于新问题</button>}</>}><div className="skill-detail"><p className="skill-detail__kind">{detail.kind}</p><section><h3>用途</h3><p>{detail.description}</p></section><section><h3>输入要求</h3><p>提供研究主题、材料或需要分析的数据。</p></section><section><h3>输出预期</h3><p>结构化结论、关键依据和可继续追问的问题。</p></section></div></Modal>}
+      {detail && <Modal title={detail.name} onClose={() => setDetail(null)} footer={<><button className="button" onClick={() => setDetail(null)}>关闭</button>{detail.kind !== "未开通" && <button className="button button--primary" onClick={() => useSkill(detail)}>用于新问题</button>}</>}><div className="skill-detail"><p className="skill-detail__kind">{detail.kind}</p><section><h3>用途</h3><p>{detail.description}</p></section><section><h3>输入要求</h3><p>提供研究主题、材料或需要分析的数据。</p></section><section><h3>输出预期</h3><p>结构化结论、关键依据和可继续追问的问题。</p></section></div></Modal>}
       {editing && <SkillDialog onClose={() => setEditing(false)} onSave={(skill) => { addSkill(skill); setEditing(false); notify("技能已保存", "success"); }} />}
       {deleting && <ConfirmDialog title="删除技能" message={`将删除“${deleting.name}”，历史对话不会受到影响。`} danger confirmText="确认删除" onClose={() => setDeleting(null)} onConfirm={() => { deleteSkill(deleting.id); setDeleting(null); }} />}
     </>

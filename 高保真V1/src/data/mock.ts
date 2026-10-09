@@ -1,3 +1,4 @@
+import { formatNextRun } from "../app/taskSchedule";
 import type { Conversation, Plan, PptProject, ScheduledTask, Skill } from "../types";
 
 export const conversations: Conversation[] = [
@@ -17,7 +18,7 @@ export const initialTasks: ScheduledTask[] = [
     time: "08:00",
     email: "demo@example.com",
     enabled: true,
-    nextRun: "09/23 08:00",
+    nextRun: formatNextRun("每天", "08:00", true),
     result: "已生成报告",
   },
   {

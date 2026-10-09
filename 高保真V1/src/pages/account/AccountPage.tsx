@@ -2,7 +2,9 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
 
-const heat = Array.from({ length: 84 }, (_, index) => (index * 7) % 5);
+const RANGE_DAYS = 30;
+const rangeEnd = new Date(2026, 9, 8);
+const heat = [1, 4, 0, 2, 3, 1, 0, 4, 2, 3, 0, 2, 4, 1, 0, 3, 4, 1, 2, 0, 3, 0, 1, 4, 2, 0, 2, 3, 4, 1];
 const heatTalks = [0, 2, 5, 9, 16];
 const heatTokens = [0, 48, 120, 260, 540];
 const tokenBars = [320, 480, 410, 760, 540, 980, 860, 1240, 690, 880, 1520, 910, 1040, 730, 640, 1100, 820, 960, 1380, 770, 590, 1010, 870, 1430, 920, 680, 1160, 840, 990, 1210];
@@ -16,11 +18,24 @@ function formatToken(value: number) {
   return `${value}K`;
 }
 
-function heatLabel(index: number, level: number) {
-  const date = new Date(2026, 8, 29);
-  date.setDate(date.getDate() - (heat.length - 1 - index));
-  return `${date.getMonth() + 1}月${date.getDate()}日 · ${heatTalks[level]} 次对话 · ${heatTokens[level]}K Token`;
+function dayInRange(index: number) {
+  const date = new Date(rangeEnd);
+  date.setDate(rangeEnd.getDate() - (RANGE_DAYS - 1 - index));
+  return date;
 }
+
+function formatDay(date: Date) {
+  return `${date.getMonth() + 1}月${date.getDate()}日`;
+}
+
+function heatLabel(index: number, level: number) {
+  return `${formatDay(dayInRange(index))} · ${heatTalks[level]} 次对话 · ${heatTokens[level]}K Token`;
+}
+
+const orders = [
+  { product: "标准加油包", amount: "¥259", status: "已支付", created: "2026-09-20", invoice: "未申请", closed: false },
+  { product: "入门加油包", amount: "¥39", status: "已关闭", created: "2026-08-12", invoice: "—", closed: true },
+];
 
 type TipState = { text: string; anchor: HTMLElement };
 
@@ -48,6 +63,8 @@ export function AccountPage() {
   const { setActiveDialog } = usePrototype();
   const [activityTip, setActivityTip] = useState<TipState | null>(null);
   const [tokenTip, setTokenTip] = useState<TipState | null>(null);
+  const [orderTab, setOrderTab] = useState<"有效订单" | "全部订单">("有效订单");
+  const visibleOrders = orders.filter((order) => orderTab === "全部订单" || !order.closed);
 
   return (
     <section className="page-stack account-page">
@@ -79,14 +96,14 @@ export function AccountPage() {
                 />
               ))}
             </div>
-            <small>颜色深浅代表每日对话次数；悬停查看日期、次数和 Token。</small>
+            <small>近 30 天（{formatDay(dayInRange(0))}至{formatDay(rangeEnd)}），与右侧 Token 图同一时间范围。</small>
             <PanelTip tip={activityTip} />
           </article>
           <article className="panel account-tokens" onMouseLeave={() => setTokenTip(null)}>
             <div className="panel__title"><h2>近 30 天 Token 使用量</h2><span>Token</span></div>
             <div className="token-chart" aria-label="近 30 天 Token 使用量">
               {tokenBars.map((value, index) => {
-                const text = `第 ${index + 1} 天 · ${formatToken(value)} Token`;
+                const text = `${formatDay(dayInRange(index))} · ${formatToken(value)} Token`;
                 return (
                   <button
                     key={index}
@@ -105,8 +122,8 @@ export function AccountPage() {
         </div>
 
         <article className="panel account-orders">
-          <div className="panel__title"><h2>购买记录</h2><div className="tab-row"><button className="tab tab--active">有效订单</button><button className="tab">全部订单</button></div></div>
-          <div className="table-scroll"><table><thead><tr><th>商品</th><th>金额</th><th>状态</th><th>创建时间</th><th>发票</th><th>操作</th></tr></thead><tbody><tr><td>标准加油包</td><td>¥259</td><td><span className="status status--success">已支付</span></td><td>2026-09-20</td><td>未申请</td><td><button className="text-button">查看</button> <button className="text-button">申请发票</button></td></tr><tr><td>入门加油包</td><td>¥39</td><td><span className="status">已关闭</span></td><td>2026-08-12</td><td>—</td><td><button className="text-button">查看</button></td></tr></tbody></table></div>
+          <div className="panel__title"><h2>购买记录</h2><div className="tab-row" role="tablist" aria-label="订单范围">{(["有效订单", "全部订单"] as const).map((tab) => <button key={tab} type="button" role="tab" aria-selected={orderTab === tab} className={orderTab === tab ? "tab tab--active" : "tab"} onClick={() => setOrderTab(tab)}>{tab}</button>)}</div></div>
+          <div className="table-scroll"><table><thead><tr><th>商品</th><th>金额</th><th>状态</th><th>创建时间</th><th>发票</th><th>操作</th></tr></thead><tbody>{visibleOrders.map((order) => <tr key={order.product}><td>{order.product}</td><td>{order.amount}</td><td><span className={order.closed ? "status" : "status status--success"}>{order.status}</span></td><td>{order.created}</td><td>{order.invoice}</td><td><button className="text-button" type="button">查看</button>{!order.closed && <> <button className="text-button" type="button">申请发票</button></>}</td></tr>)}</tbody></table></div>
         </article>
     </section>
   );

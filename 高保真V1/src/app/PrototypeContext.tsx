@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { formatNextRun } from "./taskSchedule";
 import { conversations as initialConversations, initialProjects, initialSkills, initialTasks } from "../data/mock";
 import type { Conversation, PptProject, ScheduledTask, Skill, ToastMessage } from "../types";
 
@@ -17,6 +18,7 @@ type PrototypeContextValue = {
   saveTask: (task: ScheduledTask) => void;
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
+  runTask: (id: string) => void;
   projects: PptProject[];
   addProject: (project: PptProject) => void;
   updateProject: (id: string, patch: Partial<PptProject>) => void;
@@ -74,7 +76,12 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
       return exists ? items.map((item) => item.id === task.id ? task : item) : [task, ...items];
     }),
     deleteTask: (id) => setTasks((items) => items.filter((item) => item.id !== id)),
-    toggleTask: (id) => setTasks((items) => items.map((item) => item.id === id ? { ...item, enabled: !item.enabled, nextRun: item.enabled ? "已停用" : "09/23 08:00" } : item)),
+    toggleTask: (id) => setTasks((items) => items.map((item) => {
+      if (item.id !== id) return item;
+      const enabled = !item.enabled;
+      return { ...item, enabled, nextRun: formatNextRun(item.frequency, item.time, enabled) };
+    })),
+    runTask: (id) => setTasks((items) => items.map((item) => item.id === id ? { ...item, enabled: true, result: "刚刚完成", nextRun: formatNextRun(item.frequency, item.time, true) } : item)),
     projects,
     addProject: (project) => setProjects((items) => [project, ...items]),
     updateProject: (id, patch) => setProjects((items) => items.map((item) => item.id === id ? { ...item, ...patch } : item)),

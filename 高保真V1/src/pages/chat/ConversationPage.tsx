@@ -3,6 +3,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
 import { ChatComposer } from "../../components/chat/ChatComposer";
 import { fitColumnTemplate } from "../../components/chat/fitTableColumns";
+import { replyForConversation } from "./conversationReplies";
 import { MenuIcon, type MenuIconName } from "../../components/ui/MenuIcon";
 import { Reveal } from "../../components/ui/Reveal";
 import { ThinkingMark } from "../../components/ui/ThinkingMark";
@@ -15,14 +16,6 @@ const REVEAL_MS = 780;
 
 type SendOrigin = { left: number; top: number; width: number; height: number };
 type IntroStage = "fly" | "think" | "reveal" | "settled";
-
-const reitTable: Array<{ cells: string[]; emphasize?: number[] }> = [
-  { cells: ["年度", "平均出租率", "营业收入"] },
-  { cells: ["2023", "89.6%", "26.6 亿元"], emphasize: [1] },
-  { cells: ["2024", "91.7%", "28.9 亿元"], emphasize: [1] },
-  { cells: ["2025", "93.8%", "31.4 亿元"], emphasize: [1] },
-];
-const reitTableColumns = fitColumnTemplate(reitTable.map((row) => row.cells));
 
 const exportFormats: Array<{ label: string; icon: MenuIconName }> = [
   { label: "PDF", icon: "file-text" },
@@ -38,7 +31,9 @@ export function ConversationPage() {
   const conversation = conversations.find((item) => item.id === conversationId);
   const sent = location.state as { prompt?: string; origin?: SendOrigin } | null;
   const fromNewSend = Boolean(sent?.prompt);
-  const initialPrompt = sent?.prompt ?? "请分析近三年产业园 REITs 的出租率和收入变化，并总结主要结论。";
+  const reply = replyForConversation(conversationId, sent?.prompt);
+  const replyColumns = fitColumnTemplate(reply.table.map((row) => row.cells));
+  const initialPrompt = sent?.prompt ?? reply.prompt;
   const [draft, setDraft] = useState("");
   const [introStage, setIntroStage] = useState<IntroStage>(fromNewSend ? "fly" : "settled");
   const [thinkingPhase, setThinkingPhase] = useState<"off" | "on" | "leaving">(fromNewSend ? "on" : "off");
@@ -159,19 +154,19 @@ export function ConversationPage() {
         </header>
 
         <div className="message-stream">
-          <article ref={userMessageRef} className={introStage === "fly" ? "message message--user message--user-flying" : "message message--user"}><small>你</small><p>{initialPrompt}</p></article>
+          <article ref={userMessageRef} className={introStage === "fly" ? "message message--user message--user-flying" : "message message--user"}><p>{initialPrompt}</p></article>
           {(introStage === "reveal" || introStage === "settled") && <article className={introStage === "reveal" ? "message message--assistant rich-response answer-reveal" : "message message--assistant rich-response"}>
             <header className="rich-response__header">
               <span className="rich-response__agent-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3-1.8 5.4a2 2 0 0 1-1.3 1.3L3.5 11.5l5.4 1.8a2 2 0 0 1 1.3 1.3L12 20l1.8-5.4a2 2 0 0 1 1.3-1.3l5.4-1.8-5.4-1.8a2 2 0 0 1-1.3-1.3L12 3Z" /></svg></span>
-              <div><small>CHOPCHAT · REITs ANALYST</small><h2>产业园 REITs 经营趋势摘要</h2></div>
+              <div><small>{reply.agent}</small><h2>{reply.title}</h2></div>
             </header>
             <div className="rich-response__body">
               <section className="rich-response__insights" aria-label="核心结论">
-                <article><strong>01</strong><div><h3>出租率连续修复</h3><p>平均出租率由 89.6% 升至 93.8%，运营韧性增强。</p></div></article>
-                <article><strong>02</strong><div><h3>收入保持稳定增长</h3><p>样本营业收入三年复合增速约 8.6%，达到 31.4 亿元。</p></div></article>
-                <article><strong>03</strong><div><h3>量价改善更为均衡</h3><p>需求与续租价格共同贡献增长，区域分化仍需持续跟踪。</p></div></article>
-                <div className="reit-data-table" role="table" aria-label="REITs 经营数据" style={{ "--fit-columns": reitTableColumns } as CSSProperties}>
-                  {reitTable.map((row, rowIndex) => (
+                {reply.insights.map((item, index) => (
+                  <article key={item.title}><strong>0{index + 1}</strong><div><h3>{item.title}</h3><p>{item.body}</p></div></article>
+                ))}
+                <div className="reit-data-table" role="table" aria-label={reply.tableLabel} style={{ "--fit-columns": replyColumns } as CSSProperties}>
+                  {reply.table.map((row, rowIndex) => (
                     <div className={rowIndex === 0 ? "reit-data-table__row reit-data-table__head" : "reit-data-table__row"} role="row" key={row.cells.join("-")}>
                       {row.cells.map((cell, cellIndex) => {
                         const emphasized = row.emphasize?.includes(cellIndex);
@@ -181,15 +176,15 @@ export function ConversationPage() {
                   ))}
                 </div>
               </section>
-              <section className="reit-chart" aria-label="出租率与营业收入趋势图">
-                <div className="reit-chart__title"><strong>出租率与营业收入</strong><small>2023—2025</small></div>
-                <div className="reit-chart__legend"><span><i />出租率</span><span><i />营业收入</span></div>
-                <svg viewBox="0 0 296 194" role="img" aria-label="2023 至 2025 年出租率与营业收入均上升">
+              <section className="reit-chart" aria-label={`${reply.chartTitle}趋势图`}>
+                <div className="reit-chart__title"><strong>{reply.chartTitle}</strong><small>{reply.chartRange}</small></div>
+                <div className="reit-chart__legend"><span><i />{reply.legend[0]}</span><span><i />{reply.legend[1]}</span></div>
+                <svg viewBox="0 0 296 194" role="img" aria-label={reply.chartCaption}>
                   <g className="reit-chart__grid"><path d="M0 16H296" /><path d="M0 64H296" /><path d="M0 112H296" /><path d="M0 160H296" /></g>
                   <g className="reit-chart__bars"><rect x="36" y="82" width="28" height="78" /><rect x="126" y="54" width="28" height="106" /><rect x="216" y="22" width="28" height="138" /></g>
                   <path className="reit-chart__line" d="M50 108 140 64 230 30" />
                   <g className="reit-chart__points"><circle cx="50" cy="108" r="4" /><circle cx="140" cy="64" r="4" /><circle cx="230" cy="30" r="4" /></g>
-                  <g className="reit-chart__labels"><text x="33" y="182">2023</text><text x="123" y="182">2024</text><text x="213" y="182">2025</text></g>
+                  <g className="reit-chart__labels"><text x="33" y="182">{reply.labels[0]}</text><text x="123" y="182">{reply.labels[1]}</text><text x="213" y="182">{reply.labels[2]}</text></g>
                 </svg>
               </section>
             </div>

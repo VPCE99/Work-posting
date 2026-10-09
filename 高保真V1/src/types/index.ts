@@ -14,7 +14,7 @@ export type ScheduledTask = {
   email?: string;
   enabled: boolean;
   nextRun: string;
-  result: "已生成报告" | "等待运行" | "运行失败";
+  result: "已生成报告" | "等待运行" | "运行失败" | "刚刚完成";
 };
 
 export type PptProject = {

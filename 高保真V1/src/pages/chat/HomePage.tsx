@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ChatComposer } from "../../components/chat/ChatComposer";
 import { Brand } from "../../components/ui/Brand";
 
@@ -7,8 +7,10 @@ const prompts = ["对比不同园区的出租率差异", "解释收入增长的�
 
 export function HomePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const composerRef = useRef<HTMLDivElement>(null);
-  const [prompt, setPrompt] = useState("");
+  const seeded = (location.state as { skillDraft?: string } | null)?.skillDraft ?? "";
+  const [prompt, setPrompt] = useState(seeded);
   const [online, setOnline] = useState(true);
 
   const send = () => {

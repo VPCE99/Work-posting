@@ -283,7 +283,7 @@ function ChartResult({
         {leftValues.map((value, index) => {
           const xPos = pad.left + band * index + (band - barW) / 2;
           const y = yOf(value, leftDomain);
-          return <rect key={labels[index]} className="chart-result__bar" x={xPos} y={y} width={barW} height={pad.top + innerH - y} rx="3" />;
+          return <rect key={labels[index]} className="chart-result__bar" x={xPos} y={y} width={barW} height={pad.top + innerH - y} rx="0" ry="0" />;
         })}
         {right && <polyline className="chart-result__line" points={line} />}
         {right && rightValues.map((value, index) => (

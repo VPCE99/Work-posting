@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { FormSelect } from "../ui/FormSelect";
 import { Modal } from "../ui/Modal";
+import { formatNextRun } from "../../app/taskSchedule";
 import type { ScheduledTask } from "../../types";
 
 export function TaskDialog({ initial, onSave, onClose }: {
@@ -28,7 +29,7 @@ export function TaskDialog({ initial, onSave, onClose }: {
       time,
       email: email.trim() || undefined,
       enabled,
-      nextRun: enabled ? "09/23 08:00" : "已停用",
+      nextRun: formatNextRun(frequency, time, enabled),
       result: initial?.result ?? "等待运行",
     });
   };
