@@ -1,0 +1,115 @@
+.topbar__product-name { padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; }
+.topbar__actions { width: 360px; height: 52px; display: grid; grid-template-columns: 132px 138px 36px; column-gap: 16px; align-items: center; justify-content: start; }
+.usage-indicator { height: 52px; position: relative; border: 1px solid #2f3238; border-radius: 9px; background: #111318; color: #f7f8fa; white-space: nowrap; }
+.usage-indicator strong { position: absolute; top: 7px; left: 10px; font-size: var(--text-helper); line-height: var(--lh-helper); font-weight: 650; }
+.usage-indicator small { position: absolute; top: 26px; color: #8e949e; font-size: var(--text-helper); line-height: var(--lh-helper); font-weight: 400; }
+.usage-indicator__track { width: 58px; height: 3px; position: absolute; left: 10px; top: 32px; overflow: hidden; border-radius: 2px; background: #25272d; }
+.usage-indicator__track i { width: 14px; height: 3px; display: block; border-radius: 2px; background: #00c9c3; }
+.usage-indicator--daily small { left: 76px; }
+.usage-indicator--token strong { left: 13px; top: 8px; }
+.usage-indicator--token small { left: 82px; }
+.usage-indicator--token .usage-indicator__track { width: 64px; }
+.usage-indicator--token .usage-indicator__track i { width: 8px; background: #0094f4; }
+.theme-switch { width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 1px solid #2f3238; border-radius: 8px; background: #111318; color: #d9dde3; cursor: pointer; }
+.theme-switch span { width: 15px; height: 25px; display: block; font-size: 16px; line-height: 25px; text-align: center; }
+.theme-switch:hover { border-color: #4b515c; background: #171a20; }
+
+/* Migrated final parity values from pen-parity. */
+
+@media (max-width: 860px) {
+
+.topbar {
+ height: auto; min-height: var(--topbar-height); flex-wrap: wrap; row-gap: 8px; padding-block: 8px; 
+}
+
+  .topbar__actions {
+ width: auto; height: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-left: auto; 
+}
+
+  .usage-indicator {
+ width: auto; height: 36px; flex: 0 1 auto; 
+}
+
+  .usage-indicator small,
+  .usage-indicator__track {
+ display: none; 
+}
+
+  .usage-indicator strong {
+ position: static; display: block; padding: 8px 12px; font-size: var(--text-helper); line-height: 20px; 
+}
+
+  .theme-switch {
+ display: grid; width: 44px; height: 44px; min-width: 44px; min-height: 44px; 
+}
+}
+
+[data-theme="light"] .topbar,
+[data-theme="light"] .conversation-compact-header {
+ backdrop-filter: none; 
+}
+
+[data-theme="light"] .topbar {
+ box-shadow: 0 12px 32px rgb(28 54 60 / 10.8%); 
+}
+
+[data-theme="light"] .topbar__product-name,
+[data-theme="light"] .topbar .brand-copy strong {
+  color: #13272b;
+}
+
+[data-theme="light"] .usage-indicator,
+[data-theme="light"] .theme-switch {
+  border-color: #d7e0e2;
+  background: #fff;
+  color: #263b40;
+  box-shadow: 0 2px 8px rgb(28 54 60 / 6%);
+}
+
+[data-theme="light"] .usage-indicator__track {
+ background: #e4ebed; 
+}
+
+[data-theme="light"] .usage-indicator__time {
+ color: #75858a; 
+}
+
+[data-theme="light"] .theme-switch:hover {
+ border-color: #9eacb0; background: #eef3f4; 
+}
+
+.usage-indicator,
+.theme-switch,
+.theme-switch:hover,
+[data-theme="light"] .usage-indicator,
+[data-theme="light"] .theme-switch,
+[data-theme="light"] .theme-switch:hover {
+  border-color: transparent;
+}
+
+.topbar,
+.conversation-compact-header {
+  backdrop-filter: none;
+}
+
+@media (max-width: 1180px) {
+
+  .mobile-menu-button {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  
+}
+
+  .theme-switch {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  
+}
+}
+

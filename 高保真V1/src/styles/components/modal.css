@@ -1,0 +1,90 @@
+/* Modal / popover / toast overlay chrome. */
+
+
+
+/* Dialog geometry from the reference artboards. */
+.modal:has(.summary-list) {
+ height: 524px; min-height: 524px; max-height: 524px; 
+}
+
+.modal__footer .button--ghost {
+ border-color: #3a3e47; background: #191b20; 
+}
+
+.modal__footer .button--ghost:hover:not(:disabled) {
+ border-color: #4b515c; background: #20242b; 
+}
+
+[data-theme="light"] .topbar,
+[data-theme="light"] .menu-popover {
+  border-color: #d7e0e2;
+  background: #fff;
+  color: #13272b;
+  box-shadow: 0 12px 32px rgb(28 54 60 / 12%);
+}
+
+[data-theme="light"] .modal-backdrop {
+ background: transparent; backdrop-filter: none; 
+}
+
+[data-theme="light"] .modal-backdrop__veil {
+ background: rgb(24 38 43 / 26%); backdrop-filter: none; 
+}
+
+[data-theme="light"] .modal,
+[data-theme="light"] .modal:has(.chart-dialog) {
+  border-color: #c7d2d5;
+  background: #fff;
+  color: #13272b;
+  box-shadow: 0 28px 80px rgb(28 54 60 / 22%);
+}
+
+[data-theme="light"] .modal__header,
+[data-theme="light"] .modal__footer {
+  border-color: #d7e0e2;
+  background: #fff;
+}
+
+[data-theme="light"] .modal__header h2 {
+ color: #13272b; 
+}
+
+[data-theme="light"] .modal__header .icon-button {
+  border-color: #c7d2d5;
+  background: #fff;
+  color: #627278;
+}
+
+.modal,
+[data-theme="light"] .modal,
+[data-theme="light"] .modal:has(.chart-dialog) {
+  border-color: transparent;
+}
+
+.modal {
+ box-shadow: 0 28px 100px rgb(0 0 0 / 55%); 
+}
+
+[data-theme="light"] .modal {
+ box-shadow: 0 28px 80px rgb(28 54 60 / 22%); 
+}
+
+[data-theme="light"] .modal .button:not(.button--primary),
+[data-theme="light"] .modal .button:not(.button--primary):hover,
+[data-theme="light"] .modal__footer .button:not(.button--primary),
+[data-theme="light"] .modal__footer .button:not(.button--primary):hover,
+[data-theme="light"] .modal__footer .button--ghost,
+[data-theme="light"] .modal__footer .button--ghost:hover:not(:disabled) {
+  border-color: #c7d2d5;
+  background: #fff;
+  background-color: #fff;
+  color: #263b40;
+}
+
+[data-theme="light"] .modal .button:not(.button--primary):hover,
+[data-theme="light"] .modal__footer .button:not(.button--primary):hover,
+[data-theme="light"] .modal__footer .button--ghost:hover:not(:disabled) {
+  border-color: #9eacb0;
+  background: #eef3f4;
+  background-color: #eef3f4;
+}

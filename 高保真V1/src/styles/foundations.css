@@ -1,0 +1,131 @@
+/* Shared foundations: radius batches, focus reset, light chrome surfaces, misc parity. */
+
+.favorite-star-icon {
+ fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; 
+}
+
+/* 柱状图统一：底端直角（含账户页外的演示柱） */
+.bar-chart span,
+.mock-chart div,
+.combo-chart__bars span {
+  border-radius: 3px 3px 0 0;
+}
+
+/* Light theme parity.
+   The high-fidelity dark frames use literal colors above; keep those exact in
+   dark mode and remap every interactive chrome surface when light mode is on. */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="light"] .panel,
+[data-theme="light"] .basic-card,
+[data-theme="light"] .plan-card,
+[data-theme="light"] .project-card,
+[data-theme="light"] .metric-card {
+  border-color: #d7e0e2;
+  background: #fff;
+  color: #13272b;
+  box-shadow: 0 8px 24px rgb(28 54 60 / 6%);
+}
+
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible,
+[data-theme="light"] input:focus,
+[data-theme="light"] input:focus-visible,
+[data-theme="light"] textarea:focus,
+[data-theme="light"] textarea:focus-visible,
+[data-theme="light"] select:focus,
+[data-theme="light"] select:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.app[data-theme-switching],
+.app[data-theme-switching] *,
+.app[data-theme-switching] *::before,
+.app[data-theme-switching] *::after {
+  transition: none !important;
+}
+
+.modal,
+.modal:has(.chart-dialog),
+.menu-popover,
+.menu-popover.conversation-header-menu,
+.menu-popover.editor-action-popover,
+.account-popover,
+.model-select__menu,
+.form-select__menu,
+.toast {
+  border-radius: 28px;
+}
+
+.project-card,
+.basic-card,
+.prompt-grid button,
+.message,
+.message--user,
+.message--assistant.rich-response,
+.reit-data-table,
+.reit-chart,
+.slide-thumb,
+.slide-thumb__preview,
+.agent-suggestion,
+.agent-message,
+.agent-context,
+.notice,
+.panel,
+.chart-drop__zone,
+.usage-indicator,
+.theme-switch,
+.segmented,
+.ppt-side-panel .mini-card,
+.editor-tool-grid button,
+.style-preview,
+.ppt-outline-item {
+  border-radius: 28px;
+}
+
+.button,
+.icon-button,
+.model-select__trigger,
+.form-select__trigger,
+.connection-toggle,
+.editor-exit-button,
+.editor-file-trigger,
+.editor-quick-actions button,
+.ppt-pages-heading button,
+.ppt-add-page,
+.conversation-icon-action,
+.canvas-zoom-controls,
+.model-select__menu button,
+.form-select__menu button,
+.conversation-header-menu > button,
+.segmented button {
+  border-radius: 28px;
+}
+
+.template-search,
+.modal input,
+.modal textarea,
+.modal select,
+.rich-response__agent-icon,
+.usage-chip {
+  border-radius: 28px;
+}
+
+@media (max-width: 1180px) {
+
+.app {
+    min-height: 100dvh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    overflow-x: clip;
+  
+}
+}
+

@@ -1,0 +1,338 @@
+/* Chat composer (home + conversation shared) and prompt grid. */
+
+.composer textarea:focus,
+.composer textarea:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+[data-theme="light"] .button--primary,
+[data-theme="light"] .button--primary:hover:not(:disabled),
+[data-theme="light"] .composer__send,
+[data-theme="light"] .composer__send:hover,
+[data-theme="light"] .agent-generate {
+  border-color: #00afa9;
+  background: #00afa9;
+  color: #fff;
+}
+
+[data-theme="light"] .composer {
+  border-color: #b9c8cb;
+  background: #fff;
+  box-shadow: 0 16px 42px rgb(28 54 60 / 12%);
+}
+
+[data-theme="light"] .composer--hero textarea,
+[data-theme="light"] .composer--hero textarea:hover,
+[data-theme="light"] .composer--hero textarea:focus,
+[data-theme="light"] .composer--hero textarea:focus-visible {
+  background: transparent;
+  background-color: transparent;
+}
+
+[data-theme="light"] .composer__toolbar .button,
+[data-theme="light"] .composer__toolbar select,
+[data-theme="light"] .model-select__trigger,
+[data-theme="light"] .prompt-grid button {
+  border-color: #c7d2d5;
+  background: #fff;
+  color: #53666b;
+}
+
+[data-theme="light"] .composer__toolbar .button:hover,
+[data-theme="light"] .prompt-grid button:hover {
+  border-color: #9eacb0;
+  background: #eef3f4;
+  color: #13272b;
+}
+
+/* All solid primary actions use white content in light mode.
+   Skill-card pale primary is owned by features/skills.css. */
+[data-theme="light"] .button--primary,
+[data-theme="light"] .button--primary:hover:not(:disabled),
+[data-theme="light"] .button--primary:focus-visible,
+[data-theme="light"] .composer__send,
+[data-theme="light"] .composer__send:hover,
+[data-theme="light"] .composer__send[aria-disabled="true"],
+[data-theme="light"] .agent-generate,
+[data-theme="light"] .agent-generate:hover:not(:disabled) {
+  color: #fff !important;
+}
+
+[data-theme="light"] .composer .composer__send,
+[data-theme="light"] .composer .composer__send[aria-disabled="true"] {
+  border-color: #00afa9;
+  background: #00afa9;
+}
+
+[data-theme="light"] .composer .composer__send:hover {
+  border-color: #00c4bd;
+  background: #00c4bd;
+}
+
+/* Option rows use fill and the left accent. Their resting stroke stays off. */
+.prompt-grid button,
+.prompt-grid button:hover,
+.model-select__trigger,
+.connection-toggle,
+.connection-toggle:hover,
+.connection-toggle--on,
+.segmented,
+.segmented button,
+.segmented .segmented__active,
+.composer__toolbar .button:not(.button--primary),
+.composer__toolbar select,
+.project-card {
+  border-color: transparent;
+}
+
+[data-theme="light"] .prompt-grid button,
+[data-theme="light"] .prompt-grid button:hover,
+[data-theme="light"] .model-select__trigger,
+[data-theme="light"] .connection-toggle,
+[data-theme="light"] .connection-toggle:hover,
+[data-theme="light"] .connection-toggle--on,
+[data-theme="light"] .segmented,
+[data-theme="light"] .segmented button,
+[data-theme="light"] .segmented .segmented__active,
+[data-theme="light"] .composer__toolbar .button:not(.button--primary),
+[data-theme="light"] .composer__toolbar select,
+[data-theme="light"] .project-card {
+  border-color: transparent;
+}
+
+.composer--hero,
+.composer--hero:focus-within,
+[data-theme="light"] .composer--hero,
+[data-theme="light"] .composer--hero:focus-within {
+  border-color: transparent;
+  border-radius: 28px;
+}
+
+.prompt-grid button,
+[data-theme="light"] .prompt-grid button {
+  background: transparent;
+  background-color: transparent;
+}
+
+.prompt-grid button:hover,
+[data-theme="light"] .prompt-grid button:hover {
+  background: rgb(255 255 255 / 8%);
+  background-color: rgb(255 255 255 / 8%);
+}
+
+[data-theme="light"] .prompt-grid button:hover {
+  background: rgb(19 39 43 / 5%);
+  background-color: rgb(19 39 43 / 5%);
+}
+
+.composer:focus-within {
+  border-color: #343842;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 18%);
+}
+
+[data-theme="light"] .composer:focus-within {
+  border-color: #b9c8cb;
+  box-shadow: 0 16px 42px rgb(28 54 60 / 12%);
+}
+
+.composer--hero:focus-within,
+[data-theme="light"] .composer--hero:focus-within {
+  border-color: transparent;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 18%);
+}
+
+[data-theme="light"] .composer--hero:focus-within {
+  box-shadow: 0 16px 42px rgb(28 54 60 / 12%);
+}
+
+.composer--hero,
+.conversation-page .composer--sticky {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 16px 8px;
+}
+
+.composer--hero textarea,
+.conversation-page .composer--sticky textarea,
+[data-theme="light"] .composer--hero textarea,
+[data-theme="light"] .composer--hero textarea:hover,
+[data-theme="light"] .composer--hero textarea:focus,
+[data-theme="light"] .composer--hero textarea:focus-visible,
+[data-theme="light"] .conversation-page .composer--sticky textarea,
+[data-theme="light"] .conversation-page .composer--sticky textarea:hover,
+[data-theme="light"] .conversation-page .composer--sticky textarea:focus,
+[data-theme="light"] .conversation-page .composer--sticky textarea:focus-visible {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 16px 2px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  background-color: transparent;
+  font-size: 14px;
+}
+
+.composer--hero .composer__toolbar,
+.conversation-page .composer--sticky .composer__toolbar {
+  flex: 0 0 42px;
+  height: 42px;
+  align-items: center;
+}
+
+.composer--hero .composer__toolbar .composer__send,
+.conversation-page .composer__toolbar .composer__send,
+[data-theme="light"] .composer--hero .composer__toolbar .composer__send,
+[data-theme="light"] .conversation-page .composer__toolbar .composer__send {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.composer__toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  min-width: 0;
+}
+
+.composer__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.composer__toolbar .composer__send {
+  width: 42px;
+  min-width: 42px;
+  justify-self: end;
+  align-self: end;
+}
+
+.home-page__privacy {
+ color: var(--color-text-subtle); 
+}
+
+@media (max-width: 1180px) {
+
+  .main:has(.home-page),
+  .main:has(.conversation-page) {
+    height: auto;
+    overflow-x: clip;
+    overflow-y: visible;
+  
+}
+
+  .composer__toolbar .composer__send,
+  .composer--hero .composer__toolbar .composer__send,
+  .conversation-page .composer__toolbar .composer__send {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  
+}
+
+  .composer__toolbar .button:not(.button--primary),
+  .composer__toolbar select,
+  .composer__toolbar .model-select__trigger,
+  .composer__toolbar .connection-toggle {
+    min-height: 44px;
+    height: 44px;
+  
+}
+
+  .prompt-grid button {
+    min-height: 44px;
+    height: auto;
+    padding-block: 10px;
+  
+}
+
+  .home-page,
+  .home-page__content,
+  .composer--hero,
+  .conversation-page,
+  .conversation-page .composer--sticky {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+  
+}
+
+  .prompt-grid {
+ display: flex; flex-wrap: wrap; gap: 8px; 
+}
+
+  .prompt-grid button {
+ height: auto; min-height: 44px; white-space: normal; 
+}
+
+  .composer--hero .composer__toolbar,
+  .conversation-page .composer--sticky .composer__toolbar {
+    height: auto;
+    min-height: 42px;
+    flex: none;
+  
+}
+}
+
+.composer__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.composer__hint {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: var(--text-helper);
+  line-height: var(--lh-helper);
+  white-space: nowrap;
+}
+
+.composer__send:disabled,
+.composer--hero .composer__send:disabled,
+.composer--hero .composer__toolbar .composer__send:disabled,
+.conversation-page .composer__toolbar .composer__send:disabled,
+[data-theme="light"] .composer .composer__send:disabled,
+[data-theme="light"] .composer--hero .composer__toolbar .composer__send:disabled,
+[data-theme="light"] .conversation-page .composer__toolbar .composer__send:disabled {
+  background: #3a3e47;
+  color: #8e949e;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.composer__send:disabled:hover,
+.composer--hero .composer__send:disabled:hover,
+.composer--hero .composer__toolbar .composer__send:disabled:hover,
+.conversation-page .composer__toolbar .composer__send:disabled:hover {
+  background: #3a3e47;
+}
+
+[data-theme="light"] .composer__send:disabled,
+[data-theme="light"] .composer .composer__send:disabled,
+[data-theme="light"] .composer--hero .composer__toolbar .composer__send:disabled,
+[data-theme="light"] .conversation-page .composer__toolbar .composer__send:disabled {
+  background: #d5dee1 !important;
+  border-color: transparent !important;
+  color: #627278 !important;
+  cursor: not-allowed;
+}

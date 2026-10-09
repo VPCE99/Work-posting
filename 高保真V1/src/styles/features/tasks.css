@@ -1,0 +1,105 @@
+/* Scheduled tasks page + create/edit task dialog — consolidated final parity values. */
+
+.task-page {
+  width: 100%;
+  max-width: none;
+  min-height: 760px;
+  margin: 0;
+  padding: 0;
+  gap: 24px;
+}
+
+.task-page-grid {
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.task-card--page { min-width: 0; }
+.task-card,
+.task-card--page {
+  border-color: transparent;
+  border-radius: 28px;
+}
+
+.modal:has(#task-form) {
+  width: min(640px, calc(100vw - 48px));
+  height: 660px;
+  min-height: 660px;
+  max-height: 660px;
+  position: relative;
+}
+.modal:has(#task-form) .modal__header {
+  height: 64px;
+  min-height: 64px;
+  padding: 18px 28px 12px;
+  border-bottom: 0;
+}
+.modal:has(#task-form) .modal__header h2 { font-size: 18px; line-height: 26px; }
+.modal:has(#task-form) .modal__header .icon-button {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  background: transparent;
+  color: #8e949e;
+  font-size: 20px;
+}
+.modal:has(#task-form) .modal__body { padding: 10px 28px 0; overflow: visible; }
+#task-form { gap: 16px; }
+#task-form label { min-width: 0; gap: 7px; font-size: 14px; line-height: 19px; }
+#task-form input,
+#task-form select,
+#task-form .form-select__trigger { height: 42px; min-height: 42px; }
+#task-form textarea { height: 84px; min-height: 84px; resize: none; }
+#task-form .task-form__label-text { display: block; white-space: nowrap; }
+#task-form .task-form__label-text > span { display: inline; }
+#task-form .form-grid--2 {
+  grid-template-columns: minmax(0, 280px) minmax(0, 288px);
+  gap: 16px;
+}
+#task-form .check-row {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+#task-form .check-row input { width: 18px; height: 18px; min-height: 18px; }
+.modal:has(#task-form) .modal__footer {
+  min-height: 42px;
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+  padding: 0;
+  border-top: 0;
+  background: transparent;
+}
+.modal:has(#task-form) .modal__footer .button { height: 42px; min-height: 42px; }
+.modal:has(#task-form) .modal__footer .button:first-child { width: 84px; }
+.modal:has(#task-form) .modal__footer .button:last-child { width: 102px; }
+
+[data-theme="light"] .task-card--page {
+  border-color: transparent;
+  background: #fff;
+  color: #13272b;
+  box-shadow: 0 8px 24px rgb(28 54 60 / 6%);
+}
+[data-theme="light"] .task-card--page .button:last-child {
+  border-color: #e9afb6;
+  background: #fff7f8;
+  color: #bd4452;
+}
+[data-theme="light"] .task-card { border-color: transparent; }
+[data-theme="light"] .task-page > .page-header > .button--primary,
+[data-theme="light"] .task-page > .page-header > .button--primary:hover:not(:disabled) {
+  color: #fff;
+}
+
+@media (max-width: 1100px) {
+  .task-page-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 860px) {
+  .task-page-grid { grid-template-columns: 1fr; }
+  #task-form .form-grid--2 { grid-template-columns: 1fr 1fr; }
+}

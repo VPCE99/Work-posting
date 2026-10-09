@@ -1,0 +1,60 @@
+/* Shared primary-page chrome for tasks / ppt / skills / account. */
+
+
+
+/* Primary pages share one coordinate system and the topbar's 20px right edge. */
+.main:has(.task-page),
+.main:has(.ppt-projects-page),
+.main:has(.skills-page),
+.main:has(.account-page) {
+  padding: 24px 39px 28px 40px;
+}
+
+:is(.task-page, .ppt-projects-page, .skills-page, .account-page) {
+  width: 100%;
+  max-width: none;
+  min-height: 760px;
+  margin: 0;
+  padding: 0;
+}
+
+:is(.task-page, .ppt-projects-page, .skills-page, .account-page) > .page-header {
+  min-height: 108px;
+  align-items: flex-start;
+}
+
+:is(.task-page, .ppt-projects-page, .skills-page, .account-page) > .page-header > div:first-child > .eyebrow {
+  height: 18px;
+  margin: 0 0 6px;
+  color: #00c9c3;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+:is(.task-page, .ppt-projects-page, .skills-page, .account-page) > .page-header h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+  line-height: 40px;
+}
+
+:is(.task-page, .ppt-projects-page, .skills-page, .account-page) > .page-header p:last-child {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+@media (max-width: 860px) {
+
+.main:has(.task-page),
+  .main:has(.ppt-projects-page),
+  .main:has(.skills-page),
+  .main:has(.account-page) {
+    padding: 20px 16px 24px;
+  
+}
+
+  :is(.task-page, .ppt-projects-page, .skills-page, .account-page) > .page-header {
+    min-height: 132px;
+  
+}
+}
