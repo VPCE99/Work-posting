@@ -42,8 +42,8 @@ export const initialProjects: PptProject[] = [
 export const initialSkills: Skill[] = [
   { id: "industry-research", name: "行业研究", kind: "公用技能", description: "形成行业规模、趋势和竞争格局的结构化分析。" },
   { id: "financial", name: "财务分析", kind: "公用技能", description: "梳理财务指标、异常变化和经营质量。" },
-  { id: "writing", name: "我的写作规范", kind: "我的技能", description: "统一报告结构、标题层级和表达风格。" },
-  { id: "interview", name: "访谈纪要", kind: "我的技能", description: "按主题、结论和待办整理访谈内容。" },
+  { id: "writing", name: "我的写作规范", kind: "我的技能", description: "统一报告结构、标题层级和表达风格。", prompt: "请按统一标题层级与简洁书面语输出。" },
+  { id: "interview", name: "访谈纪要", kind: "我的技能", description: "按主题、结论和待办整理访谈内容。", prompt: "请按主题 / 结论 / 待办整理访谈内容。" },
   { id: "data-room", name: "数据室分析", kind: "未开通", description: "批量读取项目材料并形成尽调问题清单。" },
 ];
 

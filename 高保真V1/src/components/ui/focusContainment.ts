@@ -39,6 +39,11 @@ export function trapTab(event: KeyboardEvent, root: HTMLElement) {
   }
   const first = items[0];
   const last = items[items.length - 1];
+  if (!first || !last) {
+    event.preventDefault();
+    root.focus();
+    return;
+  }
   const active = document.activeElement;
   if (event.shiftKey && (active === first || !root.contains(active))) {
     event.preventDefault();

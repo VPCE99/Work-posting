@@ -1,29 +1,18 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Reveal } from "./Reveal";
+import { useDismissibleLayer } from "./useDismissibleLayer";
+import { useEscapeKey } from "./useEscapeKey";
 
 const models = ["智能选择"];
 
 export function ModelSelect({ placement = "down" }: { placement?: "down" | "up" }) {
-  const [value, setValue] = useState(models[0]);
+  const [value, setValue] = useState(models[0] ?? "智能选择");
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const listId = useId();
 
-  useEffect(() => {
-    if (!open) return;
-    const closeOnOutsidePointer = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("pointerdown", closeOnOutsidePointer);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeOnOutsidePointer);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [open]);
+  useDismissibleLayer(open, () => setOpen(false), [rootRef]);
+  useEscapeKey(open, () => setOpen(false));
 
   return (
     <div className={placement === "up" ? "model-select model-select--up" : "model-select"} ref={rootRef}>

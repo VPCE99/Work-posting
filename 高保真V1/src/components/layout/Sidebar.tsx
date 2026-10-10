@@ -70,7 +70,8 @@ export function Sidebar() {
   const [isDrawer, setIsDrawer] = useState(false);
 
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 1180px)");
+    // Match CSS drawer breakpoint: icon-rail collapse stays available until true mobile.
+    const query = window.matchMedia("(max-width: 860px)");
     const sync = () => setIsDrawer(query.matches);
     sync();
     query.addEventListener("change", sync);
@@ -207,11 +208,21 @@ export function Sidebar() {
       <aside ref={sidebarRef} className={`sidebar ${sidebarCollapsed ? "sidebar--collapsed" : ""} ${mobileSidebarOpen ? "sidebar--mobile-open" : ""}`} onPointerDown={flashSidebarPress}>
         <div className="sidebar__heading">
           <strong className="sidebar__title">功能导航</strong>
-          <button className="icon-button sidebar-collapse-button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)} aria-label={sidebarCollapsed ? "展开导航栏" : "收起导航栏"}>
+          <button
+            className="icon-button sidebar-collapse-button"
+            onClick={() => {
+              if (isDrawer) {
+                setMobileSidebarOpen(false);
+                return;
+              }
+              setSidebarCollapsed(!sidebarCollapsed);
+            }}
+            aria-label={isDrawer ? "关闭导航" : sidebarCollapsed ? "展开导航栏" : "收起导航栏"}
+          >
             <svg viewBox="0 0 20 20" aria-hidden="true">
-              {sidebarCollapsed
-                ? <><path d="m6 5 5 5-5 5" /><path d="m11 5 5 5-5 5" /></>
-                : <><path d="m14 5-5 5 5 5" /><path d="m9 5-5 5 5 5" /></>}
+              {isDrawer || !sidebarCollapsed
+                ? <><path d="m14 5-5 5 5 5" /><path d="m9 5-5 5 5 5" /></>
+                : <><path d="m6 5 5 5-5 5" /><path d="m11 5 5 5-5 5" /></>}
             </svg>
           </button>
         </div>
@@ -253,7 +264,7 @@ export function Sidebar() {
           </button>
           <Reveal open={accountOpen} id="sidebar-account-menu" className="sidebar-account-menu" role="menu" aria-label="账户信息菜单">
             <strong>{ACCOUNT_DISPLAY_NAME}</strong><small>当前套餐：试用版</small><hr />
-            <button type="button" role="menuitem" onClick={() => { setActiveDialog("plans"); setAccountOpen(false); }}><span>账户与套餐</span><span aria-hidden="true">›</span></button>
+            <button type="button" role="menuitem" onClick={() => { setActiveDialog(null); setAccountOpen(false); closeMobile(); navigate("/account/plans"); }}><span>账户与套餐</span><span aria-hidden="true">›</span></button>
             <button type="button" role="menuitem" onClick={() => { setActiveDialog("binding"); setAccountOpen(false); }}><span>绑定手机端</span><span aria-hidden="true">›</span></button>
             <button type="button" role="menuitem" onClick={() => { notify("当前暂无新的更新提醒"); setAccountOpen(false); }}><span>更新提醒</span></button>
             <button type="button" role="menuitem" onClick={() => { setLogoutOpen(true); setAccountOpen(false); }}><span>退出登录</span></button>

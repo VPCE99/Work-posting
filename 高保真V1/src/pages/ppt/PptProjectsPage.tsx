@@ -4,6 +4,7 @@ import { usePrototype } from "../../app/PrototypeContext";
 import { ImportPptDialog, NewPptDialog, TemplateManagerDialog } from "../../components/ppt/PptAssistantDialog";
 import { ConfirmDialog, Modal } from "../../components/ui/Modal";
 import { Reveal } from "../../components/ui/Reveal";
+import { useEscapeKey } from "../../components/ui/useEscapeKey";
 import type { PptProject } from "../../types";
 import { FavoriteStarIcon } from "../../components/ui/FavoriteStarIcon";
 
@@ -29,14 +30,11 @@ export function PptProjectsPage() {
     const closeMenu = (event: PointerEvent) => {
       if (!(event.target as Element).closest(".project-menu-anchor")) setMenuProjectId(null);
     };
-    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setMenuProjectId(null); };
     document.addEventListener("pointerdown", closeMenu);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeMenu);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
+    return () => document.removeEventListener("pointerdown", closeMenu);
   }, [menuProjectId]);
+
+  useEscapeKey(Boolean(menuProjectId), () => setMenuProjectId(null));
 
   const visible = useMemo(() => projects.filter((project) => {
     const matchesFilter = filter === "全部"

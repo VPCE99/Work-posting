@@ -33,6 +33,7 @@ export type Skill = {
   name: string;
   kind: "公用技能" | "我的技能" | "未开通";
   description: string;
+  prompt?: string;
 };
 
 export type Plan = {

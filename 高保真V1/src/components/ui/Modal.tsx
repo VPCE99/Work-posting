@@ -8,9 +8,11 @@ type ModalProps = {
   onClose: () => void;
   footer?: ReactNode;
   size?: "sm" | "md" | "lg" | "xl";
+  /** Explicit modal chrome variant; prefer this over inferring from body content. */
+  variant?: "default" | "chart";
 };
 
-export function Modal({ title, children, onClose, footer, size = "md" }: ModalProps) {
+export function Modal({ title, children, onClose, footer, size = "md", variant = "default" }: ModalProps) {
   const { panelRef, veilRef } = useModalReveal();
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -44,7 +46,15 @@ export function Modal({ title, children, onClose, footer, size = "md" }: ModalPr
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <div className="modal-backdrop__veil" ref={veilRef} />
-      <section ref={panelRef} className={`modal modal--${size}`} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} onMouseDown={(event) => event.stopPropagation()}>
+      <section
+        ref={panelRef}
+        className={["modal", `modal--${size}`, variant !== "default" ? `modal--${variant}` : ""].filter(Boolean).join(" ")}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabIndex={-1}
+        onMouseDown={(event) => event.stopPropagation()}
+      >
         <header className="modal__header">
           <h2>{title}</h2>
           <button className="icon-button" onClick={onClose} aria-label="关闭弹窗">×</button>

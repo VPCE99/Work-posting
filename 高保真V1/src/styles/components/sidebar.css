@@ -25,8 +25,8 @@
 }
 .sidebar-collapse-button,
 .sidebar-collapse-button:hover,
-[data-theme="light"] .sidebar-collapse-button,
-[data-theme="light"] .sidebar-collapse-button:hover {
+.app[data-theme="light"] .sidebar-collapse-button,
+.app[data-theme="light"] .sidebar-collapse-button:hover {
   border-color: transparent;
   background: transparent;
 }
@@ -131,22 +131,22 @@
   .sidebar-account__more { transition: none; }
 }
 
-.app:has(.ppt-editor) .sidebar {
+.app--ppt-editor .sidebar {
   font-family: "Noto Sans SC", sans-serif;
   height: calc(100% - 30px);
 }
-.app:has(.ppt-editor) .sidebar:not(.sidebar--collapsed) {
+.app--ppt-editor .sidebar:not(.sidebar--collapsed) {
   width: var(--sidebar-width);
   flex-basis: var(--sidebar-width);
 }
-.app:has(.ppt-editor) .sidebar.sidebar--collapsed { width: 56px; flex-basis: 56px; }
+.app--ppt-editor .sidebar.sidebar--collapsed { width: 56px; flex-basis: 56px; }
 
 .primary-nav { padding-bottom: 0; }
 .sidebar:not(.sidebar--collapsed) .nav-divider { margin: 0; }
 .sidebar:not(.sidebar--collapsed) .nav-item--new { margin-top: 5px; }
 
 .nav-divider,
-[data-theme="light"] .nav-divider {
+.app[data-theme="light"] .nav-divider {
   height: 0;
   background: transparent;
   border: 0;
@@ -160,8 +160,8 @@
 }
 .sidebar-history .sidebar-search { padding-top: 0; }
 .sidebar-account,
-[data-theme="light"] .sidebar-history,
-[data-theme="light"] .sidebar-account {
+.app[data-theme="light"] .sidebar-history,
+.app[data-theme="light"] .sidebar-account {
   border-top-color: transparent;
 }
 
@@ -185,8 +185,8 @@
   background-position: center;
   background-size: 0% 100%;
 }
-[data-theme="light"] .nav-item::before,
-[data-theme="light"] .history-item__open::before {
+.app[data-theme="light"] .nav-item::before,
+.app[data-theme="light"] .history-item__open::before {
   background-image: linear-gradient(90deg, transparent 0%, #f4fbfa 14%, #f4fbfa 86%, transparent 100%);
 }
 
@@ -196,12 +196,12 @@
 .nav-item--new,
 .sidebar-account__trigger,
 .sidebar-account__trigger:hover,
-[data-theme="light"] .nav-item,
-[data-theme="light"] .nav-item:hover,
-[data-theme="light"] .nav-item--active,
-[data-theme="light"] .nav-item--new,
-[data-theme="light"] .sidebar-account__trigger,
-[data-theme="light"] .sidebar-account__trigger:hover {
+.app[data-theme="light"] .nav-item,
+.app[data-theme="light"] .nav-item:hover,
+.app[data-theme="light"] .nav-item--active,
+.app[data-theme="light"] .nav-item--new,
+.app[data-theme="light"] .sidebar-account__trigger,
+.app[data-theme="light"] .sidebar-account__trigger:hover {
   border-color: transparent;
 }
 
@@ -367,9 +367,9 @@
   border-color: transparent;
   border-radius: 28px;
 }
-[data-theme="light"] .sidebar-search input,
-[data-theme="light"] .sidebar-search input:hover,
-[data-theme="light"] .sidebar-search input:focus {
+.app[data-theme="light"] .sidebar-search input,
+.app[data-theme="light"] .sidebar-search input:hover,
+.app[data-theme="light"] .sidebar-search input:focus {
   border-color: transparent;
   background-color: #eef3f4;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.2 1.2 13.3 13.3' fill='none' stroke='%23627278' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6.6' cy='6.6' r='4.35'/%3E%3Cpath d='M9.85 9.85 13.7 13.7'/%3E%3C/svg%3E");
@@ -377,73 +377,74 @@
 }
 
 /* Light theme chrome */
-[data-theme="light"] .sidebar,
-[data-theme="light"] .sidebar-account-menu,
-[data-theme="light"] .history-context-menu {
+.app[data-theme="light"] .sidebar,
+.app[data-theme="light"] .sidebar-account-menu,
+.app[data-theme="light"] .history-context-menu {
   border-color: #d7e0e2;
   background: #fff;
   color: #13272b;
   box-shadow: 0 12px 32px rgb(28 54 60 / 12%);
 }
-[data-theme="light"] .sidebar-account-menu > strong { color: #13272b; }
-[data-theme="light"] .sidebar__heading,
-[data-theme="light"] .sidebar-history,
-[data-theme="light"] .sidebar-account,
-[data-theme="light"] .nav-divider { border-color: transparent; }
-[data-theme="light"] .nav-item { color: #627278; }
-[data-theme="light"] .nav-item:hover { color: #13272b; background: #eef3f4; }
-[data-theme="light"] .nav-item--active {
+.app[data-theme="light"] .sidebar-account-menu > strong { color: #13272b; }
+.app[data-theme="light"] .sidebar__heading,
+.app[data-theme="light"] .sidebar-history,
+.app[data-theme="light"] .sidebar-account,
+.app[data-theme="light"] .nav-divider { border-color: transparent; }
+.app[data-theme="light"] .nav-item { color: #627278; }
+.app[data-theme="light"] .nav-item:hover { color: #13272b; background: #eef3f4; }
+.app[data-theme="light"] .nav-item--active {
   border-color: transparent;
   background: #e8f5f4;
   color: #0b7772;
   box-shadow: inset 2px 0 0 #00afa9;
 }
-[data-theme="light"] .nav-item--new,
-[data-theme="light"] .sidebar-account__trigger {
+.app[data-theme="light"] .nav-item--new,
+.app[data-theme="light"] .sidebar-account__trigger {
   border-color: transparent;
   background: #fff;
   color: #13272b;
 }
-[data-theme="light"] .nav-item--new:hover,
-[data-theme="light"] .sidebar-account__trigger:hover { background: #eef3f4; }
-[data-theme="light"] .history-item__pin {
+.app[data-theme="light"] .nav-item--new:hover,
+.app[data-theme="light"] .sidebar-account__trigger:hover { background: #eef3f4; }
+.app[data-theme="light"] .history-item__pin {
   border-color: transparent;
   background: transparent;
   color: #75858a;
 }
-[data-theme="light"] .history-item__pin--active,
-[data-theme="light"] .history-item__pin:hover {
+.app[data-theme="light"] .history-item__pin--active,
+.app[data-theme="light"] .history-item__pin:hover {
   border-color: transparent;
   background: transparent;
   color: #008b86;
 }
-[data-theme="light"] .sidebar-account-menu > hr { background: #d7e0e2; }
-[data-theme="light"] .sidebar-account-menu > button,
-[data-theme="light"] .history-context-menu > button {
+.app[data-theme="light"] .sidebar-account-menu > hr { background: #d7e0e2; }
+.app[data-theme="light"] .sidebar-account-menu > button,
+.app[data-theme="light"] .history-context-menu > button {
   background: transparent;
   color: #263b40;
 }
-[data-theme="light"] .sidebar-account-menu > button:hover,
-[data-theme="light"] .history-context-menu > button:hover { background: #eef3f4; }
-[data-theme="light"] .sidebar-account-menu > button:last-child {
+.app[data-theme="light"] .sidebar-account-menu > button:hover,
+.app[data-theme="light"] .history-context-menu > button:hover { background: #eef3f4; }
+.app[data-theme="light"] .sidebar-account-menu > button:last-child {
   background: #fff2f3;
   color: #c84251;
 }
 
-[data-theme="light"]:has(.ppt-editor) .sidebar {
+.app--ppt-editor[data-theme="light"] .sidebar {
   border-color: #d7e0e2;
   background: #fff;
   color: #13272b;
 }
-[data-theme="light"]:has(.ppt-editor) .sidebar.sidebar--collapsed {
+.app--ppt-editor[data-theme="light"] .sidebar.sidebar--collapsed {
   border-color: #d7e0e2;
   background: #fff;
 }
 
-@media (max-width: 1180px) {
+/* Drawer only on true mobile; ≥861px keeps in-flow icon-rail collapse. */
+@media (max-width: 860px) {
   .sidebar,
   .sidebar--collapsed,
-  .app:has(.ppt-editor) .sidebar {
+  .app--ppt-editor .sidebar {
     position: fixed;
     left: -110%;
     top: calc(var(--topbar-height) + env(safe-area-inset-top));
@@ -477,3 +478,10 @@
     background: rgb(0 0 0 / 42%);
   }
 }
+
+/* --- Relocated from global.css (phase 6) --- */
+
+.sidebar-account-menu { position: fixed; z-index: 90; left: 12px; bottom: 70px; width: min(296px, calc(100vw - 24px)); display: grid; padding: var(--space-2); background: var(--color-surface); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); box-shadow: var(--shadow-modal); }
+.sidebar-account-menu > strong, .sidebar-account-menu > small { padding: 7px 9px; }
+.sidebar-account-menu > button { min-height: 42px; display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); border: 0; border-radius: var(--radius-sm); padding: 8px 10px; text-align: left; color: var(--color-text); background: transparent; cursor: pointer; }
+.sidebar-account-menu > button:hover { background: var(--color-surface-muted); }

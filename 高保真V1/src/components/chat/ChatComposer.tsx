@@ -3,29 +3,40 @@ import { ConnectionToggle } from "../ui/ConnectionToggle";
 import { MenuIcon } from "../ui/MenuIcon";
 import { ModelSelect } from "../ui/ModelSelect";
 
-type ChatComposerProps = {
+type ChatComposerBase = {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
   placeholder: string;
+  className?: string;
+  composerRef?: Ref<HTMLDivElement>;
+  rows?: number;
+};
+
+type ChatComposerFullProps = ChatComposerBase & {
+  compact?: false;
   online: boolean;
   onToggleOnline: () => void;
   modelPlacement?: "down" | "up";
-  className?: string;
-  composerRef?: Ref<HTMLDivElement>;
 };
 
-export function ChatComposer({
-  value,
-  onChange,
-  onSubmit,
-  placeholder,
-  online,
-  onToggleOnline,
-  modelPlacement = "down",
-  className,
-  composerRef,
-}: ChatComposerProps) {
+type ChatComposerCompactProps = ChatComposerBase & {
+  compact: true;
+};
+
+export type ChatComposerProps = ChatComposerFullProps | ChatComposerCompactProps;
+
+export function ChatComposer(props: ChatComposerProps) {
+  const {
+    value,
+    onChange,
+    onSubmit,
+    placeholder,
+    className,
+    composerRef,
+    rows = 3,
+  } = props;
+  const compact = props.compact === true;
   const fileRef = useRef<HTMLInputElement>(null);
   const canSend = Boolean(value.trim());
 
@@ -41,7 +52,7 @@ export function ChatComposer({
     <div className={className ? `composer ${className}` : "composer"} ref={composerRef}>
       <textarea
         value={value}
-        rows={3}
+        rows={compact ? Math.min(rows, 3) : rows}
         placeholder={placeholder}
         title="Enter 发送，Shift+Enter 换行"
         aria-keyshortcuts="Enter"
@@ -54,13 +65,18 @@ export function ChatComposer({
       />
       <div className="composer__toolbar">
         <div className="composer__tools">
-          <input ref={fileRef} className="composer__file" type="file" accept="image/*" onChange={attachImage} />
-          <button className="button button--small" type="button" onClick={() => fileRef.current?.click()}>
-            <MenuIcon name="upload" />上传图片
-          </button>
-          <ConnectionToggle online={online} onToggle={onToggleOnline} />
-          <ModelSelect placement={modelPlacement} />
-          <span className="composer__hint">Enter 发送 · Shift+Enter 换行</span>
+          {!compact && (
+            <>
+              <input ref={fileRef} className="composer__file" type="file" accept="image/*" onChange={attachImage} />
+              <button className="button button--small" type="button" onClick={() => fileRef.current?.click()}>
+                <MenuIcon name="upload" />上传图片
+              </button>
+              <ConnectionToggle online={props.online} onToggle={props.onToggleOnline} />
+              <ModelSelect placement={props.modelPlacement ?? "down"} />
+              <span className="composer__hint">Enter 发送 · Shift+Enter 换行</span>
+            </>
+          )}
+          {compact && <span className="composer__hint">Enter 发送</span>}
         </div>
         <button className="button button--primary composer__send" type="button" onClick={onSubmit} aria-label="发送" disabled={!canSend}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>

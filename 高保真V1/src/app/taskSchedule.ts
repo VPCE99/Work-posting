@@ -3,7 +3,9 @@ const PROTOTYPE_NOW = new Date(2026, 9, 8, 13, 46);
 
 export function formatNextRun(frequency: string, time: string, enabled: boolean) {
   if (!enabled) return "已停用";
-  const [hour, minute] = time.split(":").map((part) => Number(part) || 0);
+  const parts = time.split(":");
+  const hour = Number(parts[0]) || 0;
+  const minute = Number(parts[1]) || 0;
   const next = new Date(PROTOTYPE_NOW);
   next.setHours(hour, minute, 0, 0);
   const bump = (days: number) => next.setDate(next.getDate() + days);

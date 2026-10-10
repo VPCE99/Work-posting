@@ -1,0 +1,397 @@
+/* Extracted from ppt-editor.css lines 219-614. Mechanical split only; values unchanged. */
+.market-slide {
+ position: absolute; inset: 0; color: #f7f8fa; 
+}
+
+.market-slide > * {
+ position: absolute; margin: 0; 
+}
+
+.market-slide h2 {
+ left: calc(34px * var(--slide-scale)); top: calc(30px * var(--slide-scale)); width: calc(500px * var(--slide-scale)); color: #f7f8fa; font-size: calc(22px * var(--slide-scale)); line-height: calc(30px * var(--slide-scale)); font-weight: 400; 
+}
+
+.market-slide__subtitle {
+ left: calc(36px * var(--slide-scale)); top: calc(66px * var(--slide-scale)); width: calc(320px * var(--slide-scale)); color: #8e949e; font-size: calc(12px * var(--slide-scale)); line-height: calc(18px * var(--slide-scale)); 
+}
+
+.market-slide__rule {
+ left: calc(36px * var(--slide-scale)); top: calc(96px * var(--slide-scale)); width: calc(688px * var(--slide-scale)); height: calc(1px * var(--slide-scale)); background: #2f3238; 
+}
+
+.market-slide__metric-one-label {
+ left: calc(36px * var(--slide-scale)); top: calc(132px * var(--slide-scale)); color: #d9dde3; font-size: calc(14px * var(--slide-scale)); 
+}
+
+.market-slide__metric-one {
+ left: calc(36px * var(--slide-scale)); top: calc(158px * var(--slide-scale)); color: #00c9c3; font-size: calc(34px * var(--slide-scale)); line-height: calc(44px * var(--slide-scale)); font-weight: 400; 
+}
+
+.market-slide__metric-one-unit {
+ left: calc(152px * var(--slide-scale)); top: calc(177px * var(--slide-scale)); color: #8e949e; font-size: calc(12px * var(--slide-scale)); 
+}
+
+.market-slide__metric-two-label {
+ left: calc(36px * var(--slide-scale)); top: calc(230px * var(--slide-scale)); color: #d9dde3; font-size: calc(14px * var(--slide-scale)); 
+}
+
+.market-slide__metric-two {
+ left: calc(36px * var(--slide-scale)); top: calc(256px * var(--slide-scale)); color: #0094f4; font-size: calc(32px * var(--slide-scale)); line-height: calc(42px * var(--slide-scale)); font-weight: 400; 
+}
+
+.market-slide__metric-two-note {
+ left: calc(36px * var(--slide-scale)); top: calc(300px * var(--slide-scale)); color: #8e949e; font-size: calc(12px * var(--slide-scale)); line-height: calc(17px * var(--slide-scale)); 
+}
+
+.market-slide__live-text {
+  margin: 0;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: pointer;
+}
+
+.market-slide__live-metric {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.market-slide__live-chart {
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--slide-scale));
+  box-sizing: border-box;
+  padding: calc(8px * var(--slide-scale)) calc(10px * var(--slide-scale));
+  pointer-events: none;
+}
+
+.market-slide__live-chart-title {
+  color: #c8cdd5;
+  font-size: calc(12px * var(--slide-scale));
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.market-slide__live-chart svg {
+  width: 100%;
+  height: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.market-slide__live-chart-label {
+  fill: #8e949e;
+  font-size: 10px;
+}
+
+.market-slide__live-chart-legend {
+  display: flex;
+  gap: calc(12px * var(--slide-scale));
+  color: #8e949e;
+  font-size: calc(11px * var(--slide-scale));
+}
+
+.market-slide__live-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.market-slide__live-chart-legend i {
+  width: 10px;
+  height: 10px;
+  display: block;
+  border-radius: 2px;
+}
+
+.market-slide__live-chart-legend i.is-avg { background: #3b82f6; }
+.market-slide__live-chart-legend i.is-spot { background: #ef4444; }
+
+.market-slide__chart-hit {
+  left: calc(356px * var(--slide-scale));
+  top: calc(120px * var(--slide-scale));
+  width: calc(360px * var(--slide-scale));
+  height: calc(260px * var(--slide-scale));
+  z-index: 5;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.market-slide__chart-hit.slide-element--selected {
+  z-index: 6;
+}
+
+.market-slide__bar,
+.market-slide__trend,
+.market-slide__dot,
+.market-slide__axis,
+.market-slide__year {
+  pointer-events: none;
+}
+
+.ppt-editor .slide-canvas--light .market-slide__live-chart-title,
+.ppt-editor .slide-canvas--light .market-slide__live-chart-legend {
+  color: #53666b;
+}
+
+.ppt-editor .slide-canvas--light .market-slide__live-chart-label {
+  fill: #627278;
+}
+
+.market-slide__chart-title {
+ left: calc(356px * var(--slide-scale)); top: calc(130px * var(--slide-scale)); color: #c8cdd5; font-size: calc(13px * var(--slide-scale)); pointer-events: none; 
+}
+
+/* 柱顶可微圆角，底端贴轴保持直角，避免“悬浮胶囊”观感 */
+.market-slide__bar {
+  width: calc(38px * var(--slide-scale));
+  bottom: calc(78px * var(--slide-scale));
+  border-radius: calc(3px * var(--slide-scale)) calc(3px * var(--slide-scale)) 0 0;
+  background: #123b68;
+}
+
+.market-slide__bar--1 {
+ left: calc(390px * var(--slide-scale)); height: calc(74px * var(--slide-scale)); 
+}
+
+.market-slide__bar--2 {
+ left: calc(464px * var(--slide-scale)); height: calc(128px * var(--slide-scale)); 
+}
+
+.market-slide__bar--3 {
+ left: calc(538px * var(--slide-scale)); height: calc(182px * var(--slide-scale)); 
+}
+
+.market-slide__bar--4 {
+ left: calc(612px * var(--slide-scale)); height: calc(232px * var(--slide-scale)); 
+}
+
+.market-slide__trend {
+ left: calc(390px * var(--slide-scale)); top: calc(170px * var(--slide-scale)); width: calc(260px * var(--slide-scale)); height: calc(120px * var(--slide-scale)); overflow: visible; 
+}
+
+.market-slide__trend path {
+ fill: none; stroke: #00c9c3; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; 
+}
+
+.market-slide__dot {
+ width: calc(12px * var(--slide-scale)); height: calc(12px * var(--slide-scale)); border-radius: 50%; background: #00c9c3; outline: calc(3px * var(--slide-scale)) solid #15181d; outline-offset: calc(-1.5px * var(--slide-scale)); 
+}
+
+/* 数据点水平居中对齐柱宽中心：bar.left + (38-12)/2 */
+.market-slide__dot--1 {
+ left: calc(403px * var(--slide-scale)); top: calc(264px * var(--slide-scale)); 
+}
+
+.market-slide__dot--2 {
+ left: calc(477px * var(--slide-scale)); top: calc(238px * var(--slide-scale)); 
+}
+
+.market-slide__dot--3 {
+ left: calc(551px * var(--slide-scale)); top: calc(214px * var(--slide-scale)); 
+}
+
+.market-slide__dot--4 {
+ left: calc(625px * var(--slide-scale)); top: calc(182px * var(--slide-scale)); 
+}
+
+.market-slide__axis {
+ left: calc(372px * var(--slide-scale)); top: calc(350px * var(--slide-scale)); width: calc(296px * var(--slide-scale)); height: calc(1px * var(--slide-scale)); background: #3a3e46; 
+}
+
+.market-slide__year {
+  top: calc(366px * var(--slide-scale));
+  width: calc(52px * var(--slide-scale));
+  color: #8e949e;
+  font-size: calc(12px * var(--slide-scale));
+  line-height: calc(17px * var(--slide-scale));
+  text-align: center;
+}
+
+/* 年份标签居中对齐柱中心：bar.left + (38-52)/2 */
+.market-slide__year--1 {
+ left: calc(383px * var(--slide-scale)); 
+}
+
+.market-slide__year--2 {
+ left: calc(457px * var(--slide-scale)); 
+}
+
+.market-slide__year--3 {
+ left: calc(531px * var(--slide-scale)); 
+}
+
+.market-slide__year--4 {
+ left: calc(605px * var(--slide-scale)); 
+}
+
+.market-slide__source {
+ left: calc(36px * var(--slide-scale)); top: calc(390px * var(--slide-scale)); width: calc(330px * var(--slide-scale)); color: #6f7682; font-size: calc(12px * var(--slide-scale)); line-height: calc(17px * var(--slide-scale)); 
+}
+
+.market-slide__brand {
+ left: calc(666px * var(--slide-scale)); top: calc(390px * var(--slide-scale)); width: calc(80px * var(--slide-scale)); color: #00c9c3; font-size: calc(12px * var(--slide-scale)); line-height: calc(17px * var(--slide-scale)); font-weight: 650; 
+}
+
+/* PPT 画布配色由视觉样式独立控制，不受全局 data-theme 强制覆盖 */
+.ppt-editor .slide-canvas--dark {
+  background: #15181d;
+  color: #f7f8fa;
+  border-color: #2f3238;
+}
+
+.ppt-editor .slide-canvas--dark .slide-canvas__placeholder small {
+ color: #8e949e; 
+}
+
+.ppt-editor .slide-canvas--dark .slide-canvas__placeholder h1 {
+ color: #f7f8fa; 
+}
+
+.ppt-editor .slide-canvas--dark .slide-canvas__placeholder p {
+ color: #c8cdd5; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide {
+ color: #f7f8fa; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide h2 {
+ color: #f7f8fa; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__subtitle {
+ color: #8e949e; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__rule {
+ background: #2f3238; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__metric-one-label,
+.ppt-editor .slide-canvas--dark .market-slide__metric-two-label {
+ color: #d9dde3; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__metric-one {
+ color: #00c9c3; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__metric-one-unit,
+.ppt-editor .slide-canvas--dark .market-slide__metric-two-note,
+.ppt-editor .slide-canvas--dark .market-slide__year,
+.ppt-editor .slide-canvas--dark .market-slide__source {
+ color: #8e949e; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__metric-two {
+ color: #0094f4; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__chart-title {
+ color: #c8cdd5; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__bar {
+ background: #123b68; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__trend path {
+ stroke: #00c9c3; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__dot {
+  background: #00c9c3;
+  outline-color: #15181d;
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__axis {
+ background: #3a3e46; 
+}
+
+.ppt-editor .slide-canvas--dark .market-slide__brand {
+ color: #00c9c3; 
+}
+
+.ppt-editor .slide-canvas--light {
+  background: #f7f8fa;
+  color: #191b20;
+  border-color: #d5dde0;
+}
+
+.ppt-editor .slide-canvas--light .slide-canvas__placeholder small {
+ color: #6f7682; 
+}
+
+.ppt-editor .slide-canvas--light .slide-canvas__placeholder h1 {
+ color: #191b20; 
+}
+
+.ppt-editor .slide-canvas--light .slide-canvas__placeholder p {
+ color: #5c6570; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide {
+ color: #191b20; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide h2 {
+ color: #191b20; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__subtitle {
+ color: #6f7682; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__rule {
+ background: #d5dde0; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__metric-one-label,
+.ppt-editor .slide-canvas--light .market-slide__metric-two-label {
+ color: #3a424c; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__metric-one {
+ color: #00a8a1; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__metric-one-unit,
+.ppt-editor .slide-canvas--light .market-slide__metric-two-note,
+.ppt-editor .slide-canvas--light .market-slide__year,
+.ppt-editor .slide-canvas--light .market-slide__source {
+ color: #6f7682; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__metric-two {
+ color: #0080d6; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__chart-title {
+ color: #4a535e; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__bar {
+ background: #9ec5e8; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__trend path {
+ stroke: #00a8a1; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__dot {
+  background: #00a8a1;
+  outline-color: #f7f8fa;
+}
+
+.ppt-editor .slide-canvas--light .market-slide__axis {
+ background: #c5ced3; 
+}
+
+.ppt-editor .slide-canvas--light .market-slide__brand {
+ color: #00a8a1; 
+}
+

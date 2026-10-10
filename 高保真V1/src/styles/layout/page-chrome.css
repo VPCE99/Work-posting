@@ -1,21 +1,20 @@
-/* Shared primary-page chrome for tasks / ppt / skills / account. */
+/* Shared primary-page chrome for tasks / ppt / skills / account.
+   Loaded after feature CSS so fluid width wins over fixed artboard leftovers. */
 
-
-
-/* Primary pages share one coordinate system and the topbar's 20px right edge. */
 .main:has(.task-page),
 .main:has(.ppt-projects-page),
 .main:has(.skills-page),
 .main:has(.account-page) {
-  padding: 24px 39px 28px 40px;
+  padding: 24px clamp(20px, 3vw, 40px) 28px;
 }
 
+:is(.task-page, .ppt-projects-page, .skills-page, .account-page).page-stack,
 :is(.task-page, .ppt-projects-page, .skills-page, .account-page) {
   width: 100%;
   max-width: none;
-  min-height: 760px;
+  min-width: 0;
   margin: 0;
-  padding: 0;
+  box-sizing: border-box;
 }
 
 :is(.task-page, .ppt-projects-page, .skills-page, .account-page) > .page-header {
@@ -44,17 +43,14 @@
 }
 
 @media (max-width: 860px) {
-
-.main:has(.task-page),
+  .main:has(.task-page),
   .main:has(.ppt-projects-page),
   .main:has(.skills-page),
   .main:has(.account-page) {
     padding: 20px 16px 24px;
-  
-}
+  }
 
   :is(.task-page, .ppt-projects-page, .skills-page, .account-page) > .page-header {
     min-height: 132px;
-  
-}
+  }
 }

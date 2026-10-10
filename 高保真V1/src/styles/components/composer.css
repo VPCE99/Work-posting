@@ -6,41 +6,41 @@
   box-shadow: none;
 }
 
-[data-theme="light"] .button--primary,
-[data-theme="light"] .button--primary:hover:not(:disabled),
-[data-theme="light"] .composer__send,
-[data-theme="light"] .composer__send:hover,
-[data-theme="light"] .agent-generate {
+.app[data-theme="light"] .button--primary,
+.app[data-theme="light"] .button--primary:hover:not(:disabled),
+.app[data-theme="light"] .composer__send,
+.app[data-theme="light"] .composer__send:hover,
+.app[data-theme="light"] .agent-generate {
   border-color: #00afa9;
   background: #00afa9;
   color: #fff;
 }
 
-[data-theme="light"] .composer {
+.app[data-theme="light"] .composer {
   border-color: #b9c8cb;
   background: #fff;
   box-shadow: 0 16px 42px rgb(28 54 60 / 12%);
 }
 
-[data-theme="light"] .composer--hero textarea,
-[data-theme="light"] .composer--hero textarea:hover,
-[data-theme="light"] .composer--hero textarea:focus,
-[data-theme="light"] .composer--hero textarea:focus-visible {
+.app[data-theme="light"] .composer--hero textarea,
+.app[data-theme="light"] .composer--hero textarea:hover,
+.app[data-theme="light"] .composer--hero textarea:focus,
+.app[data-theme="light"] .composer--hero textarea:focus-visible {
   background: transparent;
   background-color: transparent;
 }
 
-[data-theme="light"] .composer__toolbar .button,
-[data-theme="light"] .composer__toolbar select,
-[data-theme="light"] .model-select__trigger,
-[data-theme="light"] .prompt-grid button {
+.app[data-theme="light"] .composer__toolbar .button,
+.app[data-theme="light"] .composer__toolbar select,
+.app[data-theme="light"] .model-select__trigger,
+.app[data-theme="light"] .prompt-grid button {
   border-color: #c7d2d5;
   background: #fff;
   color: #53666b;
 }
 
-[data-theme="light"] .composer__toolbar .button:hover,
-[data-theme="light"] .prompt-grid button:hover {
+.app[data-theme="light"] .composer__toolbar .button:hover,
+.app[data-theme="light"] .prompt-grid button:hover {
   border-color: #9eacb0;
   background: #eef3f4;
   color: #13272b;
@@ -48,24 +48,24 @@
 
 /* All solid primary actions use white content in light mode.
    Skill-card pale primary is owned by features/skills.css. */
-[data-theme="light"] .button--primary,
-[data-theme="light"] .button--primary:hover:not(:disabled),
-[data-theme="light"] .button--primary:focus-visible,
-[data-theme="light"] .composer__send,
-[data-theme="light"] .composer__send:hover,
-[data-theme="light"] .composer__send[aria-disabled="true"],
-[data-theme="light"] .agent-generate,
-[data-theme="light"] .agent-generate:hover:not(:disabled) {
+.app[data-theme="light"] .button--primary,
+.app[data-theme="light"] .button--primary:hover:not(:disabled),
+.app[data-theme="light"] .button--primary:focus-visible,
+.app[data-theme="light"] .composer__send,
+.app[data-theme="light"] .composer__send:hover,
+.app[data-theme="light"] .composer__send[aria-disabled="true"],
+.app[data-theme="light"] .agent-generate,
+.app[data-theme="light"] .agent-generate:hover:not(:disabled) {
   color: #fff !important;
 }
 
-[data-theme="light"] .composer .composer__send,
-[data-theme="light"] .composer .composer__send[aria-disabled="true"] {
+.app[data-theme="light"] .composer .composer__send,
+.app[data-theme="light"] .composer .composer__send[aria-disabled="true"] {
   border-color: #00afa9;
   background: #00afa9;
 }
 
-[data-theme="light"] .composer .composer__send:hover {
+.app[data-theme="light"] .composer .composer__send:hover {
   border-color: #00c4bd;
   background: #00c4bd;
 }
@@ -86,42 +86,42 @@
   border-color: transparent;
 }
 
-[data-theme="light"] .prompt-grid button,
-[data-theme="light"] .prompt-grid button:hover,
-[data-theme="light"] .model-select__trigger,
-[data-theme="light"] .connection-toggle,
-[data-theme="light"] .connection-toggle:hover,
-[data-theme="light"] .connection-toggle--on,
-[data-theme="light"] .segmented,
-[data-theme="light"] .segmented button,
-[data-theme="light"] .segmented .segmented__active,
-[data-theme="light"] .composer__toolbar .button:not(.button--primary),
-[data-theme="light"] .composer__toolbar select,
-[data-theme="light"] .project-card {
+.app[data-theme="light"] .prompt-grid button,
+.app[data-theme="light"] .prompt-grid button:hover,
+.app[data-theme="light"] .model-select__trigger,
+.app[data-theme="light"] .connection-toggle,
+.app[data-theme="light"] .connection-toggle:hover,
+.app[data-theme="light"] .connection-toggle--on,
+.app[data-theme="light"] .segmented,
+.app[data-theme="light"] .segmented button,
+.app[data-theme="light"] .segmented .segmented__active,
+.app[data-theme="light"] .composer__toolbar .button:not(.button--primary),
+.app[data-theme="light"] .composer__toolbar select,
+.app[data-theme="light"] .project-card {
   border-color: transparent;
 }
 
 .composer--hero,
 .composer--hero:focus-within,
-[data-theme="light"] .composer--hero,
-[data-theme="light"] .composer--hero:focus-within {
+.app[data-theme="light"] .composer--hero,
+.app[data-theme="light"] .composer--hero:focus-within {
   border-color: transparent;
   border-radius: 28px;
 }
 
 .prompt-grid button,
-[data-theme="light"] .prompt-grid button {
+.app[data-theme="light"] .prompt-grid button {
   background: transparent;
   background-color: transparent;
 }
 
 .prompt-grid button:hover,
-[data-theme="light"] .prompt-grid button:hover {
+.app[data-theme="light"] .prompt-grid button:hover {
   background: rgb(255 255 255 / 8%);
   background-color: rgb(255 255 255 / 8%);
 }
 
-[data-theme="light"] .prompt-grid button:hover {
+.app[data-theme="light"] .prompt-grid button:hover {
   background: rgb(19 39 43 / 5%);
   background-color: rgb(19 39 43 / 5%);
 }
@@ -131,18 +131,18 @@
   box-shadow: 0 16px 48px rgb(0 0 0 / 18%);
 }
 
-[data-theme="light"] .composer:focus-within {
+.app[data-theme="light"] .composer:focus-within {
   border-color: #b9c8cb;
   box-shadow: 0 16px 42px rgb(28 54 60 / 12%);
 }
 
 .composer--hero:focus-within,
-[data-theme="light"] .composer--hero:focus-within {
+.app[data-theme="light"] .composer--hero:focus-within {
   border-color: transparent;
   box-shadow: 0 16px 48px rgb(0 0 0 / 18%);
 }
 
-[data-theme="light"] .composer--hero:focus-within {
+.app[data-theme="light"] .composer--hero:focus-within {
   box-shadow: 0 16px 42px rgb(28 54 60 / 12%);
 }
 
@@ -156,14 +156,14 @@
 
 .composer--hero textarea,
 .conversation-page .composer--sticky textarea,
-[data-theme="light"] .composer--hero textarea,
-[data-theme="light"] .composer--hero textarea:hover,
-[data-theme="light"] .composer--hero textarea:focus,
-[data-theme="light"] .composer--hero textarea:focus-visible,
-[data-theme="light"] .conversation-page .composer--sticky textarea,
-[data-theme="light"] .conversation-page .composer--sticky textarea:hover,
-[data-theme="light"] .conversation-page .composer--sticky textarea:focus,
-[data-theme="light"] .conversation-page .composer--sticky textarea:focus-visible {
+.app[data-theme="light"] .composer--hero textarea,
+.app[data-theme="light"] .composer--hero textarea:hover,
+.app[data-theme="light"] .composer--hero textarea:focus,
+.app[data-theme="light"] .composer--hero textarea:focus-visible,
+.app[data-theme="light"] .conversation-page .composer--sticky textarea,
+.app[data-theme="light"] .conversation-page .composer--sticky textarea:hover,
+.app[data-theme="light"] .conversation-page .composer--sticky textarea:focus,
+.app[data-theme="light"] .conversation-page .composer--sticky textarea:focus-visible {
   flex: 1 1 auto;
   height: auto;
   min-height: 0;
@@ -185,8 +185,8 @@
 
 .composer--hero .composer__toolbar .composer__send,
 .conversation-page .composer__toolbar .composer__send,
-[data-theme="light"] .composer--hero .composer__toolbar .composer__send,
-[data-theme="light"] .conversation-page .composer__toolbar .composer__send {
+.app[data-theme="light"] .composer--hero .composer__toolbar .composer__send,
+.app[data-theme="light"] .conversation-page .composer__toolbar .composer__send {
   width: 42px;
   min-width: 42px;
   height: 42px;
@@ -223,13 +223,15 @@
 
 @media (max-width: 1180px) {
 
-  .main:has(.home-page),
-  .main:has(.conversation-page) {
+  .main:has(.home-page) {
     height: auto;
     overflow-x: clip;
     overflow-y: visible;
-  
-}
+  }
+
+  .main:has(.conversation-page) {
+    overflow: hidden;
+  }
 
   .composer__toolbar .composer__send,
   .composer--hero .composer__toolbar .composer__send,
@@ -259,16 +261,30 @@
 
   .home-page,
   .home-page__content,
-  .composer--hero,
-  .conversation-page,
-  .conversation-page .composer--sticky {
+  .composer--hero {
     width: 100%;
     max-width: 100%;
     min-width: 0;
     height: auto;
     min-height: 0;
-  
-}
+  }
+
+  .conversation-page,
+  .conversation-page .composer--sticky {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .conversation-page {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .conversation-page .composer--sticky {
+    height: auto;
+    min-height: 0;
+  }
 
   .prompt-grid {
  display: flex; flex-wrap: wrap; gap: 8px; 
@@ -311,9 +327,9 @@
 .composer--hero .composer__send:disabled,
 .composer--hero .composer__toolbar .composer__send:disabled,
 .conversation-page .composer__toolbar .composer__send:disabled,
-[data-theme="light"] .composer .composer__send:disabled,
-[data-theme="light"] .composer--hero .composer__toolbar .composer__send:disabled,
-[data-theme="light"] .conversation-page .composer__toolbar .composer__send:disabled {
+.app[data-theme="light"] .composer .composer__send:disabled,
+.app[data-theme="light"] .composer--hero .composer__toolbar .composer__send:disabled,
+.app[data-theme="light"] .conversation-page .composer__toolbar .composer__send:disabled {
   background: #3a3e47;
   color: #8e949e;
   cursor: not-allowed;
@@ -327,10 +343,10 @@
   background: #3a3e47;
 }
 
-[data-theme="light"] .composer__send:disabled,
-[data-theme="light"] .composer .composer__send:disabled,
-[data-theme="light"] .composer--hero .composer__toolbar .composer__send:disabled,
-[data-theme="light"] .conversation-page .composer__toolbar .composer__send:disabled {
+.app[data-theme="light"] .composer__send:disabled,
+.app[data-theme="light"] .composer .composer__send:disabled,
+.app[data-theme="light"] .composer--hero .composer__toolbar .composer__send:disabled,
+.app[data-theme="light"] .conversation-page .composer__toolbar .composer__send:disabled {
   background: #d5dee1 !important;
   border-color: transparent !important;
   color: #627278 !important;

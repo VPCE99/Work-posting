@@ -1,15 +1,32 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
 import { formatNextRun } from "./taskSchedule";
 import { conversations as initialConversations, initialProjects, initialSkills, initialTasks } from "../data/mock";
 import type { Conversation, PptProject, ScheduledTask, Skill, ToastMessage } from "../types";
+
+/** Keep document chrome aligned with .app theme; strip orphan html[data-theme]. */
+export function syncDocumentTheme(theme: "light" | "dark") {
+  // Theme tokens/selectors must only live on .app. A leftover data-theme on
+  // <html> lets [data-theme="light"] chrome rules fire while .app stays dark
+  // (white sidebar + dark main). Strip orphans and keep color-scheme only.
+  if (document.documentElement.getAttribute("data-theme") !== null) {
+    document.documentElement.removeAttribute("data-theme");
+  }
+  if (document.documentElement.style.colorScheme !== theme) {
+    document.documentElement.style.colorScheme = theme;
+  }
+  const bodyBg = theme === "dark" ? "#0b0d10" : "#f4f7f8";
+  if (document.body.style.backgroundColor !== bodyBg) {
+    document.body.style.backgroundColor = bodyBg;
+  }
+}
 
 type PrototypeContextValue = {
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (value: boolean) => void;
   mobileSidebarOpen: boolean;
   setMobileSidebarOpen: (value: boolean) => void;
-  activeDialog: "plans" | "binding" | "chart" | null;
-  setActiveDialog: (dialog: "plans" | "binding" | "chart" | null) => void;
+  activeDialog: "binding" | "chart" | null;
+  setActiveDialog: (dialog: "binding" | "chart" | null) => void;
   pinnedConversationIds: string[];
   togglePinnedConversation: (id: string) => void;
   conversations: Conversation[];
@@ -30,6 +47,7 @@ type PrototypeContextValue = {
   deleteCustomTemplate: (name: string) => void;
   skills: Skill[];
   addSkill: (skill: Skill) => void;
+  updateSkill: (id: string, patch: Partial<Skill>) => void;
   deleteSkill: (id: string) => void;
   theme: "light" | "dark";
   toggleTheme: () => void;
@@ -42,7 +60,7 @@ const PrototypeContext = createContext<PrototypeContextValue | null>(null);
 export function PrototypeProvider({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<"plans" | "binding" | "chart" | null>(null);
+  const [activeDialog, setActiveDialog] = useState<"binding" | "chart" | null>(null);
   const [pinnedConversationIds, setPinnedConversationIds] = useState(["industry"]);
   const [conversations, setConversations] = useState(initialConversations);
   const [tasks, setTasks] = useState(initialTasks);
@@ -52,6 +70,10 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
   const [skills, setSkills] = useState(initialSkills);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  useLayoutEffect(() => {
+    syncDocumentTheme(theme);
+  }, [theme]);
 
   const notify = (text: string, tone: ToastMessage["tone"] = "neutral") => {
     const id = Date.now();
@@ -93,12 +115,17 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     deleteCustomTemplate: (name) => setCustomTemplates((items) => items.filter((item) => item !== name)),
     skills,
     addSkill: (skill) => setSkills((items) => [skill, ...items]),
+    updateSkill: (id, patch) => setSkills((items) => items.map((item) => item.id === id ? { ...item, ...patch } : item)),
     deleteSkill: (id) => setSkills((items) => items.filter((item) => item.id !== id)),
     theme,
     toggleTheme: () => {
       const root = document.querySelector<HTMLElement>(".app");
       root?.setAttribute("data-theme-switching", "");
-      setTheme((value) => value === "light" ? "dark" : "light");
+      setTheme((value) => {
+        const next = value === "light" ? "dark" : "light";
+        syncDocumentTheme(next);
+        return next;
+      });
       window.requestAnimationFrame(() => {
         window.requestAnimationFrame(() => root?.removeAttribute("data-theme-switching"));
       });

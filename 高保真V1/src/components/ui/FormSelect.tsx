@@ -1,6 +1,8 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Reveal } from "./Reveal";
+import { useDismissibleLayer } from "./useDismissibleLayer";
+import { useEscapeKey } from "./useEscapeKey";
 
 type Choice = { value: string; label: string };
 
@@ -35,31 +37,15 @@ export function FormSelect({ options, value, onChange, label }: FormSelectProps)
     setBox({
       left: rect.left,
       width: Math.max(rect.width, 128),
-      top: upward ? undefined : rect.bottom + 4,
-      bottom: upward ? window.innerHeight - rect.top + 4 : undefined,
+      ...(upward
+        ? { bottom: window.innerHeight - rect.top + 4 }
+        : { top: rect.bottom + 4 }),
       maxHeight: Math.max(96, (upward ? above : below) - 12),
     });
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const closeOnOutside = (event: PointerEvent) => {
-      const target = event.target as Node;
-      if (triggerRef.current?.contains(target) || menuRef.current?.contains(target)) return;
-      setOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      event.stopPropagation();
-      setOpen(false);
-    };
-    document.addEventListener("pointerdown", closeOnOutside);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeOnOutside);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [open]);
+  useDismissibleLayer(open, () => setOpen(false), [triggerRef, menuRef]);
+  useEscapeKey(open, () => setOpen(false), { stopPropagation: true });
 
   const choose = (next: string) => {
     setUncontrolled(next);

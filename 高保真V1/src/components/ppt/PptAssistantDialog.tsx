@@ -19,7 +19,7 @@ export function NewPptDialog({ onClose, onCreated }: { onClose: () => void; onCr
   const [source, setSource] = useState<"空画布" | "从现有对话生成" | "导入文件">("空画布");
   const [sourceFile, setSourceFile] = useState("");
   const [templateTab, setTemplateTab] = useState<"official" | "mine">("official");
-  const [template, setTemplate] = useState(officialTemplates[0].name);
+  const [template, setTemplate] = useState(officialTemplates[0]?.name ?? "");
   const [attempted, setAttempted] = useState(false);
   const favoriteOfficialTemplates = officialTemplates.filter((item) => favoriteTemplateIds.includes(item.id));
 

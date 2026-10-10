@@ -8,21 +8,22 @@
   --lh-title: 1.25;
   --lh-body: 1.55;
   --lh-helper: 1.4;
-  --color-bg: #f4f7f8;
-  --color-surface: #ffffff;
-  --color-surface-muted: #eef3f4;
-  --color-text: #13272b;
-  --color-text-muted: #627278;
-  --color-text-subtle: #3d555c;
-  --color-message-user-bg: #d5e4e8;
-  --color-message-user-text: #13272b;
-  --color-border: #d7e0e2;
-  --color-border-strong: #9eacb0;
-  --color-primary: #00afa9;
-  --color-primary-contrast: #071012;
-  --color-success: #0ba99a;
-  --color-danger: #e45b6a;
-  --color-warning: #d49a38;
+  /* Default to dark to match PrototypeContext initial theme before .app mounts. */
+  --color-bg: #0b0d10;
+  --color-surface: #111318;
+  --color-surface-muted: #171a20;
+  --color-text: #f7f8fa;
+  --color-text-muted: #8e949e;
+  --color-text-subtle: #b7bec7;
+  --color-message-user-bg: #1c2430;
+  --color-message-user-text: #f4f7f8;
+  --color-border: #252931;
+  --color-border-strong: #3a3e47;
+  --color-primary: #00c9c3;
+  --color-primary-contrast: #061113;
+  --color-success: #43d8a4;
+  --color-danger: #f16c78;
+  --color-warning: #f0b35f;
   --color-focus: #00c9c3;
   --shadow-modal: 0 24px 80px rgb(4 10 13 / 34%);
   --radius-sm: 28px;
@@ -37,9 +38,12 @@
   --sidebar-width: 280px;
   --sidebar-collapsed-width: 56px;
   --topbar-height: 64px;
+  color-scheme: dark;
 }
 
-[data-theme="dark"] {
+/* Theme tokens must live on .app only — never on <html> — so chrome and
+   content cannot diverge when an orphan data-theme appears on documentElement. */
+.app[data-theme="dark"] {
   color-scheme: dark;
   --color-bg: #0b0d10;
   --color-surface: #111318;
@@ -56,5 +60,25 @@
   --color-success: #43d8a4;
   --color-danger: #f16c78;
   --color-warning: #f0b35f;
+  --color-focus: #00c9c3;
+}
+
+.app[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f4f7f8;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef3f4;
+  --color-text: #13272b;
+  --color-text-muted: #627278;
+  --color-text-subtle: #3d555c;
+  --color-message-user-bg: #d5e4e8;
+  --color-message-user-text: #13272b;
+  --color-border: #d7e0e2;
+  --color-border-strong: #9eacb0;
+  --color-primary: #00afa9;
+  --color-primary-contrast: #071012;
+  --color-success: #0ba99a;
+  --color-danger: #e45b6a;
+  --color-warning: #d49a38;
   --color-focus: #00c9c3;
 }

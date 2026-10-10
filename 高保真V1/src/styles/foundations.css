@@ -14,15 +14,15 @@
 /* Light theme parity.
    The high-fidelity dark frames use literal colors above; keep those exact in
    dark mode and remap every interactive chrome surface when light mode is on. */
-[data-theme="light"] {
+.app[data-theme="light"] {
   color-scheme: light;
 }
 
-[data-theme="light"] .panel,
-[data-theme="light"] .basic-card,
-[data-theme="light"] .plan-card,
-[data-theme="light"] .project-card,
-[data-theme="light"] .metric-card {
+.app[data-theme="light"] .panel,
+.app[data-theme="light"] .basic-card,
+.app[data-theme="light"] .plan-card,
+.app[data-theme="light"] .project-card,
+.app[data-theme="light"] .metric-card {
   border-color: #d7e0e2;
   background: #fff;
   color: #13272b;
@@ -35,12 +35,12 @@ textarea:focus,
 textarea:focus-visible,
 select:focus,
 select:focus-visible,
-[data-theme="light"] input:focus,
-[data-theme="light"] input:focus-visible,
-[data-theme="light"] textarea:focus,
-[data-theme="light"] textarea:focus-visible,
-[data-theme="light"] select:focus,
-[data-theme="light"] select:focus-visible {
+.app[data-theme="light"] input:focus,
+.app[data-theme="light"] input:focus-visible,
+.app[data-theme="light"] textarea:focus,
+.app[data-theme="light"] textarea:focus-visible,
+.app[data-theme="light"] select:focus,
+.app[data-theme="light"] select:focus-visible {
   outline: none;
   box-shadow: none;
 }
@@ -53,7 +53,7 @@ select:focus-visible,
 }
 
 .modal,
-.modal:has(.chart-dialog),
+.modal--chart,
 .menu-popover,
 .menu-popover.conversation-header-menu,
 .menu-popover.editor-action-popover,

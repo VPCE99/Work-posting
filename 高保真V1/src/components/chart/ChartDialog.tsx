@@ -1,6 +1,7 @@
 import { useState, type DragEvent } from "react";
 import { usePrototype } from "../../app/PrototypeContext";
 import { Modal } from "../ui/Modal";
+import { paddedValueDomain, scaleLinear } from "./scale";
 
 type FieldKind = "dimension" | "measure";
 type Slot = "x" | "yLeft" | "yRight";
@@ -90,12 +91,19 @@ export function ChartDialog() {
     setGenerated(false);
   };
 
-  const datasetOf = (fieldId: string) => datasets.find((dataset) => dataset.fields.some((field) => field.id === fieldId)) ?? datasets[0];
+  const datasetOf = (fieldId: string): Dataset => {
+    const matched = datasets.find((dataset) => dataset.fields.some((field) => field.id === fieldId));
+    if (matched) return matched;
+    const fallback = datasets[0];
+    if (!fallback) throw new Error("Chart datasets are empty");
+    return fallback;
+  };
 
   return (
     <Modal
       title="自定义作图"
       size="xl"
+      variant="chart"
       onClose={close}
       footer={
         <>
@@ -252,17 +260,12 @@ function ChartResult({
   const pad = { top: 24, right: right ? 54 : 24, bottom: 36, left: 54 };
   const innerW = width - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;
-  const domain = (values: number[]) => {
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const slack = (max - min) * 0.6 || max * 0.08;
-    return { min: Math.max(0, min - slack), max: max + slack };
-  };
-  const leftDomain = domain(leftValues);
-  const rightDomain = domain(rightValues.length ? rightValues : [1]);
+  const leftDomain = paddedValueDomain(leftValues);
+  const rightDomain = paddedValueDomain(rightValues.length ? rightValues : [1]);
   const band = innerW / labels.length;
   const barW = Math.min(46, band * 0.42);
-  const yOf = (value: number, axis: { min: number; max: number }) => pad.top + innerH - ((value - axis.min) / (axis.max - axis.min)) * innerH;
+  const yOf = (value: number, axis: { min: number; max: number }) =>
+    scaleLinear(value, axis, { start: pad.top + innerH, end: pad.top });
   const line = rightValues.map((value, index) => `${pad.left + band * index + band / 2},${yOf(value, rightDomain)}`).join(" ");
   const ticks = [0, 0.5, 1];
 

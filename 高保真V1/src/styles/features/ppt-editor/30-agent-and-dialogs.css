@@ -1,0 +1,360 @@
+/* Extracted from ppt-editor.css lines 615-951. Mechanical split only; values unchanged. */
+.ppt-agent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  width: 360px;
+  min-width: 0;
+  overflow: hidden;
+  transform-origin: 100% 0%;
+  transition:
+    width 0.58s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.58s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ppt-agent-tabs {
+  height: 48px;
+  flex: 0 0 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px 0 20px;
+  border-bottom: 1px solid #2f3238;
+}
+
+.ppt-agent-tabs button:not(.ppt-agent-collapse) {
+ width: 88px; height: 48px; position: relative; padding: 0; border: 0; background: transparent; color: #8e949e; font-size: 12px; cursor: pointer; text-align: left; 
+}
+
+.ppt-agent-tabs button:not(.ppt-agent-collapse).active {
+ color: #f7f8fa; 
+}
+
+.ppt-agent-tabs button:not(.ppt-agent-collapse).active::after {
+ content: ""; width: 72px; height: 2px; position: absolute; left: 0; bottom: 0; border-radius: 1px; background: #00c9c3; 
+}
+
+.ppt-agent-collapse {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #8e949e;
+  cursor: pointer;
+}
+
+.ppt-agent-collapse:hover {
+  border-color: #2f3238;
+  background: #15181d;
+  color: #f7f8fa;
+}
+
+.ppt-agent-collapse svg {
+ display: block; 
+}
+
+.ppt-agent-main {
+  min-height: 0;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ppt-agent__stream {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-content: start;
+  padding: 14px 14px 10px;
+  scrollbar-width: thin;
+}
+
+.ppt-agent__stream::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ppt-agent__stream::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #2f3238;
+}
+
+.ppt-agent .message.ppt-agent__bubble {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.ppt-agent .message--user.ppt-agent__bubble {
+  width: fit-content;
+  max-width: 92%;
+  margin-left: auto;
+  padding: 10px 12px;
+  border-radius: 12px 12px 4px 12px;
+  background: #1a222c;
+  border: 1px solid #2a3140;
+}
+
+.ppt-agent .message--user.ppt-agent__bubble p {
+  margin: 0;
+  color: #f7f8fa;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ppt-agent .message--assistant.ppt-agent__bubble {
+  padding: 12px;
+  border: 1px solid #24414a;
+  border-radius: 12px 12px 12px 4px;
+  background: #152126;
+}
+
+.ppt-agent__reply-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ppt-agent__reply-head .rich-response__agent-icon {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+}
+
+.ppt-agent__reply-head .rich-response__agent-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.ppt-agent__reply-head strong {
+  color: #00c9c3;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ppt-agent .message--assistant.ppt-agent__bubble > p {
+  margin: 0;
+  color: #d9e1e4;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ppt-agent .follow-up-thinking {
+  margin: 4px 0 0;
+  transform: scale(0.72);
+  transform-origin: left center;
+}
+
+.ppt-agent__composer-wrap {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 10px;
+  padding: 10px 12px 14px;
+  border-top: 0;
+  background: transparent;
+}
+
+.ppt-agent .composer--agent {
+  width: 100%;
+  padding: 10px 10px 10px;
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.ppt-agent .composer--agent textarea {
+  min-height: 52px;
+  height: auto;
+  max-height: 120px;
+  padding: 8px 10px 10px;
+  resize: none;
+  font-size: 13px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.ppt-agent .composer--agent .composer__toolbar {
+  min-height: 34px;
+  gap: 8px;
+}
+
+.ppt-agent .composer--agent .composer__hint {
+  font-size: 11px;
+  color: #6f7682;
+}
+
+.ppt-agent .composer--agent .composer__send,
+.ppt-agent .composer--agent .composer__toolbar .composer__send {
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  min-height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #00c9c3;
+  color: #06201f;
+  font-size: 0;
+  line-height: 0;
+  box-shadow: none;
+}
+
+.ppt-agent .composer--agent .composer__send::after,
+.ppt-agent .composer--agent .composer__toolbar .composer__send::after {
+  content: none;
+}
+
+.ppt-agent .composer--agent .composer__send svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ppt-agent .composer--agent .composer__send:hover:not(:disabled) {
+  background: #22d8d1;
+  color: #06201f;
+}
+
+.ppt-agent .composer--agent .composer__send:disabled,
+.ppt-agent .composer--agent .composer__send[aria-disabled="true"] {
+  background: #2a3038;
+  color: #8e949e;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.ppt-agent__morph-logo {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.55);
+  pointer-events: none;
+  transition:
+    opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ppt-agent__morph-logo .brand-mark {
+ width: 26px; height: 26px; flex-basis: 26px; 
+}
+
+.ppt-agent--collapsing {
+  width: 0;
+  min-width: 0;
+  overflow: visible;
+  transform: scale(0.08) translate(-56px, -10px);
+  border-left-color: transparent;
+  pointer-events: none;
+}
+
+.ppt-agent--collapsing .ppt-agent-main,
+.ppt-agent--collapsing .ppt-agent-tabs {
+  opacity: 0;
+}
+
+/* Keep morph logo visible during the flight (do not set opacity on the root
+   while collapsing — that would also hide this logo). */
+.ppt-agent--collapsing .ppt-agent__morph-logo {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ppt-agent--closed {
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+}
+
+.ppt-agent--expanding {
+  width: 360px;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.ppt-editor__workspace {
+  align-items: stretch;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  transition: grid-template-columns 0.58s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ppt-editor__workspace::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+  display: none;
+}
+
+.ppt-editor__workspace {
+  grid-template-columns: 236px minmax(0, 1fr) 0 minmax(0, 360px);
+}
+
+.ppt-editor__workspace--props-open {
+  grid-template-columns: 236px minmax(0, 1fr) 300px minmax(0, 360px);
+}
+
+.ppt-editor__workspace--agent-docked {
+  grid-template-columns: 236px minmax(0, 1fr) 0 0px;
+}
+
+.ppt-editor__workspace--agent-docked.ppt-editor__workspace--props-open {
+  grid-template-columns: 236px minmax(0, 1fr) 300px 0px;
+}
+
+/* Keep agent in flow during collapse so morph → logo bubble can play.
+   Width/transform are driven by .ppt-agent--collapsing. */
+.ppt-editor__workspace--agent-docked > .ppt-agent {
+  min-width: 0;
+  border-left-color: transparent;
+  pointer-events: none;
+}
+
+.ppt-editor__workspace--agent-docked > .ppt-agent.ppt-agent--collapsing:not(.ppt-agent--closed) {
+  overflow: visible;
+  z-index: 6;
+}
+
+.ppt-editor__workspace--agent-docked > .ppt-agent.ppt-agent--closed {
+  overflow: hidden;
+}
+

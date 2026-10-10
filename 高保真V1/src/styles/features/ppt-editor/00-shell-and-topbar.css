@@ -1,0 +1,28 @@
+/* Extracted from ppt-editor.css lines 1-26. Mechanical split only; values unchanged. */
+/* PPT Editor page + canvas + agent dock — consolidated final parity values. */
+
+.app--ppt-editor .topbar__brand {
+ height: 48px; 
+}
+
+.app--ppt-editor .topbar {
+ padding: 0 20px 0 18px; 
+}
+
+.app--ppt-editor .topbar__actions {
+ display: grid; 
+}
+
+.app--ppt-editor .topbar .brand {
+ display: inline-flex; align-items: center; gap: 8px; 
+}
+
+.app--ppt-editor .topbar .brand-copy {
+ display: flex; align-items: center; gap: 0; 
+}
+
+.app--ppt-editor .topbar .brand-copy::after {
+  content: none;
+  display: none;
+}
+

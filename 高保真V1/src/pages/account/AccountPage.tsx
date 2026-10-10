@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { usePrototype } from "../../app/PrototypeContext";
+import { Link, useNavigate } from "react-router-dom";
 
 const RANGE_DAYS = 30;
 const rangeEnd = new Date(2026, 9, 8);
@@ -60,7 +59,7 @@ function PanelTip({ tip }: { tip: TipState | null }) {
 }
 
 export function AccountPage() {
-  const { setActiveDialog } = usePrototype();
+  const navigate = useNavigate();
   const [activityTip, setActivityTip] = useState<TipState | null>(null);
   const [tokenTip, setTokenTip] = useState<TipState | null>(null);
   const [orderTab, setOrderTab] = useState<"有效订单" | "全部订单">("有效订单");
@@ -70,7 +69,7 @@ export function AccountPage() {
     <section className="page-stack account-page">
         <header className="page-header">
           <div><p className="eyebrow">账户</p><h1>客户后台</h1><p>统一查看套餐、用量、余额和订单。</p></div>
-          <div className="button-row"><Link className="button" to="/chat">返回对话</Link><button className="button button--primary" onClick={() => setActiveDialog("plans")}>购买套餐</button></div>
+          <div className="button-row"><Link className="button" to="/chat">返回对话</Link><button className="button button--primary" onClick={() => navigate("/account/plans")}>购买套餐</button></div>
         </header>
 
         <div className="metric-grid">

@@ -83,24 +83,24 @@ select:not([multiple])::-ms-expand {
  min-height: 0; padding: 4px 22px 4px 6px; background-position: right 6px center; font-size: 12px; 
 }
 
-[data-theme="light"] .form-select__trigger {
+.app[data-theme="light"] .form-select__trigger {
  border-color: #c7d2d5; background-color: #fff; color: #263b40; 
 }
 
-[data-theme="light"] .form-select__trigger:hover {
+.app[data-theme="light"] .form-select__trigger:hover {
  border-color: #9eacb0; background-color: #eef3f4; 
 }
 
-[data-theme="light"] .form-select__menu {
+.app[data-theme="light"] .form-select__menu {
  border-color: #d7e0e2; background: #fff; 
 }
 
-[data-theme="light"] .form-select__menu button {
+.app[data-theme="light"] .form-select__menu button {
  color: #263b40; 
 }
 
-[data-theme="light"] .form-select__menu button:hover,
-[data-theme="light"] .form-select__menu button[aria-selected="true"] {
+.app[data-theme="light"] .form-select__menu button:hover,
+.app[data-theme="light"] .form-select__menu button[aria-selected="true"] {
  background: #eef3f4; 
 }
 
@@ -113,13 +113,13 @@ select:not([multiple])::-ms-expand {
   padding-left: 2.5em;
 }
 
-[data-theme="light"] .template-search {
+.app[data-theme="light"] .template-search {
   background-color: #fff;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.2 1.2 13.3 13.3' fill='none' stroke='%23627278' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6.6' cy='6.6' r='4.35'/%3E%3Cpath d='M9.85 9.85 13.7 13.7'/%3E%3C/svg%3E");
   color: #13272b;
 }
 
-[data-theme="light"] select:not([multiple]) {
+.app[data-theme="light"] select:not([multiple]) {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M2 2L6 6L10 2' stroke='%23627278' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
@@ -131,13 +131,13 @@ select:not([multiple])::-ms-expand {
   background-color: #0e1014;
 }
 
-[data-theme="light"] .modal input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
-[data-theme="light"] .modal textarea,
-[data-theme="light"] .modal select,
-[data-theme="light"] .modal .form-select__trigger,
-[data-theme="light"] .modal input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover,
-[data-theme="light"] .modal textarea:hover,
-[data-theme="light"] .modal select:hover,
-[data-theme="light"] .modal .form-select__trigger:hover {
+.app[data-theme="light"] .modal input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.app[data-theme="light"] .modal textarea,
+.app[data-theme="light"] .modal select,
+.app[data-theme="light"] .modal .form-select__trigger,
+.app[data-theme="light"] .modal input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover,
+.app[data-theme="light"] .modal textarea:hover,
+.app[data-theme="light"] .modal select:hover,
+.app[data-theme="light"] .modal .form-select__trigger:hover {
   background-color: #eef3f4;
 }

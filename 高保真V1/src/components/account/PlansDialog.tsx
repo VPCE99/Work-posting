@@ -1,20 +1,23 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
 import { plans } from "../../data/mock";
 import type { Plan } from "../../types";
 import { Modal } from "../ui/Modal";
 
 export function PlansDialog() {
-  const { setActiveDialog, notify } = usePrototype();
+  const navigate = useNavigate();
+  const { notify } = usePrototype();
   const [chosenId, setChosenId] = useState("standard");
   const [selected, setSelected] = useState<Plan | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [paid, setPaid] = useState(false);
   const close = () => {
-    setActiveDialog(null);
     setSelected(null);
     setPaymentOpen(false);
     setPaid(false);
+    if (window.history.length > 1) navigate(-1);
+    else navigate("/chat", { replace: true });
   };
 
   return (

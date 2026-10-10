@@ -10,41 +10,41 @@
  color: currentColor; 
 }
 
-[data-theme="light"] .button,
-[data-theme="light"] .icon-button,
-[data-theme="light"] input,
-[data-theme="light"] textarea,
-[data-theme="light"] select,
-[data-theme="light"] .status {
+.app[data-theme="light"] .button,
+.app[data-theme="light"] .icon-button,
+.app[data-theme="light"] input,
+.app[data-theme="light"] textarea,
+.app[data-theme="light"] select,
+.app[data-theme="light"] .status {
   border-color: #c7d2d5;
   background-color: #fff;
   color: #263b40;
 }
 
-[data-theme="light"] .button:hover:not(:disabled),
-[data-theme="light"] .icon-button:hover,
-[data-theme="light"] input:hover,
-[data-theme="light"] textarea:hover,
-[data-theme="light"] select:hover {
+.app[data-theme="light"] .button:hover:not(:disabled),
+.app[data-theme="light"] .icon-button:hover,
+.app[data-theme="light"] input:hover,
+.app[data-theme="light"] textarea:hover,
+.app[data-theme="light"] select:hover {
   border-color: #9eacb0;
   background-color: #eef3f4;
 }
 
-[data-theme="light"] .button--danger {
+.app[data-theme="light"] .button--danger {
   border-color: #e45b6a;
   background: #e45b6a;
   color: #fff;
 }
 
-[data-theme="light"] .button--ghost {
+.app[data-theme="light"] .button--ghost {
  background: transparent; 
 }
 
-[data-theme="light"] .tab--active {
+.app[data-theme="light"] .tab--active {
  color: #13272b; 
 }
 
-[data-theme="light"] .status--success {
+.app[data-theme="light"] .status--success {
   border-color: #78bcb4;
   background: #edf9f7;
   color: #087e75;

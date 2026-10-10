@@ -40,7 +40,13 @@ export function TasksPage() {
         </div>
       </section>
 
-      {editingTask !== undefined && <TaskDialog initial={editingTask ?? undefined} onClose={() => setEditingTask(undefined)} onSave={(task) => { saveTask(task); setEditingTask(undefined); notify("任务已保存", "success"); }} />}
+      {editingTask !== undefined && (
+        <TaskDialog
+          {...(editingTask ? { initial: editingTask } : {})}
+          onClose={() => setEditingTask(undefined)}
+          onSave={(task) => { saveTask(task); setEditingTask(undefined); notify("任务已保存", "success"); }}
+        />
+      )}
       {deletingTask && <ConfirmDialog title="删除定时任务" message={`将永久删除“${deletingTask.name}”，此操作不可撤销。`} confirmText="确认删除" danger onClose={() => setDeletingTask(null)} onConfirm={() => { deleteTask(deletingTask.id); setDeletingTask(null); notify("任务已删除"); }} />}
     </>
   );

@@ -1,13 +1,23 @@
 import type { ReactNode } from "react";
-import { usePrototype } from "../../app/PrototypeContext";
+import { syncDocumentTheme, usePrototype } from "../../app/PrototypeContext";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { GlobalDialogs } from "./GlobalDialogs";
 
-export function AppShell({ children, fullBleed = false }: { children: ReactNode; fullBleed?: boolean }) {
+export function AppShell({
+  children,
+  fullBleed = false,
+  pptEditor = false,
+}: {
+  children: ReactNode;
+  fullBleed?: boolean;
+  pptEditor?: boolean;
+}) {
   const { theme, toasts } = usePrototype();
+  // Heal orphaned html[data-theme] on every paint so chrome cannot drift from .app.
+  syncDocumentTheme(theme);
   return (
-    <div className="app" data-theme={theme}>
+    <div className={pptEditor ? "app app--ppt-editor" : "app"} data-theme={theme}>
       <Topbar />
       <div className="app__body"><Sidebar /><main className={fullBleed ? "main main--full" : "main"}>{children}</main></div>
       <GlobalDialogs />

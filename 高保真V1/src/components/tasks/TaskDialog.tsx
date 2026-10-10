@@ -21,13 +21,14 @@ export function TaskDialog({ initial, onSave, onClose }: {
     event.preventDefault();
     setAttempted(true);
     if (!name.trim() || !prompt.trim()) return;
+    const trimmedEmail = email.trim();
     onSave({
       id: initial?.id ?? `task-${Date.now()}`,
       name: name.trim(),
       prompt: prompt.trim(),
       frequency,
       time,
-      email: email.trim() || undefined,
+      ...(trimmedEmail ? { email: trimmedEmail } : {}),
       enabled,
       nextRun: formatNextRun(frequency, time, enabled),
       result: initial?.result ?? "等待运行",

@@ -197,7 +197,10 @@ export function ConversationPage() {
           {thinkingPhase !== "off" && <ThinkingMark intro={introStage === "fly" || introStage === "think"} leaving={thinkingPhase === "leaving"} />}
         </div>
 
-        <ChatComposer className="composer--sticky" value={draft} onChange={setDraft} onSubmit={submit} placeholder="继续追问；输入 / 调用技能" online={online} onToggleOnline={() => setOnline((current) => !current)} modelPlacement="up" />
+        <footer className="conversation-composer-dock">
+          <ChatComposer className="composer--sticky" value={draft} onChange={setDraft} onSubmit={submit} placeholder="继续追问；输入 / 调用技能" online={online} onToggleOnline={() => setOnline((current) => !current)} modelPlacement="up" />
+          <p className="conversation-privacy">端到端会话隔离 · 数据仅用于当前工作区</p>
+        </footer>
     </section>
   );
 }
