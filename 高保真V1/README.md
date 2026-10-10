@@ -30,3 +30,10 @@ npm run typecheck
 - AI 新对话、会话页、定时任务、PPT 助手、PPT 编辑器、我的技能、客户后台。
 - 账户与套餐、确认/支付订单、绑定手机端、新建任务、技能详情、PPT 导入/新建/模板管理、自定义作图等弹窗。
 - 桌面端与移动端响应式布局。
+
+## Vercel 部署
+
+1. 在 Vercel 导入本仓库 `VPCE99/Work-posting`
+2. **Root Directory** 设为 `高保真V1`
+3. Build Command: `npm run build`；Output Directory: `dist`（Vite 默认）
+4. 本目录已包含 `vercel.json`，用于 SPA 路由回退到 `index.html`

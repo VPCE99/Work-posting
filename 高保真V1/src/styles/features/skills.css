@@ -7,11 +7,6 @@
   margin-top: 24px;
 }
 
-.skills-toolbar,
-.app[data-theme="light"] .skills-toolbar {
-  border-bottom-color: transparent;
-}
-
 .skills-toolbar__filters .form-select { width: 144px; flex: 0 0 144px; }
 .skills-toolbar__filters .form-select__trigger { height: 40px; min-height: 40px; }
 
@@ -102,7 +97,7 @@
 
 .skills-page .page-header .button { width: 232px; height: 42px; }
 
-.skills-toolbar { height: 52px; border-bottom: 1px solid #2f3238; }
+.skills-toolbar { height: 52px; border-bottom: 0; }
 
 .skills-toolbar__filters { display: flex; gap: 12px; }
 

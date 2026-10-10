@@ -36,7 +36,6 @@
 .ppt-library__toolbar {
   height: 40px;
   min-height: 40px;
-  border-bottom-color: transparent;
 }
 .ppt-library__tools input {
   width: 260px;
@@ -516,7 +515,6 @@
   color: #13272b;
 }
 .app[data-theme="light"] .ppt-library__actions .action-tile--primary:hover { background: #eef3f4; }
-.app[data-theme="light"] .ppt-library__toolbar { border-bottom-color: transparent; }
 .app[data-theme="light"] .ppt-library__tools input,
 .app[data-theme="light"] .ppt-library__tools input:hover,
 .app[data-theme="light"] .ppt-library__tools input:focus {
@@ -679,7 +677,7 @@
 
 .ppt-library__actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
 
-.ppt-library__toolbar { min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); border-bottom: 1px solid var(--color-border); }
+.ppt-library__toolbar { min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); border-bottom: 0; }
 
 .ppt-library__tools { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); }
 
