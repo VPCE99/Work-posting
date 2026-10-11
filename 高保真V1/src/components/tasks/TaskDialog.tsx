@@ -38,17 +38,24 @@ export function TaskDialog({ initial, onSave, onClose }: {
   return (
     <Modal
       title={initial ? "编辑定时任务" : "新建定时任务"}
+      variant="task"
       onClose={onClose}
       footer={<><button className="button" onClick={onClose}>取消</button><button className="button button--primary" form="task-form" type="submit">保存任务</button></>}
     >
       <form id="task-form" className="form-stack" onSubmit={submit}>
-        <label><span className="task-form__label-text">任务名称 <span aria-hidden="true">*</span></span>
+        <label>
+          <span className="field-label-row task-form__label-text">
+            <span>任务名称 <span aria-hidden="true">*</span></span>
+            {attempted && !name.trim() && <small className="field-error">请输入任务名称</small>}
+          </span>
           <input value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：每日行业简报" />
-          {attempted && !name.trim() && <small className="field-error">请输入任务名称</small>}
         </label>
-        <label><span className="task-form__label-text">任务内容 <span aria-hidden="true">*</span></span>
+        <label>
+          <span className="field-label-row task-form__label-text">
+            <span>任务内容 <span aria-hidden="true">*</span></span>
+            {attempted && !prompt.trim() && <small className="field-error">请输入任务内容</small>}
+          </span>
           <textarea rows={5} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="描述研究范围、数据要求和输出格式" />
-          {attempted && !prompt.trim() && <small className="field-error">请输入任务内容</small>}
         </label>
         <div className="form-grid form-grid--2">
           <label>执行频率

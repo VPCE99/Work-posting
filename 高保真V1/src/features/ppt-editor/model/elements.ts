@@ -21,12 +21,14 @@ export function buildSlideElements(slideIndex: number, title = DEFAULT_SLIDE_TIT
     return [
       { ...textDefaults, id: elementId(slideIndex, "title"), label: elementLabel(slideIndex, 1), content: "市场规模与增长趋势", x: 34, y: 30, w: 500, h: 36, fontSize: "22", lineHeight: "1.4", aiGenerated: true },
       { ...textDefaults, id: elementId(slideIndex, "subtitle"), label: elementLabel(slideIndex, 2), content: "产业园 REITs · 2023—2026E", x: 36, y: 66, w: 320, h: 22, fontSize: "12", textColor: "#8e949e" },
-      { ...textDefaults, id: elementId(slideIndex, "metric"), label: elementLabel(slideIndex, 3), content: "31.4 亿元 · 规模持续扩张", x: 36, y: 132, w: 220, h: 80, textColor: "#00c9c3", bold: true, aiGenerated: true },
-      { ...textDefaults, id: elementId(slideIndex, "note"), label: elementLabel(slideIndex, 4), content: "较 2023 年提升 4.6 个百分点", x: 36, y: 300, w: 260, h: 24, fontSize: "12", textColor: "#8e949e" },
+      { ...textDefaults, id: elementId(slideIndex, "metric"), label: elementLabel(slideIndex, 3), content: "31.4 亿元 · 规模持续扩张", x: 36, y: 132, w: 280, h: 44, fontSize: "22", textColor: "#00c9c3", bold: true, aiGenerated: true },
+      { ...textDefaults, id: elementId(slideIndex, "metricLabel"), label: elementLabel(slideIndex, 4), content: "出租率稳步提升", x: 36, y: 230, w: 220, h: 22, fontSize: "14", textColor: "#d9dde3" },
+      { ...textDefaults, id: elementId(slideIndex, "metricValue"), label: elementLabel(slideIndex, 5), content: "93.8%", x: 36, y: 256, w: 180, h: 42, fontSize: "32", textColor: "#0094f4", bold: true, aiGenerated: true },
+      { ...textDefaults, id: elementId(slideIndex, "note"), label: elementLabel(slideIndex, 6), content: "较 2023 年提升 4.6 个百分点", x: 36, y: 300, w: 260, h: 24, fontSize: "12", textColor: "#8e949e" },
       {
         ...textDefaults,
         id: elementId(slideIndex, "chart"),
-        label: elementLabel(slideIndex, 5),
+        label: elementLabel(slideIndex, 7),
         kind: "chart",
         content: "规模与出租率趋势",
         x: 356,
@@ -38,6 +40,8 @@ export function buildSlideElements(slideIndex: number, title = DEFAULT_SLIDE_TIT
         chartHeaders: ["类别", "平均出租率", "时点出租率"],
         chartRows: defaultChartRows.map((row) => ({ ...row })),
       },
+      { ...textDefaults, id: elementId(slideIndex, "source"), label: elementLabel(slideIndex, 8), content: "来源：ChopChat Research · 2026E 为预测值", x: 36, y: 390, w: 330, h: 20, fontSize: "12", textColor: "#6f7682" },
+      { ...textDefaults, id: elementId(slideIndex, "brand"), label: elementLabel(slideIndex, 9), content: "ChopChat", x: 666, y: 390, w: 80, h: 20, fontSize: "12", textColor: "#00c9c3", bold: true },
     ];
   }
   return [

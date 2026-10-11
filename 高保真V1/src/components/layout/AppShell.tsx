@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { syncDocumentTheme, usePrototype } from "../../app/PrototypeContext";
+import { usePrototype } from "../../app/PrototypeContext";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { GlobalDialogs } from "./GlobalDialogs";
@@ -14,8 +14,7 @@ export function AppShell({
   pptEditor?: boolean;
 }) {
   const { theme, toasts } = usePrototype();
-  // Heal orphaned html[data-theme] on every paint so chrome cannot drift from .app.
-  syncDocumentTheme(theme);
+  // Theme DOM sync is owned by useDocumentTheme in PrototypeProvider (not render-phase).
   return (
     <div className={pptEditor ? "app app--ppt-editor" : "app"} data-theme={theme}>
       <Topbar />

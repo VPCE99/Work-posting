@@ -1,90 +1,191 @@
-/* Modal / popover / toast overlay chrome. */
-
-
-
-/* Dialog geometry from the reference artboards. */
-.modal:has(.summary-list) {
- height: 524px; min-height: 524px; max-height: 524px; 
+/* --- Migrated from global.css (§6.6 modal ownership; before local modal.css overrides) --- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgb(0 0 0 / 46%);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
 }
-
-.modal__footer .button--ghost {
- border-color: #3a3e47; background: #191b20; 
+.modal {
+  width: min(620px, 100%);
+  max-height: min(86vh, 900px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+  display: flex;
+  flex-direction: column;
 }
-
-.modal__footer .button--ghost:hover:not(:disabled) {
- border-color: #4b515c; background: #20242b; 
+.modal--sm {
+  width: min(440px, 100%);
 }
-
+.modal--lg {
+  width: min(980px, 100%);
+}
+.modal--xl {
+  width: min(1240px, 100%);
+}
+.modal--xl .modal__body {
+  overflow: hidden;
+}
+.modal__header,
+.modal__footer {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.modal__header {
+  border-bottom: 1px solid var(--color-border);
+}
+.modal__header h2 {
+  margin: 0;
+}
+.modal__body {
+  padding: var(--space-4);
+  overflow-y: auto;
+}
+.modal__footer {
+  border-top: 1px solid var(--color-border);
+  justify-content: flex-end;
+}
+@media (max-width: 560px) {
+  .modal-backdrop {
+    padding: 0;
+    align-items: end;
+  }
+  .modal {
+    width: 100%;
+    max-height: 94vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .modal--xl .modal__body {
+    overflow-y: auto;
+  }
+}
+.modal--plans {
+  border-radius: 14px;
+}
+.modal-backdrop {
+  background: rgb(0 0 0 / 70%);
+  backdrop-filter: blur(5px);
+}
+.modal {
+  border-color: #343842;
+  border-radius: 10px;
+  background: #111318;
+  box-shadow:
+    0 28px 100px rgb(0 0 0 / 55%),
+    0 0 0 1px rgb(255 255 255 / 2%);
+}
+.modal__header,
+.modal__footer {
+  min-height: 56px;
+  border-color: #2f3238;
+}
+.modal__header h2 {
+  font-size: 18px;
+}
+.modal__header .icon-button {
+  border: 0;
+  color: #8e949e;
+}
+.modal__body {
+  padding: 20px;
+}
+.modal__footer {
+  background: #0f1116;
+}
+.modal {
+  width: min(640px, 100%);
+  overflow: hidden;
+  border-radius: 28px;
+  background: #171a20;
+}
+.modal--sm {
+  width: min(480px, 100%);
+}
+.modal--lg {
+  width: min(780px, 100%);
+}
+.modal--xl {
+  width: min(1320px, calc(100vw - 120px));
+}
+.modal--chart {
+  border-radius: 28px;
+}
+.modal--plans {
+  width: min(1040px, calc(100vw - 64px));
+  min-height: 710px;
+  border-radius: 14px;
+  background: #15171c;
+} /* --- modal.css local / theme overrides (previously after global) --- */ /* Modal / popover / toast overlay chrome. */ /* Dialog geometry from the reference artboards. */
+.modal--order {
+  height: 524px;
+  min-height: 524px;
+  max-height: 524px;
+}
 .app[data-theme="light"] .topbar,
 .app[data-theme="light"] .menu-popover {
-  border-color: #d7e0e2;
-  background: #fff;
-  color: #13272b;
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
   box-shadow: 0 12px 32px rgb(28 54 60 / 12%);
 }
-
 .app[data-theme="light"] .modal-backdrop {
- background: transparent; backdrop-filter: none; 
+  background: transparent;
+  backdrop-filter: none;
 }
-
 .app[data-theme="light"] .modal-backdrop__veil {
- background: rgb(24 38 43 / 26%); backdrop-filter: none; 
+  background: rgb(24 38 43 / 26%);
+  backdrop-filter: none;
 }
-
 .app[data-theme="light"] .modal,
 .app[data-theme="light"] .modal--chart {
   border-color: #c7d2d5;
-  background: #fff;
-  color: #13272b;
+  background: var(--color-surface);
+  color: var(--color-text);
   box-shadow: 0 28px 80px rgb(28 54 60 / 22%);
 }
-
 .app[data-theme="light"] .modal__header,
 .app[data-theme="light"] .modal__footer {
-  border-color: #d7e0e2;
-  background: #fff;
+  border-color: var(--color-border);
+  background: var(--color-surface);
 }
-
 .app[data-theme="light"] .modal__header h2 {
- color: #13272b; 
+  color: var(--color-text);
 }
-
 .app[data-theme="light"] .modal__header .icon-button {
   border-color: #c7d2d5;
-  background: #fff;
-  color: #627278;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
 }
-
 .modal,
 .app[data-theme="light"] .modal,
 .app[data-theme="light"] .modal--chart {
   border-color: transparent;
 }
-
 .modal {
- box-shadow: 0 28px 100px rgb(0 0 0 / 55%); 
+  box-shadow: 0 28px 100px rgb(0 0 0 / 55%);
 }
-
 .app[data-theme="light"] .modal {
- box-shadow: 0 28px 80px rgb(28 54 60 / 22%); 
+  box-shadow: 0 28px 80px rgb(28 54 60 / 22%);
 }
-
 .app[data-theme="light"] .modal .button:not(.button--primary),
 .app[data-theme="light"] .modal .button:not(.button--primary):hover,
 .app[data-theme="light"] .modal__footer .button:not(.button--primary),
-.app[data-theme="light"] .modal__footer .button:not(.button--primary):hover,
-.app[data-theme="light"] .modal__footer .button--ghost,
-.app[data-theme="light"] .modal__footer .button--ghost:hover:not(:disabled) {
-  border-color: #c7d2d5;
-  background: #fff;
-  background-color: #fff;
+.app[data-theme="light"] .modal__footer .button:not(.button--primary):hover {
+  border-color: transparent;
+  background: var(--color-surface);
+  background-color: var(--color-surface);
   color: #263b40;
 }
-
 .app[data-theme="light"] .modal .button:not(.button--primary):hover,
-.app[data-theme="light"] .modal__footer .button:not(.button--primary):hover,
-.app[data-theme="light"] .modal__footer .button--ghost:hover:not(:disabled) {
-  border-color: #9eacb0;
-  background: #eef3f4;
-  background-color: #eef3f4;
+.app[data-theme="light"] .modal__footer .button:not(.button--primary):hover {
+  border-color: transparent;
+  background: var(--color-surface-muted);
+  background-color: var(--color-surface-muted);
 }

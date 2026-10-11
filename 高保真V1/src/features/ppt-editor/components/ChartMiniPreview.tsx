@@ -1,8 +1,9 @@
 import { ChartRenderer } from "../../../components/chart/ChartRenderer";
-import { chartSeries, defaultChartRows, type ChartRow, type ChartType } from "../model";
+import { occupancyChartSeries } from "../../../components/chart/scale";
+import { defaultChartRows, type ChartRow, type ChartType } from "../model";
 
 export function ChartMiniPreview({ chartType, rows }: { chartType: ChartType; rows?: ChartRow[] }) {
-  const series = chartSeries(rows ?? defaultChartRows);
+  const series = occupancyChartSeries(rows ?? defaultChartRows);
   return (
     <ChartRenderer
       type={chartType}

@@ -10,6 +10,8 @@ export type ConversationReply = {
   legend: [string, string];
   chartCaption: string;
   labels: [string, string, string];
+  /** Suggested follow-up questions shown under the assistant reply. */
+  followUps: [string, string, string];
 };
 
 const industry: ConversationReply = {
@@ -33,6 +35,7 @@ const industry: ConversationReply = {
   legend: ["出租率", "营业收入"],
   chartCaption: "2023 至 2025 年出租率与营业收入均上升",
   labels: ["2023", "2024", "2025"],
+  followUps: ["对比不同园区的出租率差异", "解释收入增长的主要驱动因素", "把结论整理成投资备忘录"],
 };
 
 const competitor: ConversationReply = {
@@ -56,6 +59,7 @@ const competitor: ConversationReply = {
   legend: ["功能覆盖", "客单价"],
   chartCaption: "样本竞品的功能覆盖与客单价逐级上升",
   labels: ["我方", "竞品A", "竞品B"],
+  followUps: ["细化竞品收费与续约差异", "补充可复用的数据能力清单", "整理成竞品对比一页纸"],
 };
 
 const finance: ConversationReply = {
@@ -79,6 +83,7 @@ const finance: ConversationReply = {
   legend: ["收入增速", "现金流"],
   chartCaption: "近三个季度收入增速与经营现金流同步改善",
   labels: ["Q1", "Q2", "Q3"],
+  followUps: ["拆解费用率变化的主要科目", "对比同业利润与现金流质量", "输出下一季度跟踪清单"],
 };
 
 const market: ConversationReply = {
@@ -102,6 +107,7 @@ const market: ConversationReply = {
   legend: ["可服务规模", "可触达份额"],
   chartCaption: "从 TAM 收到 SOM，可服务规模逐级收敛",
   labels: ["TAM", "SAM", "SOM"],
+  followUps: ["说明 SAM 与 SOM 的测算假设", "按城市层级拆分可服务市场", "把测算结果整理成简报"],
 };
 
 const memo: ConversationReply = {
@@ -125,6 +131,7 @@ const memo: ConversationReply = {
   legend: ["关注度", "信息完整度"],
   chartCaption: "亮点、风险与建议的信息完整度逐项提高",
   labels: ["亮点", "风险", "建议"],
+  followUps: ["补充重点园区去化细节", "量化区域风险对估值的影响", "改写成投委会发言提纲"],
 };
 
 const replies: Record<string, ConversationReply> = {
@@ -161,6 +168,7 @@ function replyFromPrompt(prompt: string): ConversationReply {
     chartTitle: "判断完整度",
     chartRange: "本次回答",
     legend: ["完整度", "可执行性"],
+    followUps: ["对比不同园区的出租率差异", "解释收入增长的主要驱动因素", "把结论整理成投资备忘录"],
     chartCaption: "范围、依据与输出的完整度逐项提高",
     labels: ["范围", "依据", "输出"],
   };

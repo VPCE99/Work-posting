@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
 import { ImportPptDialog, NewPptDialog, TemplateManagerDialog } from "../../components/ppt/PptAssistantDialog";
 import { ConfirmDialog, Modal } from "../../components/ui/Modal";
 import { Reveal } from "../../components/ui/Reveal";
+import { useDismissibleLayer } from "../../components/ui/useDismissibleLayer";
 import { useEscapeKey } from "../../components/ui/useEscapeKey";
 import type { PptProject } from "../../types";
 import { FavoriteStarIcon } from "../../components/ui/FavoriteStarIcon";
+import { Icon } from "../../components/ui/Icon";
 
 type Filter = "全部" | "最近查看" | "收藏夹";
 type ViewMode = "网格" | "列表";
@@ -25,15 +27,7 @@ export function PptProjectsPage() {
   const [renaming, setRenaming] = useState<PptProject | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
 
-  useEffect(() => {
-    if (!menuProjectId) return;
-    const closeMenu = (event: PointerEvent) => {
-      if (!(event.target as Element).closest(".project-menu-anchor")) setMenuProjectId(null);
-    };
-    document.addEventListener("pointerdown", closeMenu);
-    return () => document.removeEventListener("pointerdown", closeMenu);
-  }, [menuProjectId]);
-
+  useDismissibleLayer(Boolean(menuProjectId), () => setMenuProjectId(null), [], { withinSelector: ".project-menu-anchor" });
   useEscapeKey(Boolean(menuProjectId), () => setMenuProjectId(null));
 
   const visible = useMemo(() => projects.filter((project) => {
@@ -64,7 +58,7 @@ export function PptProjectsPage() {
             <strong>＋ 新建 PPT</strong><span>从空画布、对话或文件生成</span>
           </button>
           <button className="action-tile" onClick={() => setImportOpen(true)}>
-            <strong><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6" /><path d="M12 18v-6" /><path d="m9 15 3-3 3 3" /></svg>导入现有 PPT</strong><span>上传 .pptx 并智能解析</span>
+            <strong><Icon name="upload" strokeWidth={1.8} />导入现有 PPT</strong><span>上传 .pptx 并智能解析</span>
           </button>
           <button className="action-tile" onClick={() => setTemplatesOpen(true)}>
             <strong><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="7" x="3" y="3" rx="1.5" /><rect width="8" height="7" x="3" y="14" rx="1.5" /><rect width="6" height="7" x="15" y="14" rx="1.5" /></svg>模板管理</strong><span>系统模板与自定义模板</span>
@@ -155,9 +149,13 @@ function ProjectCard({ project, menuOpen, onOpen, onToggleMenu, onToggleFavorite
   const statusTone = project.status === "已保存" ? "success" : project.status === "解析中" ? "progress" : "danger";
   return (
     <article className="ppt-project-item">
-      <div className="ppt-project-item__preview">
+      <div className={`ppt-project-item__preview${project.coverUrl ? " ppt-project-item__preview--cover" : ""}`}>
         <button className="ppt-project-item__preview-open" onClick={onOpen} aria-label={`打开 ${project.name}`}>
-          <span>PPT</span>
+          {project.coverUrl ? (
+            <img className="ppt-project-item__cover" src={project.coverUrl} alt={`${project.name} 首页主题图`} />
+          ) : (
+            <span>PPT</span>
+          )}
           <small className="ppt-project-item__preview-pages">{project.pages} 页</small>
         </button>
         {project.favorite && (

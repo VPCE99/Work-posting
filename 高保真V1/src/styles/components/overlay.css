@@ -1,5 +1,20 @@
 /* Loaded after global.css to preserve the original high-fidelity cascade. */
-.page-stack { align-content: start; }
-.modal-backdrop { background: transparent; backdrop-filter: none; }
-.modal-backdrop__veil { position: absolute; inset: 0; z-index: 0; background: rgb(5 7 11 / 46%); backdrop-filter: none; pointer-events: none; }
-.modal-backdrop > .modal { position: relative; z-index: 1; }
+.page-stack {
+  align-content: start;
+}
+.modal-backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+.modal-backdrop__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgb(5 7 11 / 46%);
+  backdrop-filter: none;
+  pointer-events: none;
+}
+.modal-backdrop > .modal {
+  position: relative;
+  z-index: 1;
+}

@@ -1,299 +1,118 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent, MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { usePrototype } from "../../app/PrototypeContext";
-import type { Conversation } from "../../types";
-import { focusableElements, trapTab } from "../ui/focusContainment";
-import { ConfirmDialog, Modal } from "../ui/Modal";
-import { MenuIcon } from "../ui/MenuIcon";
-import { Reveal } from "../ui/Reveal";
-
-const groups = ["今天", "昨天", "过去 7 天", "更早"] as const;
-
-/** 头像内固定展示两个字：中文名取末两字，其它取前两字。 */
-function avatarInitials(displayName: string) {
-  const text = displayName.replace(/\s+/g, "");
-  if (!text) return "用户";
-  const cjk = text.match(/[\u4e00-\u9fff]/g)?.join("") ?? "";
-  if (cjk.length >= 2) return cjk.slice(-2);
-  if (cjk.length === 1) return `${cjk}用户`.slice(0, 2);
-  return text.slice(0, 2).toUpperCase();
-}
-
-const ACCOUNT_DISPLAY_NAME = "测试账号";
-const ACCOUNT_AVATAR_LABEL = avatarInitials("用户");
-
-type NavIconName = "alarm-clock" | "presentation" | "sparkles" | "layout-dashboard" | "chart-no-axes-combined";
-
-function NavIcon({ name }: { name: NavIconName }) {
-  const common = {
-    width: 20,
-    height: 20,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 2,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    "aria-hidden": true,
-  };
-
-  if (name === "alarm-clock") return <svg className="nav-icon" {...common}><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M5 3 2 6" /><path d="m22 6-3-3" /><path d="M6.38 18.7 4 21" /><path d="M17.64 18.67 20 21" /></svg>;
-  if (name === "presentation") return <svg className="nav-icon" {...common}><path d="M2 3h20" /><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" /><path d="m7 21 5-5 5 5" /></svg>;
-  if (name === "sparkles") return <svg className="nav-icon" {...common}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /><path d="M5 3v4" /><path d="M3 5h4" /><path d="M19 17v4" /><path d="M17 19h4" /></svg>;
-  if (name === "layout-dashboard") return <svg className="nav-icon" {...common}><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>;
-  return <svg className="nav-icon" {...common}><path d="M12 16v5" /><path d="M16 14v7" /><path d="M20 10v11" /><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.708 0L2 15" /><path d="M4 18v3" /><path d="M8 14v7" /></svg>;
-}
+import { HistoryContextMenu } from "./sidebar/HistoryContextMenu";
+import { ProjectContextMenu } from "./sidebar/ProjectContextMenu";
+import { SidebarAccount } from "./sidebar/SidebarAccount";
+import { SidebarDialogs } from "./sidebar/SidebarDialogs";
+import { SidebarHistory } from "./sidebar/SidebarHistory";
+import { SidebarNav } from "./sidebar/SidebarNav";
+import { useSidebarController } from "./sidebar/useSidebarController";
 
 export function Sidebar() {
-  const navigate = useNavigate();
-  const {
-    sidebarCollapsed,
-    setSidebarCollapsed,
-    mobileSidebarOpen,
-    setMobileSidebarOpen,
-    activeDialog,
-    setActiveDialog,
-    pinnedConversationIds,
-    togglePinnedConversation,
-    conversations,
-    renameConversation,
-    notify,
-  } = usePrototype();
-  const [historyQuery, setHistoryQuery] = useState("");
-  const [accountOpen, setAccountOpen] = useState(false);
-  const [logoutOpen, setLogoutOpen] = useState(false);
-  const [historyMenu, setHistoryMenu] = useState<{ id: string; left: number; top: number } | null>(null);
-  const [renameTarget, setRenameTarget] = useState<Conversation | null>(null);
-  const [renameDraft, setRenameDraft] = useState("");
-  const sidebarRef = useRef<HTMLElement>(null);
-  const [isDrawer, setIsDrawer] = useState(false);
-
-  useEffect(() => {
-    // Match CSS drawer breakpoint: icon-rail collapse stays available until true mobile.
-    const query = window.matchMedia("(max-width: 860px)");
-    const sync = () => setIsDrawer(query.matches);
-    sync();
-    query.addEventListener("change", sync);
-    return () => query.removeEventListener("change", sync);
-  }, []);
-
-  useEffect(() => {
-    const sidebar = sidebarRef.current;
-    const main = document.querySelector<HTMLElement>(".main");
-    const topbar = document.querySelector<HTMLElement>(".topbar");
-    if (!isDrawer) {
-      sidebar?.removeAttribute("inert");
-      sidebar?.removeAttribute("aria-hidden");
-      return;
-    }
-    if (!mobileSidebarOpen) {
-      sidebar?.setAttribute("inert", "");
-      sidebar?.setAttribute("aria-hidden", "true");
-      return () => {
-        sidebar?.removeAttribute("inert");
-        sidebar?.removeAttribute("aria-hidden");
-      };
-    }
-    sidebar?.removeAttribute("inert");
-    sidebar?.removeAttribute("aria-hidden");
-    main?.setAttribute("inert", "");
-    topbar?.setAttribute("inert", "");
-    focusableElements(sidebar ?? document.body)[0]?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setMobileSidebarOpen(false);
-        return;
-      }
-      if (sidebar) trapTab(event, sidebar);
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      main?.removeAttribute("inert");
-      topbar?.removeAttribute("inert");
-      document.querySelector<HTMLElement>(".mobile-menu-button")?.focus();
-    };
-  }, [isDrawer, mobileSidebarOpen, setMobileSidebarOpen]);
-
-  useEffect(() => {
-    if (!historyMenu) return;
-    const close = () => setHistoryMenu(null);
-    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") close(); };
-    window.addEventListener("click", close);
-    window.addEventListener("keydown", closeOnEscape);
-    window.addEventListener("resize", close);
-    return () => {
-      window.removeEventListener("click", close);
-      window.removeEventListener("keydown", closeOnEscape);
-      window.removeEventListener("resize", close);
-    };
-  }, [historyMenu]);
-
-  const filteredConversations = useMemo(
-    () => conversations.filter((item) => `${item.title}${item.preview}`.includes(historyQuery)),
-    [conversations, historyQuery],
-  );
-  const pinnedConversations = filteredConversations.filter((item) => pinnedConversationIds.includes(item.id));
-
-  const flashSidebarPress = (event: ReactPointerEvent<HTMLElement>) => {
-    const target = (event.target as HTMLElement).closest<HTMLElement>(".nav-item, .history-item__open");
-    if (!target || !event.currentTarget.contains(target)) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    document.getAnimations().forEach((animation) => {
-      const effect = animation.effect;
-      if (effect instanceof KeyframeEffect && effect.target === target && effect.pseudoElement === "::before") animation.cancel();
-    });
-    target.animate(
-      [
-        { backgroundSize: "6% 100%", opacity: 1 },
-        { backgroundSize: "72% 100%", opacity: 1, offset: 0.46 },
-        { backgroundSize: "172% 100%", opacity: 1, offset: 0.78 },
-        { backgroundSize: "172% 100%", opacity: 0 },
-      ],
-      { duration: 500, easing: "linear", pseudoElement: "::before" },
-    );
-  };
-
-  const closeMobile = () => setMobileSidebarOpen(false);
-  const openConversation = (id: string) => {
-    setActiveDialog(null);
-    setHistoryMenu(null);
-    closeMobile();
-    navigate(`/chat/${id}`);
-  };
-  const startNewConversation = () => {
-    setActiveDialog(null);
-    closeMobile();
-    navigate("/chat");
-  };
-
-  const openHistoryMenu = (event: ReactMouseEvent, item: Conversation) => {
-    event.preventDefault();
-    const width = 190;
-    const height = 132;
-    setHistoryMenu({
-      id: item.id,
-      left: Math.min(event.clientX, window.innerWidth - width - 8),
-      top: Math.min(event.clientY, window.innerHeight - height - 8),
-    });
-  };
-
-  const beginRename = (item: Conversation) => {
-    setHistoryMenu(null);
-    setRenameTarget(item);
-    setRenameDraft(item.title);
-  };
-
-  const submitRename = (event: FormEvent) => {
-    event.preventDefault();
-    if (!renameTarget || !renameDraft.trim()) return;
-    renameConversation(renameTarget.id, renameDraft.trim());
-    notify("对话已重命名", "success");
-    setRenameTarget(null);
-  };
-
-  const historyItem = (item: Conversation, pinned: boolean) => (
-    <div className="history-item" key={item.id} onContextMenu={(event) => openHistoryMenu(event, item)}>
-      <button className="history-item__open" onClick={() => openConversation(item.id)} title={item.title}>
-        <strong>{item.title}</strong>
-      </button>
-      <button className={`history-item__pin ${pinned ? "history-item__pin--active" : ""}`} onClick={() => togglePinnedConversation(item.id)} aria-label={pinned ? `取消置顶${item.title}` : `置顶${item.title}`} title={pinned ? "取消置顶" : "置顶"}><svg className="history-pin-icon" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M8.2 3.2h7.6c.75 0 1.25.5 1.25 1.15V9c0 .5.18.9.58 1.28l1.12 1.05c.4.38.65.72.65 1.22 0 .82-.62 1.4-1.5 1.4h-4.95V20.7c0 .55-.42.95-.95.95s-.95-.4-.95-.95v-6.75H6.15c-.88 0-1.5-.58-1.5-1.4 0-.5.25-.84.65-1.22l1.12-1.05c.4-.38.58-.78.58-1.28V4.35c0-.65.5-1.15 1.2-1.15zm2.15 2.15c-.28 0-.5.22-.5.5V9.1c0 .72-.28 1.25-.82 1.78l-.38.36h6.7l-.38-.36c-.54-.53-.82-1.06-.82-1.78V5.85c0-.28-.22-.5-.5-.5H10.35z" /></svg></button>
-    </div>
-  );
+  const c = useSidebarController();
 
   return (
     <>
-      <aside ref={sidebarRef} className={`sidebar ${sidebarCollapsed ? "sidebar--collapsed" : ""} ${mobileSidebarOpen ? "sidebar--mobile-open" : ""}`} onPointerDown={flashSidebarPress}>
+      <aside ref={c.sidebarRef} className={`sidebar ${c.sidebarCollapsed ? "sidebar--collapsed" : ""} ${c.mobileSidebarOpen ? "sidebar--mobile-open" : ""}`} onPointerDown={c.flashSidebarPress}>
         <div className="sidebar__heading">
           <strong className="sidebar__title">功能导航</strong>
           <button
             className="icon-button sidebar-collapse-button"
-            onClick={() => {
-              if (isDrawer) {
-                setMobileSidebarOpen(false);
-                return;
-              }
-              setSidebarCollapsed(!sidebarCollapsed);
-            }}
-            aria-label={isDrawer ? "关闭导航" : sidebarCollapsed ? "展开导航栏" : "收起导航栏"}
+            onClick={c.handleCollapseClick}
+            aria-label={c.collapseAriaLabel}
           >
             <svg viewBox="0 0 20 20" aria-hidden="true">
-              {isDrawer || !sidebarCollapsed
+              {c.isDrawer || !c.sidebarCollapsed
                 ? <><path d="m14 5-5 5 5 5" /><path d="m9 5-5 5 5 5" /></>
                 : <><path d="m6 5 5 5-5 5" /><path d="m11 5 5 5-5 5" /></>}
             </svg>
           </button>
         </div>
 
-        <nav className="primary-nav" aria-label="主要功能">
-          <NavLink className={({ isActive }) => isActive ? "nav-item nav-item--active" : "nav-item"} to="/tasks" onClick={() => { setActiveDialog(null); closeMobile(); }} title="定时任务"><NavIcon name="alarm-clock" /><span className="nav-item__label">定时任务</span></NavLink>
-          <NavLink className={({ isActive }) => isActive ? "nav-item nav-item--active" : "nav-item"} to="/ppt" onClick={() => { setActiveDialog(null); closeMobile(); }} title="PPT 助手"><NavIcon name="presentation" /><span className="nav-item__label">PPT 助手</span></NavLink>
-          <NavLink className={({ isActive }) => isActive ? "nav-item nav-item--active" : "nav-item"} to="/skills" onClick={() => { setActiveDialog(null); closeMobile(); }} title="我的技能"><NavIcon name="sparkles" /><span className="nav-item__label">我的技能</span></NavLink>
-          <NavLink className={({ isActive }) => isActive ? "nav-item nav-item--active" : "nav-item"} to="/account" onClick={() => { setActiveDialog(null); closeMobile(); }} title="客户后台"><NavIcon name="layout-dashboard" /><span className="nav-item__label">客户后台</span></NavLink>
-          <button className={activeDialog === "chart" ? "nav-item nav-item--active" : "nav-item"} onClick={() => { setActiveDialog("chart"); closeMobile(); }} title="自定义作图"><NavIcon name="chart-no-axes-combined" /><span className="nav-item__label">自定义作图</span></button>
-          <div className="nav-divider" />
-          <button className="nav-item nav-item--new" onClick={startNewConversation} title="新对话"><span>＋</span><span className="nav-item__label">新对话</span></button>
-        </nav>
+        <SidebarNav
+          setActiveDialog={c.setActiveDialog}
+          closeMobile={c.closeMobile}
+          activeDialog={c.activeDialog}
+          startNewConversation={c.startNewConversation}
+        />
 
-        <section className="sidebar-history" aria-label="常驻历史聊天" inert={sidebarCollapsed && !mobileSidebarOpen ? true : undefined}>
-            <label className="sidebar-search"><span className="sr-only">搜索历史</span><input value={historyQuery} onChange={(event) => setHistoryQuery(event.target.value)} placeholder="搜索历史聊天" /></label>
-            <div className="sidebar-history__scroll">
-              <div className="history-section">
-                <div className="history-section__title"><strong>置顶的聊天</strong><span>{pinnedConversations.length}</span></div>
-                {pinnedConversations.length ? pinnedConversations.map((item) => historyItem(item, true)) : <small className="history-empty">暂无置顶聊天</small>}
-              </div>
+        <SidebarHistory
+          historyQuery={c.historyQuery}
+          setHistoryQuery={c.setHistoryQuery}
+          sidebarCollapsed={c.sidebarCollapsed}
+          mobileSidebarOpen={c.mobileSidebarOpen}
+          pinnedConversations={c.pinnedConversations}
+          chatProjects={c.chatProjects}
+          expandedProjectIds={c.expandedProjectIds}
+          pinnedConversationIds={c.pinnedConversationIds}
+          unfiledConversations={c.unfiledConversations}
+          conversationsInProject={c.conversationsInProject}
+          historyMenu={c.historyMenu}
+          projectMenu={c.projectMenu}
+          openCreateProject={c.openCreateProject}
+          toggleProjectExpanded={c.toggleProjectExpanded}
+          openProjectMenu={c.openProjectMenu}
+          openProjectMenuFromButton={c.openProjectMenuFromButton}
+          openHistoryMenu={c.openHistoryMenu}
+          openHistoryMenuFromButton={c.openHistoryMenuFromButton}
+          openConversation={c.openConversation}
+          togglePinnedConversation={c.togglePinnedConversation}
+        />
 
-              <div className="history-section">
-                <div className="history-section__title"><strong>历史聊天</strong></div>
-                {groups.map((group) => {
-                  const items = filteredConversations.filter((item) => item.group === group && !pinnedConversationIds.includes(item.id));
-                  if (!items.length) return null;
-                  return <div className="history-group" key={group}><small>{group}</small>{items.map((item) => historyItem(item, false))}</div>;
-                })}
-              </div>
-            </div>
-          </section>
-
-        <div className="sidebar-account popover-anchor">
-          <button type="button" className="sidebar-account__trigger" onClick={() => setAccountOpen((open) => !open)} aria-expanded={accountOpen} aria-controls="sidebar-account-menu" title="账户信息">
-            <span className="account-avatar" aria-hidden="true">{ACCOUNT_AVATAR_LABEL}</span>
-            <span className="sidebar-account__copy"><strong>{ACCOUNT_DISPLAY_NAME}</strong><small>试用版</small></span>
-            <span className="sidebar-account__more" aria-hidden="true">…</span>
-          </button>
-          <Reveal open={accountOpen} id="sidebar-account-menu" className="sidebar-account-menu" role="menu" aria-label="账户信息菜单">
-            <strong>{ACCOUNT_DISPLAY_NAME}</strong><small>当前套餐：试用版</small><hr />
-            <button type="button" role="menuitem" onClick={() => { setActiveDialog(null); setAccountOpen(false); closeMobile(); navigate("/account/plans"); }}><span>账户与套餐</span><span aria-hidden="true">›</span></button>
-            <button type="button" role="menuitem" onClick={() => { setActiveDialog("binding"); setAccountOpen(false); }}><span>绑定手机端</span><span aria-hidden="true">›</span></button>
-            <button type="button" role="menuitem" onClick={() => { notify("当前暂无新的更新提醒"); setAccountOpen(false); }}><span>更新提醒</span></button>
-            <button type="button" role="menuitem" onClick={() => { setLogoutOpen(true); setAccountOpen(false); }}><span>退出登录</span></button>
-          </Reveal>
-        </div>
+        <SidebarAccount
+          accountOpen={c.accountOpen}
+          setAccountOpen={c.setAccountOpen}
+          setActiveDialog={c.setActiveDialog}
+          closeMobile={c.closeMobile}
+          navigate={c.navigate}
+          location={c.location}
+          notify={c.notify}
+          setLogoutOpen={c.setLogoutOpen}
+        />
       </aside>
 
-      {mobileSidebarOpen && <button className="mobile-scrim" aria-label="关闭导航" onClick={closeMobile} />}
-      <Reveal
-        open={Boolean(historyMenu && conversations.some((conversation) => conversation.id === historyMenu.id))}
-        className="history-context-menu"
-        role="menu"
-        aria-label={historyMenu ? `${conversations.find((conversation) => conversation.id === historyMenu.id)?.title ?? "对话"}操作` : "对话操作"}
-        style={historyMenu ? { left: historyMenu.left, top: historyMenu.top } : undefined}
-        onClick={(event) => event.stopPropagation()}
-      >
-        {historyMenu && (() => {
-          const item = conversations.find((conversation) => conversation.id === historyMenu.id);
-          if (!item) return null;
-          const pinned = pinnedConversationIds.includes(item.id);
-          return <>
-            <button type="button" role="menuitem" onClick={() => openConversation(item.id)}><MenuIcon name="external-link" /><span>打开对话</span></button>
-            <button type="button" role="menuitem" onClick={() => beginRename(item)}><MenuIcon name="pencil" /><span>重命名</span></button>
-            <button type="button" role="menuitem" onClick={() => { togglePinnedConversation(item.id); setHistoryMenu(null); }}><MenuIcon name="pin" /><span>{pinned ? "取消置顶" : "置顶对话"}</span></button>
-          </>;
-        })()}
-      </Reveal>
-      {renameTarget && <Modal title="重命名对话" size="sm" onClose={() => setRenameTarget(null)} footer={<><button className="button" onClick={() => setRenameTarget(null)}>取消</button><button className="button button--primary" type="submit" form="rename-conversation-form" disabled={!renameDraft.trim()}>保存</button></>}><form id="rename-conversation-form" className="form-stack" onSubmit={submitRename}><label>对话名称<input autoFocus value={renameDraft} onChange={(event) => setRenameDraft(event.target.value)} maxLength={40} /></label><small>{renameDraft.trim().length}/40</small></form></Modal>}
-      {logoutOpen && <ConfirmDialog title="退出登录" message="确定退出当前测试账号吗？本原型不会清除任何真实数据。" confirmText="退出登录" onClose={() => setLogoutOpen(false)} onConfirm={() => { setLogoutOpen(false); navigate("/chat"); }} />}
+      {c.mobileSidebarOpen && <button className="mobile-scrim" aria-label="关闭导航" onClick={c.closeMobile} />}
+      <HistoryContextMenu
+        historyMenuRef={c.historyMenuRef}
+        historyMenu={c.historyMenu}
+        conversations={c.conversations}
+        pinnedConversationIds={c.pinnedConversationIds}
+        chatProjects={c.chatProjects}
+        moveConversationToProject={c.moveConversationToProject}
+        setExpandedProjectIds={c.setExpandedProjectIds}
+        setHistoryMenu={c.setHistoryMenu}
+        notify={c.notify}
+        openCreateProject={c.openCreateProject}
+        openConversation={c.openConversation}
+        beginRename={c.beginRename}
+        togglePinnedConversation={c.togglePinnedConversation}
+      />
+      <ProjectContextMenu
+        projectMenuRef={c.projectMenuRef}
+        projectMenu={c.projectMenu}
+        chatProjects={c.chatProjects}
+        expandedProjectIds={c.expandedProjectIds}
+        toggleProjectExpanded={c.toggleProjectExpanded}
+        setProjectMenu={c.setProjectMenu}
+        openRenameProject={c.openRenameProject}
+        setDeleteProjectTarget={c.setDeleteProjectTarget}
+      />
+      <SidebarDialogs
+        renameTarget={c.renameTarget}
+        setRenameTarget={c.setRenameTarget}
+        renameDraft={c.renameDraft}
+        setRenameDraft={c.setRenameDraft}
+        submitRename={c.submitRename}
+        projectEditor={c.projectEditor}
+        setProjectEditor={c.setProjectEditor}
+        submitProjectEditor={c.submitProjectEditor}
+        deleteProjectTarget={c.deleteProjectTarget}
+        setDeleteProjectTarget={c.setDeleteProjectTarget}
+        deleteChatProject={c.deleteChatProject}
+        setExpandedProjectIds={c.setExpandedProjectIds}
+        notify={c.notify}
+        logoutOpen={c.logoutOpen}
+        setLogoutOpen={c.setLogoutOpen}
+        navigate={c.navigate}
+      />
     </>
   );
 }

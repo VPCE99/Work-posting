@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import { useCanvasElementDrag } from "../hooks/useCanvasElementDrag";
 import { LucideIcon } from "../icons/LucideIcon";
 import {
   CANVAS_HEIGHT,
@@ -25,6 +26,8 @@ export function SlideCanvas({
   onClearSelection,
   onSelectElement,
   onApplyTool,
+  onMoveElement,
+  onMoveElementEnd,
 }: {
   activeSlide: number;
   scale: number;
@@ -39,8 +42,18 @@ export function SlideCanvas({
   onClearSelection: () => void;
   onSelectElement: (element: SlideElement) => void;
   onApplyTool: (tool: EditorToolName) => void;
+  onMoveElement: (elementId: string, x: number, y: number) => void;
+  onMoveElementEnd: (elementId: string, x: number, y: number, origin: { x: number; y: number }) => void;
 }) {
   const isMarketSlide = activeSlide === 2;
+  const dragEnabled = !presentMode && activeTool === "pointer";
+  const { bindDrag } = useCanvasElementDrag({
+    scale,
+    enabled: dragEnabled,
+    onSelect: onSelectElement,
+    onMove: onMoveElement,
+    onMoveEnd: onMoveElementEnd,
+  });
 
   return (
     <div className={presentMode ? "slide-work-area slide-work-area--present" : "slide-work-area"}>
@@ -95,6 +108,7 @@ export function SlideCanvas({
               elements={currentElements}
               selectedId={selectedElementId}
               onSelect={onSelectElement}
+              {...(dragEnabled ? { bindDrag } : {})}
             />
           ) : (
             <div className="slide-canvas__placeholder slide-canvas__placeholder--live">
@@ -105,6 +119,7 @@ export function SlideCanvas({
                   element={element}
                   selectedId={selectedElementId}
                   onSelect={onSelectElement}
+                  {...(dragEnabled ? { bindDrag } : {})}
                 />
               ))}
             </div>

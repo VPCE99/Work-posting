@@ -1,7 +1,7 @@
-import type { ChartType as SharedChartType, OccupancyChartRow, OccupancySeriesPoint } from "../../../components/chart/model";
+import type { ChartType as SharedChartType, OccupancyChartRow } from "../../../components/chart/model";
 
 export type AgentPanelMode = "open" | "closing" | "closed" | "opening";
-export type AgentChatRole = "user" | "assistant";
+type AgentChatRole = "user" | "assistant";
 
 export type AgentChatMessage = {
   id: string;
@@ -26,7 +26,6 @@ export type EditorToolName =
 export type TextAlign = "left" | "center" | "right";
 export type ChartType = SharedChartType;
 export type ChartRow = OccupancyChartRow;
-export type ChartSeriesPoint = OccupancySeriesPoint;
 
 export type SlideElementKind = "text" | "chart" | "table" | "image" | "shape";
 

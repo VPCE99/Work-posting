@@ -1,24 +1,13 @@
-import { createContext, useContext, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
-import { formatNextRun } from "./taskSchedule";
-import { conversations as initialConversations, initialProjects, initialSkills, initialTasks } from "../data/mock";
-import type { Conversation, PptProject, ScheduledTask, Skill, ToastMessage } from "../types";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import type { ChatProject, Conversation, PptProject, ScheduledTask, Skill, ToastMessage } from "../types";
+import { useChatState } from "./prototype/useChatState";
+import { useChromeState } from "./prototype/useChromeState";
+import { useDocumentTheme, syncDocumentTheme } from "./prototype/useDocumentTheme";
+import { usePptProjectState } from "./prototype/usePptProjectState";
+import { useSkillState } from "./prototype/useSkillState";
+import { useTaskState } from "./prototype/useTaskState";
 
-/** Keep document chrome aligned with .app theme; strip orphan html[data-theme]. */
-export function syncDocumentTheme(theme: "light" | "dark") {
-  // Theme tokens/selectors must only live on .app. A leftover data-theme on
-  // <html> lets [data-theme="light"] chrome rules fire while .app stays dark
-  // (white sidebar + dark main). Strip orphans and keep color-scheme only.
-  if (document.documentElement.getAttribute("data-theme") !== null) {
-    document.documentElement.removeAttribute("data-theme");
-  }
-  if (document.documentElement.style.colorScheme !== theme) {
-    document.documentElement.style.colorScheme = theme;
-  }
-  const bodyBg = theme === "dark" ? "#0b0d10" : "#f4f7f8";
-  if (document.body.style.backgroundColor !== bodyBg) {
-    document.body.style.backgroundColor = bodyBg;
-  }
-}
+export { syncDocumentTheme };
 
 type PrototypeContextValue = {
   sidebarCollapsed: boolean;
@@ -31,6 +20,11 @@ type PrototypeContextValue = {
   togglePinnedConversation: (id: string) => void;
   conversations: Conversation[];
   renameConversation: (id: string, title: string) => void;
+  chatProjects: ChatProject[];
+  addChatProject: (name: string) => string;
+  renameChatProject: (id: string, name: string) => void;
+  deleteChatProject: (id: string) => void;
+  moveConversationToProject: (conversationId: string, projectId: string | null) => void;
   tasks: ScheduledTask[];
   saveTask: (task: ScheduledTask) => void;
   deleteTask: (id: string) => void;
@@ -58,81 +52,100 @@ type PrototypeContextValue = {
 const PrototypeContext = createContext<PrototypeContextValue | null>(null);
 
 export function PrototypeProvider({ children }: { children: ReactNode }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<"binding" | "chart" | null>(null);
-  const [pinnedConversationIds, setPinnedConversationIds] = useState(["industry"]);
-  const [conversations, setConversations] = useState(initialConversations);
-  const [tasks, setTasks] = useState(initialTasks);
-  const [projects, setProjects] = useState(initialProjects);
-  const [favoriteTemplateIds, setFavoriteTemplateIds] = useState(["official-finance"]);
-  const [customTemplates, setCustomTemplates] = useState(["我的品牌模板", "公司标准模板"]);
-  const [skills, setSkills] = useState(initialSkills);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const chrome = useChromeState();
+  const chat = useChatState();
+  const task = useTaskState();
+  const ppt = usePptProjectState();
+  const skill = useSkillState();
 
-  useLayoutEffect(() => {
-    syncDocumentTheme(theme);
-  }, [theme]);
+  useDocumentTheme(chrome.theme);
 
-  const notify = (text: string, tone: ToastMessage["tone"] = "neutral") => {
-    const id = Date.now();
-    setToasts((items) => [...items, { id, text, tone }]);
-    window.setTimeout(() => setToasts((items) => items.filter((item) => item.id !== id)), 2600);
-  };
+  const state = useMemo(() => ({
+    sidebarCollapsed: chrome.sidebarCollapsed,
+    mobileSidebarOpen: chrome.mobileSidebarOpen,
+    activeDialog: chrome.activeDialog,
+    pinnedConversationIds: chat.pinnedConversationIds,
+    conversations: chat.conversations,
+    chatProjects: chat.chatProjects,
+    tasks: task.tasks,
+    projects: ppt.projects,
+    favoriteTemplateIds: ppt.favoriteTemplateIds,
+    customTemplates: ppt.customTemplates,
+    skills: skill.skills,
+    theme: chrome.theme,
+    toasts: chrome.toasts,
+  }), [
+    chrome.sidebarCollapsed,
+    chrome.mobileSidebarOpen,
+    chrome.activeDialog,
+    chrome.theme,
+    chrome.toasts,
+    chat.pinnedConversationIds,
+    chat.conversations,
+    chat.chatProjects,
+    task.tasks,
+    ppt.projects,
+    ppt.favoriteTemplateIds,
+    ppt.customTemplates,
+    skill.skills,
+  ]);
+
+  const actions = useMemo(() => ({
+    setSidebarCollapsed: chrome.setSidebarCollapsed,
+    setMobileSidebarOpen: chrome.setMobileSidebarOpen,
+    setActiveDialog: chrome.setActiveDialog,
+    togglePinnedConversation: chat.togglePinnedConversation,
+    renameConversation: chat.renameConversation,
+    addChatProject: chat.addChatProject,
+    renameChatProject: chat.renameChatProject,
+    deleteChatProject: chat.deleteChatProject,
+    moveConversationToProject: chat.moveConversationToProject,
+    saveTask: task.saveTask,
+    deleteTask: task.deleteTask,
+    toggleTask: task.toggleTask,
+    runTask: task.runTask,
+    addProject: ppt.addProject,
+    updateProject: ppt.updateProject,
+    deleteProject: ppt.deleteProject,
+    toggleFavoriteTemplate: ppt.toggleFavoriteTemplate,
+    addCustomTemplate: ppt.addCustomTemplate,
+    deleteCustomTemplate: ppt.deleteCustomTemplate,
+    addSkill: skill.addSkill,
+    updateSkill: skill.updateSkill,
+    deleteSkill: skill.deleteSkill,
+    toggleTheme: chrome.toggleTheme,
+    notify: chrome.notify,
+  }), [
+    chrome.setSidebarCollapsed,
+    chrome.setMobileSidebarOpen,
+    chrome.setActiveDialog,
+    chrome.toggleTheme,
+    chrome.notify,
+    chat.togglePinnedConversation,
+    chat.renameConversation,
+    chat.addChatProject,
+    chat.renameChatProject,
+    chat.deleteChatProject,
+    chat.moveConversationToProject,
+    task.saveTask,
+    task.deleteTask,
+    task.toggleTask,
+    task.runTask,
+    ppt.addProject,
+    ppt.updateProject,
+    ppt.deleteProject,
+    ppt.toggleFavoriteTemplate,
+    ppt.addCustomTemplate,
+    ppt.deleteCustomTemplate,
+    skill.addSkill,
+    skill.updateSkill,
+    skill.deleteSkill,
+  ]);
 
   const value = useMemo<PrototypeContextValue>(() => ({
-    sidebarCollapsed,
-    setSidebarCollapsed,
-    mobileSidebarOpen,
-    setMobileSidebarOpen,
-    activeDialog,
-    setActiveDialog,
-    pinnedConversationIds,
-    togglePinnedConversation: (id) => setPinnedConversationIds((items) => items.includes(id) ? items.filter((item) => item !== id) : [id, ...items]),
-    conversations,
-    renameConversation: (id, title) => setConversations((items) => items.map((item) => item.id === id ? { ...item, title } : item)),
-    tasks,
-    saveTask: (task) => setTasks((items) => {
-      const exists = items.some((item) => item.id === task.id);
-      return exists ? items.map((item) => item.id === task.id ? task : item) : [task, ...items];
-    }),
-    deleteTask: (id) => setTasks((items) => items.filter((item) => item.id !== id)),
-    toggleTask: (id) => setTasks((items) => items.map((item) => {
-      if (item.id !== id) return item;
-      const enabled = !item.enabled;
-      return { ...item, enabled, nextRun: formatNextRun(item.frequency, item.time, enabled) };
-    })),
-    runTask: (id) => setTasks((items) => items.map((item) => item.id === id ? { ...item, enabled: true, result: "刚刚完成", nextRun: formatNextRun(item.frequency, item.time, true) } : item)),
-    projects,
-    addProject: (project) => setProjects((items) => [project, ...items]),
-    updateProject: (id, patch) => setProjects((items) => items.map((item) => item.id === id ? { ...item, ...patch } : item)),
-    deleteProject: (id) => setProjects((items) => items.filter((item) => item.id !== id)),
-    favoriteTemplateIds,
-    toggleFavoriteTemplate: (id) => setFavoriteTemplateIds((items) => items.includes(id) ? items.filter((item) => item !== id) : [...items, id]),
-    customTemplates,
-    addCustomTemplate: () => setCustomTemplates((items) => items.length >= 3 ? items : [...items, `自定义模板 ${items.length + 1}`]),
-    deleteCustomTemplate: (name) => setCustomTemplates((items) => items.filter((item) => item !== name)),
-    skills,
-    addSkill: (skill) => setSkills((items) => [skill, ...items]),
-    updateSkill: (id, patch) => setSkills((items) => items.map((item) => item.id === id ? { ...item, ...patch } : item)),
-    deleteSkill: (id) => setSkills((items) => items.filter((item) => item.id !== id)),
-    theme,
-    toggleTheme: () => {
-      const root = document.querySelector<HTMLElement>(".app");
-      root?.setAttribute("data-theme-switching", "");
-      setTheme((value) => {
-        const next = value === "light" ? "dark" : "light";
-        syncDocumentTheme(next);
-        return next;
-      });
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => root?.removeAttribute("data-theme-switching"));
-      });
-    },
-    toasts,
-    notify,
-  }), [sidebarCollapsed, mobileSidebarOpen, activeDialog, pinnedConversationIds, conversations, tasks, projects, favoriteTemplateIds, customTemplates, skills, theme, toasts]);
+    ...state,
+    ...actions,
+  }), [state, actions]);
 
   return <PrototypeContext.Provider value={value}>{children}</PrototypeContext.Provider>;
 }

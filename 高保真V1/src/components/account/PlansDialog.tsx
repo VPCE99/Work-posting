@@ -1,12 +1,17 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
-import { plans } from "../../data/mock";
+import { plans, todayTokenUsageLabel } from "../../data/mock";
 import type { Plan } from "../../types";
 import { Modal } from "../ui/Modal";
 
+type PlansLocationState = {
+  backgroundLocation?: string;
+};
+
 export function PlansDialog() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { notify } = usePrototype();
   const [chosenId, setChosenId] = useState("standard");
   const [selected, setSelected] = useState<Plan | null>(null);
@@ -16,17 +21,21 @@ export function PlansDialog() {
     setSelected(null);
     setPaymentOpen(false);
     setPaid(false);
-    if (window.history.length > 1) navigate(-1);
-    else navigate("/chat", { replace: true });
+    const from = (location.state as PlansLocationState | null)?.backgroundLocation;
+    if (typeof from === "string" && from.startsWith("/") && from !== "/account/plans") {
+      navigate(from, { replace: true });
+      return;
+    }
+    navigate("/account", { replace: true });
   };
 
   return (
     <>
-      <Modal title="账户与套餐" size="lg" onClose={close}>
+      <Modal title="账户与套餐" size="lg" variant="plans" onClose={close}>
         <div className="metric-strip">
           <div><small>当前套餐</small><strong>试用版</strong></div>
           <div><small>今日次数</small><strong>12 / 50</strong></div>
-          <div><small>今日 Token</small><strong>128K / 1M</strong></div>
+          <div><small>今日 Token</small><strong>{todayTokenUsageLabel}</strong></div>
           <div><small>永久余额</small><strong>2.5M</strong></div>
           <div><small>更新时间</small><strong>14:32</strong></div>
         </div>
@@ -53,7 +62,7 @@ export function PlansDialog() {
       </Modal>
 
       {selected && !paymentOpen && (
-        <Modal title="确认订单" onClose={() => setSelected(null)} footer={<><button className="button" onClick={() => setSelected(null)}>取消（不创建订单）</button><button className="button button--primary" onClick={() => setPaymentOpen(true)}>支付宝扫码支付 ¥{selected.price.toLocaleString()}</button></>}>
+        <Modal title="确认订单" variant="order" onClose={() => setSelected(null)} footer={<><button className="button" onClick={() => setSelected(null)}>取消（不创建订单）</button><button className="button button--primary" onClick={() => setPaymentOpen(true)}>支付宝扫码支付 ¥{selected.price.toLocaleString()}</button></>}>
           <dl className="summary-list">
             <div><dt>商品</dt><dd>{selected.name}</dd></div>
             <div><dt>类型</dt><dd>{selected.kind === "会员" ? "会员套餐" : "永久加油包"}</dd></div>
@@ -66,7 +75,7 @@ export function PlansDialog() {
       )}
 
       {selected && paymentOpen && (
-        <Modal title={`支付订单：${selected.name}`} onClose={() => { setPaymentOpen(false); setSelected(null); }}>
+        <Modal title={`支付订单：${selected.name}`} variant="payment" onClose={() => { setPaymentOpen(false); setSelected(null); }}>
           {paid ? (
             <div className="purchase-payment-success">
               <div>✓</div>

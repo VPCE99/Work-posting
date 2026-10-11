@@ -3,6 +3,14 @@ export type Conversation = {
   title: string;
   group: "今天" | "昨天" | "过去 7 天" | "更早";
   preview: string;
+  /** Chat-folder project id; null/undefined = unfiled (shows under 历史聊天). */
+  projectId?: string | null;
+};
+
+/** Sidebar folder for grouping conversations (not PPT projects). */
+export type ChatProject = {
+  id: string;
+  name: string;
 };
 
 export type ScheduledTask = {
@@ -26,6 +34,31 @@ export type PptProject = {
   updatedAt: string;
   favorite: boolean;
   recentlyViewed: boolean;
+  /** Optional first-slide cover thumbnail for library cards. */
+  coverUrl?: string;
+  /** Created without a preset template — editor opens a blank deck. */
+  blankTemplate?: boolean;
+};
+
+/** One page inside a template mock preview. */
+export type TemplatePreviewSlide = {
+  id: string;
+  title: string;
+  kind: "cover" | "section" | "content" | "chart";
+  /** Full-bleed cover/photo when available; otherwise a styled mock layout is used. */
+  imageUrl?: string;
+  eyebrow?: string;
+  body?: string;
+};
+
+export type PptTemplate = {
+  id: string;
+  name: string;
+  category: string;
+  ratio: "16:9";
+  source: "official" | "custom";
+  coverUrl?: string;
+  slides: TemplatePreviewSlide[];
 };
 
 export type Skill = {

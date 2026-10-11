@@ -1,11 +1,57 @@
 /* Extracted from ppt-editor.css lines 2368-2377. Mechanical split only; values unchanged. */
 @media (max-width: 1180px) {
-
   .app:not(.app--ppt-editor) .app__body {
     height: auto;
     min-height: calc(100dvh - var(--topbar-height));
     overflow-x: clip;
     overflow-y: visible;
-  
+  }
+} /* --- Migrated from 95-from-global.css (checklist §9; values unchanged) --- */
+@media (max-width: 1180px) {
+  .ppt-editor__workspace {
+    grid-template-columns: 230px minmax(440px, 1fr) 280px;
+  }
+} /* Must load after 00–40 so mobile display:block beats desktop grid. */
+@media (max-width: 860px) {
+  .ppt-editor__topbar {
+    align-items: flex-start;
+  }
+  .ppt-editor__workspace {
+    display: block;
+    overflow: auto;
+  }
+  .slide-canvas-wrap {
+    min-height: 480px;
+  }
 }
+@media (max-width: 560px) {
+  .ppt-editor__topbar {
+    display: block;
+  }
+  .ppt-editor__identity {
+    margin-block: 6px;
+    overflow-x: auto;
+  }
+  .ppt-editor__top-actions {
+    margin-block: 6px;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+  .ppt-editor__workspace {
+    grid-template-columns: 240px minmax(520px, 1fr) 280px;
+  }
+  .slide-canvas-wrap {
+    min-height: 400px;
+  }
+  .slide-canvas {
+    width: 94%;
+  }
+  .ppt-editor__status {
+    gap: 10px;
+  }
+  .chart-dialog {
+    height: auto;
+    overflow: visible;
+    border: 0;
+  }
 }

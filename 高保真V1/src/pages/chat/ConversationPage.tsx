@@ -4,9 +4,13 @@ import { usePrototype } from "../../app/PrototypeContext";
 import { ChatComposer } from "../../components/chat/ChatComposer";
 import { fitColumnTemplate } from "../../components/chat/fitTableColumns";
 import { replyForConversation } from "./conversationReplies";
+import { Icon } from "../../components/ui/Icon";
 import { MenuIcon, type MenuIconName } from "../../components/ui/MenuIcon";
 import { Reveal } from "../../components/ui/Reveal";
 import { ThinkingMark } from "../../components/ui/ThinkingMark";
+import { useDismissibleLayer } from "../../components/ui/useDismissibleLayer";
+import { useEscapeKey } from "../../components/ui/useEscapeKey";
+import { useTimeoutRegistry } from "../../components/ui/useManagedTimeout";
 
 const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 const FLY_MS = 680;
@@ -36,61 +40,49 @@ export function ConversationPage() {
   const initialPrompt = sent?.prompt ?? reply.prompt;
   const [draft, setDraft] = useState("");
   const [introStage, setIntroStage] = useState<IntroStage>(fromNewSend ? "fly" : "settled");
-  const [thinkingPhase, setThinkingPhase] = useState<"off" | "on" | "leaving">(fromNewSend ? "on" : "off");
+  const [thinkingPhase, setThinkingPhase] = useState<"off" | "on" | "leaving">("off");
+  const [followUpMessages, setFollowUpMessages] = useState<Array<{ id: number; text: string }>>([]);
+  const [flyingFollowUpId, setFlyingFollowUpId] = useState<number | null>(null);
+  const [followUpFlyToken, setFollowUpFlyToken] = useState(0);
   const userMessageRef = useRef<HTMLElement>(null);
-  const thinkingTimer = useRef<number | null>(null);
-  const thinkingFadeTimer = useRef<number | null>(null);
+  const composerRef = useRef<HTMLDivElement>(null);
+  const followUpBubbleRefs = useRef<Record<number, HTMLElement | null>>({});
+  const followUpIdRef = useRef(0);
+  const pendingFollowUpFlyId = useRef<number | null>(null);
+  const { schedule: scheduleTimeout, clear: clearTimeoutKey } = useTimeoutRegistry();
   const [online, setOnline] = useState(true);
-  const [exportOpen, setExportOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [morePanel, setMorePanel] = useState<"actions" | "export">("actions");
   const headerActionsRef = useRef<HTMLDivElement>(null);
   const pinned = pinnedConversationIds.includes(conversationId);
 
-  useEffect(() => {
-    if (!exportOpen && !moreOpen) return;
-
-    const closeOnOutsidePointer = (event: PointerEvent) => {
-      if (!headerActionsRef.current?.contains(event.target as Node)) {
-        setExportOpen(false);
-        setMoreOpen(false);
-      }
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setExportOpen(false);
-        setMoreOpen(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", closeOnOutsidePointer);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeOnOutsidePointer);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [exportOpen, moreOpen]);
+  useDismissibleLayer(moreOpen, () => {
+    setMoreOpen(false);
+    setMorePanel("actions");
+  }, [headerActionsRef]);
+  useEscapeKey(moreOpen, () => {
+    if (morePanel === "export") {
+      setMorePanel("actions");
+      return;
+    }
+    setMoreOpen(false);
+  });
 
   const clearThinkingTimers = () => {
-    if (thinkingTimer.current !== null) window.clearTimeout(thinkingTimer.current);
-    if (thinkingFadeTimer.current !== null) window.clearTimeout(thinkingFadeTimer.current);
-    thinkingTimer.current = null;
-    thinkingFadeTimer.current = null;
+    clearTimeoutKey("thinking");
+    clearTimeoutKey("thinking-fade");
   };
 
   const beginThinking = () => {
     clearThinkingTimers();
     setThinkingPhase("on");
-    thinkingTimer.current = window.setTimeout(() => {
-      thinkingTimer.current = null;
+    scheduleTimeout("thinking", () => {
       setThinkingPhase("leaving");
-      thinkingFadeTimer.current = window.setTimeout(() => {
-        thinkingFadeTimer.current = null;
+      scheduleTimeout("thinking-fade", () => {
         setThinkingPhase("off");
-      }, 480);
-    }, 8000);
+      }, THINK_FADE_MS);
+    }, THINK_MS);
   };
-
-  useEffect(() => clearThinkingTimers, []);
 
   useLayoutEffect(() => {
     if (!fromNewSend) return;
@@ -121,26 +113,76 @@ export function ConversationPage() {
     }
 
     setIntroStage("fly");
-    setThinkingPhase("on");
-    const toThink = window.setTimeout(() => setIntroStage("think"), FLY_MS);
-    const toLeave = window.setTimeout(() => setThinkingPhase("leaving"), THINK_MS);
-    const toReveal = window.setTimeout(() => {
+    setThinkingPhase("off");
+    // Thinking starts only after the user bubble has fully settled.
+    scheduleTimeout("intro-think", () => {
+      setIntroStage("think");
+      setThinkingPhase("on");
+    }, FLY_MS);
+    scheduleTimeout("intro-leave", () => setThinkingPhase("leaving"), FLY_MS + THINK_MS);
+    scheduleTimeout("intro-reveal", () => {
       setThinkingPhase("off");
       setIntroStage("reveal");
-    }, THINK_MS + THINK_FADE_MS);
-    const toSettle = window.setTimeout(() => setIntroStage("settled"), THINK_MS + THINK_FADE_MS + REVEAL_MS);
+    }, FLY_MS + THINK_MS + THINK_FADE_MS);
+    scheduleTimeout("intro-settle", () => setIntroStage("settled"), FLY_MS + THINK_MS + THINK_FADE_MS + REVEAL_MS);
     return () => {
-      window.clearTimeout(toThink);
-      window.clearTimeout(toLeave);
-      window.clearTimeout(toReveal);
-      window.clearTimeout(toSettle);
+      clearTimeoutKey("intro-think");
+      clearTimeoutKey("intro-leave");
+      clearTimeoutKey("intro-reveal");
+      clearTimeoutKey("intro-settle");
     };
-  }, [fromNewSend]);
+  }, [fromNewSend, scheduleTimeout, clearTimeoutKey]);
+
+  useLayoutEffect(() => {
+    if (followUpFlyToken === 0) return;
+    const id = pendingFollowUpFlyId.current;
+    if (id == null) return;
+    const bubble = followUpBubbleRefs.current[id];
+    if (!bubble) return;
+
+    const thinkKey = `followup-think-${id}`;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      pendingFollowUpFlyId.current = null;
+      setFlyingFollowUpId(null);
+      beginThinking();
+      return;
+    }
+
+    const bubbleRect = bubble.getBoundingClientRect();
+    const origin = composerRef.current?.getBoundingClientRect();
+    const dx = origin ? origin.left + 16 - bubbleRect.left : 0;
+    const dy = origin ? origin.top + 14 - bubbleRect.top : 72;
+    const animation = bubble.animate(
+      [
+        { transform: `translate(${dx}px, ${dy}px)` },
+        { transform: "translate(0px, 0px)" },
+      ],
+      { duration: FLY_MS, easing: EASE, fill: "both" },
+    );
+    // Keep fly token stable until the next send so cleanup does not cancel a finished settle.
+    scheduleTimeout(thinkKey, () => {
+      pendingFollowUpFlyId.current = null;
+      setFlyingFollowUpId(null);
+      beginThinking();
+    }, FLY_MS);
+    return () => {
+      animation.cancel();
+      clearTimeoutKey(thinkKey);
+    };
+  }, [followUpFlyToken, scheduleTimeout, clearTimeoutKey]);
 
   const submit = () => {
     if (!draft.trim()) return;
+    if (introStage === "fly" || introStage === "think") return;
+    const text = draft.trim();
     setDraft("");
-    beginThinking();
+    clearThinkingTimers();
+    setThinkingPhase("off");
+    const id = ++followUpIdRef.current;
+    pendingFollowUpFlyId.current = id;
+    setFollowUpMessages((messages) => [...messages, { id, text }]);
+    setFlyingFollowUpId(id);
+    setFollowUpFlyToken((token) => token + 1);
   };
 
   return (
@@ -148,8 +190,80 @@ export function ConversationPage() {
         <header className="conversation-compact-header">
           <strong>{conversation?.title ?? "新对话"}</strong>
           <div className="conversation-compact-actions" ref={headerActionsRef}>
-            <div className="popover-anchor"><button className="conversation-icon-action" aria-label="导出对话" aria-expanded={exportOpen} onClick={() => { setExportOpen((open) => !open); setMoreOpen(false); }}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12" /><path d="m7 8 5-5 5 5" /><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" /></svg><span>导出</span></button><Reveal open={exportOpen} className="menu-popover conversation-header-menu conversation-export-menu" role="menu" aria-label="导出格式">{exportFormats.map((item) => <button type="button" role="menuitem" key={item.label} onClick={() => { notify(`已创建 ${item.label} 导出任务`, "success"); setExportOpen(false); }}><MenuIcon name={item.icon} /><span>{item.label}</span></button>)}</Reveal></div>
-            <div className="popover-anchor"><button className="conversation-icon-action conversation-icon-action--square" aria-label="更多操作" aria-expanded={moreOpen} onClick={() => { setMoreOpen((open) => !open); setExportOpen(false); }}>•••</button><Reveal open={moreOpen} className="menu-popover conversation-header-menu conversation-more-menu" role="menu" aria-label="更多对话操作"><button type="button" role="menuitem" onClick={() => { togglePinnedConversation(conversationId); setMoreOpen(false); notify(pinned ? "已取消置顶" : "对话已置顶", "success"); }}><MenuIcon name="pin" /><span>{pinned ? "取消置顶" : "置顶对话"}</span></button><button type="button" role="menuitem" onClick={() => { notify("已显示当前对话信息"); setMoreOpen(false); }}><MenuIcon name="info" /><span>对话信息</span></button></Reveal></div>
+            <div className="popover-anchor">
+              <button
+                type="button"
+                className="conversation-icon-action conversation-icon-action--square"
+                aria-label="更多操作"
+                aria-expanded={moreOpen}
+                onClick={() => {
+                  setMoreOpen((open) => {
+                    const next = !open;
+                    if (next) setMorePanel("actions");
+                    return next;
+                  });
+                }}
+              >
+                <svg className="conversation-more-dots" viewBox="0 0 16 16" aria-hidden="true">
+                  <circle cx="2" cy="8" r="1" />
+                  <circle cx="8" cy="8" r="1" />
+                  <circle cx="14" cy="8" r="1" />
+                </svg>
+              </button>
+              <Reveal
+                open={moreOpen}
+                className={`menu-popover conversation-header-menu conversation-more-menu${morePanel === "export" ? " conversation-more-menu--export" : ""}`}
+                role="menu"
+                aria-label={morePanel === "export" ? "导出格式" : "更多对话操作"}
+              >
+                {morePanel === "export" ? (
+                  <>
+                    <button type="button" role="menuitem" onClick={() => setMorePanel("actions")}><span>← 返回</span></button>
+                    {exportFormats.map((item) => (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        key={item.label}
+                        onClick={() => {
+                          notify(`已创建 ${item.label} 导出任务`, "success");
+                          setMoreOpen(false);
+                          setMorePanel("actions");
+                        }}
+                      >
+                        <MenuIcon name={item.icon} /><span>{item.label}</span>
+                      </button>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        togglePinnedConversation(conversationId);
+                        setMoreOpen(false);
+                        notify(pinned ? "已取消置顶" : "对话已置顶", "success");
+                      }}
+                    >
+                      <MenuIcon name="pin" /><span>{pinned ? "取消置顶" : "置顶对话"}</span>
+                    </button>
+                    <button type="button" role="menuitem" onClick={() => setMorePanel("export")}>
+                      <MenuIcon name="upload" /><span>导出</span>
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        notify("分享功能即将接入，敬请期待");
+                        setMoreOpen(false);
+                      }}
+                    >
+                      <MenuIcon name="share" /><span>分享对话</span>
+                    </button>
+                  </>
+                )}
+              </Reveal>
+            </div>
           </div>
         </header>
 
@@ -191,14 +305,35 @@ export function ConversationPage() {
             <div className="message__actions">
               <button onClick={() => notify("已复制回答", "success")}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg>复制</button>
               <button onClick={() => notify("感谢反馈", "success")}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v12" /><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 7A2 2 0 0 1 17.5 21H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2.8L10 2h0a3.1 3.1 0 0 1 3 3.9Z" /></svg>有帮助</button>
-              <button onClick={beginThinking}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7L20 8" /><path d="M20 3v5h-5" /></svg>重新生成</button>
+              <button onClick={beginThinking}><Icon name="refresh-cw" strokeWidth={1.8} />重新生成</button>
             </div>
           </article>}
-          {thinkingPhase !== "off" && <ThinkingMark intro={introStage === "fly" || introStage === "think"} leaving={thinkingPhase === "leaving"} />}
+          {followUpMessages.map((message) => (
+            <article
+              key={message.id}
+              ref={(node) => {
+                followUpBubbleRefs.current[message.id] = node;
+              }}
+              className={flyingFollowUpId === message.id ? "message message--user message--user-flying" : "message message--user"}
+            >
+              <p>{message.text}</p>
+            </article>
+          ))}
+          {(introStage === "reveal" || introStage === "settled") && thinkingPhase === "off" && flyingFollowUpId == null && (
+            <div className="conversation-followups">
+              <p className="conversation-followups__label">试试这样追问</p>
+              <div className="conversation-followups__grid prompt-grid" aria-label="建议追问">
+                {reply.followUps.map((item) => (
+                  <button key={item} type="button" onClick={() => setDraft(item)}>{item}</button>
+                ))}
+              </div>
+            </div>
+          )}
+          {thinkingPhase !== "off" && <ThinkingMark intro={introStage === "think"} leaving={thinkingPhase === "leaving"} />}
         </div>
 
         <footer className="conversation-composer-dock">
-          <ChatComposer className="composer--sticky" value={draft} onChange={setDraft} onSubmit={submit} placeholder="继续追问；输入 / 调用技能" online={online} onToggleOnline={() => setOnline((current) => !current)} modelPlacement="up" />
+          <ChatComposer className="composer--sticky" composerRef={composerRef} value={draft} onChange={setDraft} onSubmit={submit} placeholder="继续追问；输入 / 调用技能" online={online} onToggleOnline={() => setOnline((current) => !current)} modelPlacement="up" />
           <p className="conversation-privacy">端到端会话隔离 · 数据仅用于当前工作区</p>
         </footer>
     </section>

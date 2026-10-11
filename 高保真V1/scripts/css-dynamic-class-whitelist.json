@@ -1,0 +1,41 @@
+{
+  "description": "Dynamic class patterns that must never be deleted by dead-CSS scans. Source: checklist §4.3 / §5.",
+  "templatePrefixes": [
+    "modal--",
+    "toast--",
+    "status--",
+    "chart-chip--",
+    "editor-save-state--",
+    "template-preview-slide--",
+    "template-preview-thumb__mock--"
+  ],
+  "stateTokens": [
+    "active",
+    "open",
+    "selected",
+    "leaving",
+    "intro",
+    "disabled"
+  ],
+  "statePrefixPatterns": [
+    "is-",
+    "--active",
+    "--open",
+    "--selected"
+  ],
+  "literalProtectedClasses": [
+    "modal--sm",
+    "modal--md",
+    "modal--lg",
+    "modal--xl",
+    "modal--chart",
+    "toast--success",
+    "toast--danger",
+    "toast--info",
+    "status--progress",
+    "status--danger",
+    "status--success",
+    "chart-chip--dimension",
+    "chart-chip--measure"
+  ]
+}

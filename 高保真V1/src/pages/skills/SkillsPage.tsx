@@ -239,6 +239,7 @@ function SkillDialog({
   const [name, setName] = useState(initial.name);
   const [description, setDescription] = useState(initial.description);
   const [prompt, setPrompt] = useState(initial.prompt);
+  const [attempted, setAttempted] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const dirty =
     name !== initial.name ||
@@ -252,6 +253,7 @@ function SkillDialog({
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    setAttempted(true);
     if (!name.trim() || !description.trim() || !prompt.trim()) return;
     onSave({ name: name.trim(), description: description.trim(), prompt: prompt.trim() });
   };
@@ -269,9 +271,27 @@ function SkillDialog({
         }
       >
         <form id="skill-form" className="form-stack" onSubmit={submit}>
-          <label>技能名称 *<input value={name} onChange={(event) => setName(event.target.value)} /></label>
-          <label>简介 *<input value={description} onChange={(event) => setDescription(event.target.value)} /></label>
-          <label>提示内容 *<textarea rows={8} value={prompt} onChange={(event) => setPrompt(event.target.value)} /></label>
+          <label>
+            <span className="field-label-row">
+              <span>技能名称 *</span>
+              {attempted && !name.trim() && <small className="field-error">请输入技能名称</small>}
+            </span>
+            <input value={name} onChange={(event) => setName(event.target.value)} />
+          </label>
+          <label>
+            <span className="field-label-row">
+              <span>简介 *</span>
+              {attempted && !description.trim() && <small className="field-error">请输入简介</small>}
+            </span>
+            <input value={description} onChange={(event) => setDescription(event.target.value)} />
+          </label>
+          <label>
+            <span className="field-label-row">
+              <span>提示内容 *</span>
+              {attempted && !prompt.trim() && <small className="field-error">请输入提示内容</small>}
+            </span>
+            <textarea rows={8} value={prompt} onChange={(event) => setPrompt(event.target.value)} />
+          </label>
           <small>技能作为对话背景提示，不执行代码或外部工具。</small>
         </form>
       </Modal>

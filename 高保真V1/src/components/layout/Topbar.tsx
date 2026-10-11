@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { usePrototype } from "../../app/PrototypeContext";
+import { todayTokenUsageLabel } from "../../data/mock";
 import { Brand } from "../ui/Brand";
 
 export function Topbar() {
@@ -14,8 +15,8 @@ export function Topbar() {
           <span className="usage-indicator__track" aria-hidden="true"><i /></span>
           <small>刚刚更新</small>
         </div>
-        <div className="usage-indicator usage-indicator--token" aria-label="Token 用量 128K / 1M，刚刚更新">
-          <strong>Token 128K / 1M</strong>
+        <div className="usage-indicator usage-indicator--token" aria-label={`Token 用量 ${todayTokenUsageLabel}，刚刚更新`}>
+          <strong>Token {todayTokenUsageLabel}</strong>
           <span className="usage-indicator__track" aria-hidden="true"><i /></span>
           <small>刚刚更新</small>
         </div>

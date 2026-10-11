@@ -1,48 +1,12 @@
 import { useState, type DragEvent } from "react";
 import { usePrototype } from "../../app/PrototypeContext";
 import { Modal } from "../ui/Modal";
-import { paddedValueDomain, scaleLinear } from "./scale";
-
-type FieldKind = "dimension" | "measure";
-type Slot = "x" | "yLeft" | "yRight";
-
-type ChartField = {
-  id: string;
-  name: string;
-  kind: FieldKind;
-  unit?: string;
-};
-
-type Dataset = {
-  id: string;
-  name: string;
-  source: string;
-  fields: ChartField[];
-  rows: Array<Record<string, string | number>>;
-};
-
-const datasets: Dataset[] = [
-  {
-    id: "reit-trend",
-    name: "产业园 REITs 经营趋势",
-    source: "当前对话 · 经营趋势表",
-    fields: [
-      { id: "year", name: "年度", kind: "dimension" },
-      { id: "occupancy", name: "平均出租率", kind: "measure", unit: "%" },
-      { id: "revenue", name: "营业收入", kind: "measure", unit: "亿元" },
-    ],
-    rows: [
-      { year: "2023", occupancy: 89.6, revenue: 26.6 },
-      { year: "2024", occupancy: 91.7, revenue: 28.9 },
-      { year: "2025", occupancy: 93.8, revenue: 31.4 },
-    ],
-  },
-];
-
-const fields = datasets.flatMap((dataset) => dataset.fields);
-const fieldById = (id: string | null) => fields.find((field) => field.id === id) ?? null;
-
-const emptySlots: Record<Slot, string | null> = { x: null, yLeft: null, yRight: null };
+import { useDismissibleLayer } from "../ui/useDismissibleLayer";
+import { useEscapeKey } from "../ui/useEscapeKey";
+import { ChartResult } from "./ChartResult";
+import { datasets, emptySlots, fieldById, type Dataset, type Slot } from "./chartDatasets";
+import { DropSlot } from "./DropSlot";
+import { FieldGroup } from "./FieldGroup";
 
 export function ChartDialog() {
   const { notify, setActiveDialog } = usePrototype();
@@ -51,6 +15,7 @@ export function ChartDialog() {
   const [slots, setSlots] = useState(emptySlots);
   const [over, setOver] = useState<Slot | null>(null);
   const [generated, setGenerated] = useState(false);
+  const [fieldMenuId, setFieldMenuId] = useState<string | null>(null);
 
   const close = () => setActiveDialog(null);
   const xField = fieldById(slots.x);
@@ -77,8 +42,12 @@ export function ChartDialog() {
       next[slot] = id;
       return next;
     });
+    setFieldMenuId(null);
     setGenerated(false);
   };
+
+  useDismissibleLayer(Boolean(fieldMenuId), () => setFieldMenuId(null), [], { withinSelector: ".chart-chip-wrap" });
+  useEscapeKey(Boolean(fieldMenuId), () => setFieldMenuId(null), { stopPropagation: true, capture: true });
 
   const onDrop = (slot: Slot) => (event: DragEvent) => {
     event.preventDefault();
@@ -136,8 +105,20 @@ export function ChartDialog() {
                 {open && (
                   <div className="chart-source__body">
                     <small>{dataset.source}</small>
-                    <FieldGroup label="维度" fields={dimensions} />
-                    <FieldGroup label="度量" fields={measures} />
+                    <FieldGroup
+                      label="维度"
+                      fields={dimensions}
+                      menuId={fieldMenuId}
+                      onToggleMenu={setFieldMenuId}
+                      onAssign={assign}
+                    />
+                    <FieldGroup
+                      label="度量"
+                      fields={measures}
+                      menuId={fieldMenuId}
+                      onToggleMenu={setFieldMenuId}
+                      onAssign={assign}
+                    />
                   </div>
                 )}
               </section>
@@ -151,153 +132,18 @@ export function ChartDialog() {
           ) : (
             <div className="chart-canvas__empty">
               <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 34V18M20 34V12M30 34V22M38 34H8" /></svg>
-              <p>拖拽左侧字段到右侧配置区</p>
+              <p>拖拽或点击左侧字段到右侧配置区</p>
             </div>
           )}
         </main>
 
         <aside className="chart-config">
           <label className="chart-config__title">图表标题<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="输入图表标题..." /></label>
-          <DropSlot slot="x" label="X 轴" hint="拖入 1 个维度" field={xField} active={over === "x"} onDrop={onDrop("x")} onOver={() => setOver("x")} onLeave={() => setOver(null)} onClear={() => clearSlot("x")} />
-          <DropSlot slot="yLeft" label="Y 轴 · 左" hint="拖入 1 个度量" field={leftField} active={over === "yLeft"} onDrop={onDrop("yLeft")} onOver={() => setOver("yLeft")} onLeave={() => setOver(null)} onClear={() => clearSlot("yLeft")} />
+          <DropSlot slot="x" label="X 轴" hint="拖入或添加 1 个维度" field={xField} active={over === "x"} onDrop={onDrop("x")} onOver={() => setOver("x")} onLeave={() => setOver(null)} onClear={() => clearSlot("x")} />
+          <DropSlot slot="yLeft" label="Y 轴 · 左" hint="拖入或添加 1 个度量" field={leftField} active={over === "yLeft"} onDrop={onDrop("yLeft")} onOver={() => setOver("yLeft")} onLeave={() => setOver(null)} onClear={() => clearSlot("yLeft")} />
           <DropSlot slot="yRight" label="Y 轴 · 右" hint="可选，独立刻度" field={rightField} active={over === "yRight"} onDrop={onDrop("yRight")} onOver={() => setOver("yRight")} onLeave={() => setOver(null)} onClear={() => clearSlot("yRight")} />
         </aside>
       </div>
     </Modal>
-  );
-}
-
-function FieldGroup({ label, fields: items }: { label: string; fields: ChartField[] }) {
-  return (
-    <div className="chart-field-group">
-      <span>{label}</span>
-      <div>
-        {items.map((field) => (
-          <button
-            key={field.id}
-            type="button"
-            className={`chart-chip chart-chip--${field.kind}`}
-            draggable
-            onDragStart={(event) => {
-              event.dataTransfer.setData("text/plain", field.id);
-              event.dataTransfer.effectAllowed = "move";
-            }}
-          >
-            <i>{field.kind === "dimension" ? "Aa" : "#"}</i>
-            {field.name}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function DropSlot({
-  label,
-  hint,
-  field,
-  active,
-  onDrop,
-  onOver,
-  onLeave,
-  onClear,
-}: {
-  slot: Slot;
-  label: string;
-  hint: string;
-  field: ChartField | null;
-  active: boolean;
-  onDrop: (event: DragEvent) => void;
-  onOver: () => void;
-  onLeave: () => void;
-  onClear: () => void;
-}) {
-  return (
-    <label className="chart-drop">
-      <span>{label}</span>
-      <small>{hint}</small>
-      <div
-        className={active ? "chart-drop__zone is-over" : "chart-drop__zone"}
-        onDragOver={(event) => {
-          event.preventDefault();
-          onOver();
-        }}
-        onDragLeave={onLeave}
-        onDrop={onDrop}
-      >
-        {field ? (
-          <button type="button" className={`chart-chip chart-chip--${field.kind}`} onClick={onClear}>
-            <i>{field.kind === "dimension" ? "Aa" : "#"}</i>
-            {field.name}
-            <b aria-hidden="true">×</b>
-          </button>
-        ) : (
-          <em>拖拽字段到此处</em>
-        )}
-      </div>
-    </label>
-  );
-}
-
-function ChartResult({
-  title,
-  dataset,
-  x,
-  left,
-  right,
-}: {
-  title: string;
-  dataset: Dataset;
-  x: ChartField;
-  left: ChartField;
-  right: ChartField | null;
-}) {
-  const labels = dataset.rows.map((row) => String(row[x.id]));
-  const leftValues = dataset.rows.map((row) => Number(row[left.id]));
-  const rightValues = right ? dataset.rows.map((row) => Number(row[right.id])) : [];
-  const width = 640;
-  const height = 320;
-  const pad = { top: 24, right: right ? 54 : 24, bottom: 36, left: 54 };
-  const innerW = width - pad.left - pad.right;
-  const innerH = height - pad.top - pad.bottom;
-  const leftDomain = paddedValueDomain(leftValues);
-  const rightDomain = paddedValueDomain(rightValues.length ? rightValues : [1]);
-  const band = innerW / labels.length;
-  const barW = Math.min(46, band * 0.42);
-  const yOf = (value: number, axis: { min: number; max: number }) =>
-    scaleLinear(value, axis, { start: pad.top + innerH, end: pad.top });
-  const line = rightValues.map((value, index) => `${pad.left + band * index + band / 2},${yOf(value, rightDomain)}`).join(" ");
-  const ticks = [0, 0.5, 1];
-
-  return (
-    <div className="chart-result">
-      <header>
-        <strong>{title || "未命名图表"}</strong>
-        <div>
-          <span><i className="is-bar" />{left.name}</span>
-          {right && <span><i className="is-line" />{right.name}</span>}
-        </div>
-      </header>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={title || "生成的图表"}>
-        {ticks.map((tick) => {
-          const y = pad.top + innerH - tick * innerH;
-          return <path key={tick} className="chart-result__grid" d={`M${pad.left} ${y}H${width - pad.right}`} />;
-        })}
-        {leftValues.map((value, index) => {
-          const xPos = pad.left + band * index + (band - barW) / 2;
-          const y = yOf(value, leftDomain);
-          return <rect key={labels[index]} className="chart-result__bar" x={xPos} y={y} width={barW} height={pad.top + innerH - y} rx="0" ry="0" />;
-        })}
-        {right && <polyline className="chart-result__line" points={line} />}
-        {right && rightValues.map((value, index) => (
-          <circle key={labels[index]} className="chart-result__point" cx={pad.left + band * index + band / 2} cy={yOf(value, rightDomain)} r="4.5" />
-        ))}
-        {labels.map((label, index) => (
-          <text key={label} className="chart-result__label" x={pad.left + band * index + band / 2} y={height - 12} textAnchor="middle">{label}</text>
-        ))}
-        <text className="chart-result__unit" x={pad.left - 10} y={18} textAnchor="end">{left.unit}</text>
-        {right && <text className="chart-result__unit" x={width - pad.right + 10} y={18}>{right.unit}</text>}
-      </svg>
-    </div>
   );
 }

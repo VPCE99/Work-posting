@@ -38,11 +38,19 @@ export type EditorDocumentState = {
   future: HistorySnapshot[];
 };
 
-export type EditorDocumentAction =
+export type EditorAction =
   | { type: "setActiveSlide"; slideIndex: number }
   | { type: "selectElement"; elementId: string }
   | { type: "clearSelection" }
   | { type: "patchElement"; elementId: string; patch: Partial<SlideElement> }
+  | {
+    type: "setElementPosition";
+    elementId: string;
+    x: number;
+    y: number;
+    /** When set, records one undo step from this origin to the new position. */
+    origin?: { x: number; y: number };
+  }
   | { type: "patchChartRow"; elementId: string; index: number; key: keyof ChartRow; value: string }
   | { type: "togglePropsSection"; key: PropsSectionKey }
   | { type: "setPropsSections"; sections: Record<PropsSectionKey, boolean> }
@@ -57,7 +65,8 @@ export type EditorDocumentAction =
   | { type: "setPresentMode"; value: boolean }
   | { type: "markSaving" }
   | { type: "markSaved"; label: string }
-  | { type: "markSaveError" };
+  | { type: "markSaveError" }
+  | { type: "hydrateDocument"; document: EditorDocumentState };
 
 const defaultTextSections: Record<PropsSectionKey, boolean> = {
   layout: true,
@@ -141,6 +150,26 @@ export function createInitialEditorDocument(slideCount = DEFAULT_SLIDE_TITLES.le
   };
 }
 
+/** Single empty slide — no preset layout or seeded content. */
+export function createBlankEditorDocument(): EditorDocumentState {
+  const slides = createSlideMetas(["空白页"]);
+  return {
+    slides,
+    activeSlide: 0,
+    elementsBySlide: { 0: [] },
+    selectedElementId: null,
+    propsSections: defaultTextSections,
+    chartDataEditing: false,
+    elementAiPrompt: "",
+    activeTool: "pointer",
+    presentMode: false,
+    saveStatus: "saved",
+    savedLabel: formatSavedLabel(),
+    past: [],
+    future: [],
+  };
+}
+
 export function elementsForSlide(state: EditorDocumentState, slideIndex = state.activeSlide): SlideElement[] {
   return state.elementsBySlide[slideIndex] ?? [];
 }
@@ -209,7 +238,7 @@ function applyInsertTool(state: EditorDocumentState, tool: EditorToolName): Edit
   return state;
 }
 
-export function editorReducer(state: EditorDocumentState, action: EditorDocumentAction): EditorDocumentState {
+export function editorReducer(state: EditorDocumentState, action: EditorAction): EditorDocumentState {
   switch (action.type) {
     case "setActiveSlide":
       if (action.slideIndex === state.activeSlide) return state;
@@ -240,6 +269,18 @@ export function editorReducer(state: EditorDocumentState, action: EditorDocument
       };
     case "patchElement":
       return withHistory(state, patchElementInSlide(state, action.elementId, action.patch));
+    case "setElementPosition": {
+      const next = patchElementInSlide(state, action.elementId, { x: action.x, y: action.y });
+      if (!action.origin) {
+        return { ...next, saveStatus: "dirty" };
+      }
+      if (action.origin.x === action.x && action.origin.y === action.y) return state;
+      const baseline = patchElementInSlide(state, action.elementId, {
+        x: action.origin.x,
+        y: action.origin.y,
+      });
+      return withHistory(baseline, next);
+    }
     case "patchChartRow": {
       const selected = selectedElementOf(state);
       if (!selected?.chartRows || selected.id !== action.elementId) return state;
@@ -349,6 +390,8 @@ export function editorReducer(state: EditorDocumentState, action: EditorDocument
       return { ...state, saveStatus: "saved", savedLabel: action.label };
     case "markSaveError":
       return { ...state, saveStatus: "error", savedLabel: "保存失败" };
+    case "hydrateDocument":
+      return action.document;
     default:
       return state;
   }

@@ -1,0 +1,24 @@
+/* Shared menu-popover shell — variants live in conversation / ppt-editor owners. */
+.menu-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 210px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-modal);
+  border-radius: 28px;
+  padding: var(--space-2);
+  display: grid;
+}
+.menu-popover > * {
+  padding: 8px;
+  text-align: left;
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+}
+.menu-popover button:hover {
+  background: var(--color-surface-muted);
+}

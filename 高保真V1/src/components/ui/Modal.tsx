@@ -2,6 +2,19 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { focusableElements, inertOutside, trapTab } from "./focusContainment";
 import { useModalReveal } from "./Reveal";
 
+export type ModalVariant =
+  | "default"
+  | "chart"
+  | "plans"
+  | "payment"
+  | "binding"
+  | "task"
+  | "order"
+  | "new-ppt"
+  | "import-ppt"
+  | "template-manager"
+  | "template-preview";
+
 type ModalProps = {
   title: string;
   children: ReactNode;
@@ -9,7 +22,7 @@ type ModalProps = {
   footer?: ReactNode;
   size?: "sm" | "md" | "lg" | "xl";
   /** Explicit modal chrome variant; prefer this over inferring from body content. */
-  variant?: "default" | "chart";
+  variant?: ModalVariant;
 };
 
 export function Modal({ title, children, onClose, footer, size = "md", variant = "default" }: ModalProps) {
@@ -27,7 +40,9 @@ export function Modal({ title, children, onClose, footer, size = "md", variant =
     (initial[0] ?? panel).focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        if (document.querySelector(".form-select__menu")) return;
+        if (document.querySelector(".form-select__menu, .chart-chip-menu")) return;
+        const backdrops = document.querySelectorAll(".modal-backdrop");
+        if (backdrops[backdrops.length - 1] !== backdrop) return;
         event.preventDefault();
         event.stopPropagation();
         onCloseRef.current();

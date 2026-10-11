@@ -12,7 +12,9 @@
     "lint": "npm run typecheck:strict",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots=all",
+    "css:audit": "node scripts/css-audit.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",

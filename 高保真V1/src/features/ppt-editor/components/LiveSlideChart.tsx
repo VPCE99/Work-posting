@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { ChartRenderer } from "../../../components/chart/ChartRenderer";
-import { chartSeries, defaultChartRows, elementBoxStyle, type SlideElement } from "../model";
+import { occupancyChartSeries } from "../../../components/chart/scale";
+import { defaultChartRows, elementBoxStyle, type SlideElement } from "../model";
 
 export function LiveSlideChart({
   element,
@@ -9,7 +10,7 @@ export function LiveSlideChart({
   element: SlideElement;
   positioned?: boolean;
 }) {
-  const rows = chartSeries(element.chartRows ?? defaultChartRows);
+  const rows = occupancyChartSeries(element.chartRows ?? defaultChartRows);
   const type = element.chartType ?? "line";
   const style: CSSProperties | undefined = positioned ? elementBoxStyle(element) : undefined;
 

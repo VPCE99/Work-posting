@@ -1,4 +1,5 @@
 import type { KeyboardEvent, MouseEvent as ReactMouseEvent } from "react";
+import type { DragBind } from "../hooks/useCanvasElementDrag";
 import { LucideIcon } from "../icons/LucideIcon";
 import { elementBoxStyle, elementTextStyle, slideElementClass, type SlideElement } from "../model";
 import { LiveSlideChart } from "./LiveSlideChart";
@@ -7,10 +8,12 @@ export function SlideElementView({
   element,
   selectedId,
   onSelect,
+  bindDrag,
 }: {
   element: SlideElement;
   selectedId: string | null;
   onSelect: (element: SlideElement) => void;
+  bindDrag?: DragBind;
 }) {
   const select = (event: ReactMouseEvent | KeyboardEvent) => {
     event.stopPropagation();
@@ -18,6 +21,7 @@ export function SlideElementView({
     if ("key" in event) event.preventDefault();
     onSelect(element);
   };
+  const dragProps = bindDrag ? bindDrag(element) : {};
 
   if (element.kind === "chart") {
     return (
@@ -29,6 +33,7 @@ export function SlideElementView({
         style={elementBoxStyle(element)}
         onClick={select}
         onKeyDown={select}
+        {...dragProps}
       >
         <LiveSlideChart element={element} positioned={false} />
       </div>
@@ -46,6 +51,7 @@ export function SlideElementView({
         style={elementBoxStyle(element)}
         onClick={select}
         onKeyDown={select}
+        {...dragProps}
       >
         <table>
           <tbody>
@@ -72,6 +78,7 @@ export function SlideElementView({
         style={elementBoxStyle(element)}
         onClick={select}
         onKeyDown={select}
+        {...dragProps}
       >
         <LucideIcon name="image" size={28} />
         <span>{element.content || "图片"}</span>
@@ -96,6 +103,7 @@ export function SlideElementView({
         }}
         onClick={select}
         onKeyDown={select}
+        {...dragProps}
       />
     );
   }
@@ -109,6 +117,7 @@ export function SlideElementView({
       style={elementTextStyle(element)}
       onClick={select}
       onKeyDown={select}
+      {...dragProps}
     >
       {element.content}
     </div>

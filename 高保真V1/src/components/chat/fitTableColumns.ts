@@ -1,5 +1,5 @@
 /** Width units for one cell. CJK takes a full unit; Latin and digits take a little over half. */
-export function textUnits(value: string) {
+function textUnits(value: string) {
   let units = 0;
   for (const char of value) {
     const code = char.codePointAt(0) ?? 0;

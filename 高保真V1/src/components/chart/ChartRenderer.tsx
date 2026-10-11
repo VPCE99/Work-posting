@@ -3,9 +3,9 @@ import type { ChartType, OccupancySeriesPoint } from "./model";
 import { CHART_SERIES_COLORS } from "./palette";
 import { occupancyValueDomain } from "./scale";
 
-export type ChartRendererDensity = "slide" | "miniature";
+type ChartRendererDensity = "slide" | "miniature";
 
-export type ChartRendererProps = {
+type ChartRendererProps = {
   type: ChartType;
   series: OccupancySeriesPoint[];
   width?: number;

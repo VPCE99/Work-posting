@@ -4,9 +4,6 @@ import type { ChartRow, ChartType, EditorToolName, TextAlign } from "./types";
 /** Seed titles for a new document; runtime titles live on EditorDocumentState.slides. */
 export const DEFAULT_SLIDE_TITLES = ["封面", "核心结论", "市场规模", "区域表现", "重点项目", "总结"];
 
-/** @deprecated Prefer DEFAULT_SLIDE_TITLES or document.slides — kept for existing tests/imports. */
-export const slideTitles = DEFAULT_SLIDE_TITLES;
-
 export const editorTools: Array<{ name: EditorToolName; label: string }> = [
   { name: "pointer", label: "选择" },
   { name: "layout", label: "版式" },

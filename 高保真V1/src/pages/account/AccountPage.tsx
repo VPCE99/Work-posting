@@ -1,20 +1,29 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { DAILY_PLAN_TOKEN_CAP_K, formatTokenK, todayTokenUsageLabel } from "../../data/mock";
 
 const RANGE_DAYS = 30;
 const rangeEnd = new Date(2026, 9, 8);
 const heat = [1, 4, 0, 2, 3, 1, 0, 4, 2, 3, 0, 2, 4, 1, 0, 3, 4, 1, 2, 0, 3, 0, 1, 4, 2, 0, 2, 3, 4, 1];
 const heatTalks = [0, 2, 5, 9, 16];
 const heatTokens = [0, 48, 120, 260, 540];
-const tokenBars = [320, 480, 410, 760, 540, 980, 860, 1240, 690, 880, 1520, 910, 1040, 730, 640, 1100, 820, 960, 1380, 770, 590, 1010, 870, 1430, 920, 680, 1160, 840, 990, 1210];
-const tokenMax = Math.max(...tokenBars);
+/**
+ * Daily totals (K Token) against membership daily cap (1000 万).
+ * Plan quota is consumed first; overflow comes from permanent balance.
+ */
+const tokenBars = [
+  2100, 3400, 1800, 5600, 4200, 7800, 6500, 9200, 4800, 7100,
+  11200, 6300, 8500, 3900, 2800, 9600, 5400, 7200, 10800, 4500,
+  3100, 8800, 6100, 11500, 7600, 4100, 9900, 5800, 8300, 10200,
+];
+/** Chart scale includes the daily plan cap so bar height reads against 10M. */
+const tokenMax = Math.max(...tokenBars, DAILY_PLAN_TOKEN_CAP_K);
 
-function formatToken(value: number) {
-  if (value >= 1000) {
-    const millions = value / 1000;
-    return `${Number.isInteger(millions) ? millions.toFixed(0) : millions.toFixed(1)}M`;
-  }
-  return `${value}K`;
+type TokenSplit = { total: number; plan: number; permanent: number };
+
+function splitTokenUsage(total: number): TokenSplit {
+  const plan = Math.min(total, DAILY_PLAN_TOKEN_CAP_K);
+  return { total, plan, permanent: Math.max(0, total - plan) };
 }
 
 function dayInRange(index: number) {
@@ -28,7 +37,9 @@ function formatDay(date: Date) {
 }
 
 function heatLabel(index: number, level: number) {
-  return `${formatDay(dayInRange(index))} · ${heatTalks[level]} 次对话 · ${heatTokens[level]}K Token`;
+  const talks = heatTalks[level] ?? 0;
+  const tokens = heatTokens[level] ?? 0;
+  return `${formatDay(dayInRange(index))} · ${talks} 次对话 · ${formatTokenK(tokens)} Token`;
 }
 
 const orders = [
@@ -36,7 +47,7 @@ const orders = [
   { product: "入门加油包", amount: "¥39", status: "已关闭", created: "2026-08-12", invoice: "—", closed: true },
 ];
 
-type TipState = { text: string; anchor: HTMLElement };
+type TipState = { content: ReactNode; anchor: HTMLElement };
 
 function PanelTip({ tip }: { tip: TipState | null }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -55,7 +66,23 @@ function PanelTip({ tip }: { tip: TipState | null }) {
     node.style.top = `${top}px`;
   }, [tip]);
   if (!tip) return null;
-  return <span ref={ref} className="panel-tip" role="tooltip">{tip.text}</span>;
+  return <span ref={ref} className="panel-tip" role="tooltip">{tip.content}</span>;
+}
+
+function TokenTipContent({ date, split }: { date: string; split: TokenSplit }) {
+  return (
+    <span className="token-tip">
+      <strong className="token-tip__date">{date}</strong>
+      <span className="token-tip__row">
+        <i className="token-tip__swatch token-tip__swatch--plan" aria-hidden="true" />
+        <span>套餐额度: {formatTokenK(split.plan)} Token</span>
+      </span>
+      <span className="token-tip__row">
+        <i className="token-tip__swatch token-tip__swatch--permanent" aria-hidden="true" />
+        <span>永久额度: {formatTokenK(split.permanent)} Token</span>
+      </span>
+    </span>
+  );
 }
 
 export function AccountPage() {
@@ -69,14 +96,14 @@ export function AccountPage() {
     <section className="page-stack account-page">
         <header className="page-header">
           <div><p className="eyebrow">账户</p><h1>客户后台</h1><p>统一查看套餐、用量、余额和订单。</p></div>
-          <div className="button-row"><Link className="button" to="/chat">返回对话</Link><button className="button button--primary" onClick={() => navigate("/account/plans")}>购买套餐</button></div>
+          <div className="button-row"><Link className="button" to="/chat">返回对话</Link><button className="button button--primary" onClick={() => navigate("/account/plans", { state: { backgroundLocation: "/account" } })}>购买套餐</button></div>
         </header>
 
         <div className="metric-grid">
           <Metric title="当前套餐" value="试用版" detail="50 次/日" />
-          <Metric title="今日用量" value="128K / 1M" detail="12 次对话 · 更新于 14:32" />
+          <Metric title="今日用量" value={todayTokenUsageLabel} detail="12 次对话 · 更新于 14:32" />
           <Metric title="永久余额" value="2.5M Token" detail="来自加油包" />
-          <Metric title="本月累计" value="3.8M Token" detail="18 个活跃日" />
+          <Metric title="本月累计" value="186M Token" detail="18 个活跃日" />
         </div>
 
         <div className="dashboard-grid">
@@ -90,8 +117,8 @@ export function AccountPage() {
                   className="heat-cell"
                   data-level={value}
                   aria-label={heatLabel(index, value)}
-                  onMouseEnter={(event) => setActivityTip({ text: heatLabel(index, value), anchor: event.currentTarget })}
-                  onFocus={(event) => setActivityTip({ text: heatLabel(index, value), anchor: event.currentTarget })}
+                  onMouseEnter={(event) => setActivityTip({ content: heatLabel(index, value), anchor: event.currentTarget })}
+                  onFocus={(event) => setActivityTip({ content: heatLabel(index, value), anchor: event.currentTarget })}
                 />
               ))}
             </div>
@@ -99,20 +126,34 @@ export function AccountPage() {
             <PanelTip tip={activityTip} />
           </article>
           <article className="panel account-tokens" onMouseLeave={() => setTokenTip(null)}>
-            <div className="panel__title"><h2>近 30 天 Token 使用量</h2><span>Token</span></div>
-            <div className="token-chart" aria-label="近 30 天 Token 使用量">
+            <div className="panel__title">
+              <h2>近 30 天 Token 使用量</h2>
+              <div className="token-legend" aria-hidden="true">
+                <span><i className="token-tip__swatch token-tip__swatch--plan" />套餐额度</span>
+                <span><i className="token-tip__swatch token-tip__swatch--permanent" />永久额度</span>
+              </div>
+            </div>
+            <div className="token-chart" aria-label="近 30 天 Token 使用量（套餐额度优先，超出部分为永久额度）">
               {tokenBars.map((value, index) => {
-                const text = `${formatDay(dayInRange(index))} · ${formatToken(value)} Token`;
+                const split = splitTokenUsage(value);
+                const date = formatDay(dayInRange(index));
+                const label = `${date} · 套餐额度 ${formatTokenK(split.plan)} · 永久额度 ${formatTokenK(split.permanent)}`;
+                const planShare = split.total ? (split.plan / split.total) * 100 : 0;
+                const permanentShare = split.total ? (split.permanent / split.total) * 100 : 0;
                 return (
                   <button
                     key={index}
                     type="button"
                     className="token-bar"
-                    style={{ height: `${(value / tokenMax) * 100}%` }}
-                    aria-label={text}
-                    onMouseEnter={(event) => setTokenTip({ text, anchor: event.currentTarget })}
-                    onFocus={(event) => setTokenTip({ text, anchor: event.currentTarget })}
-                  />
+                    style={{ height: `${(split.total / tokenMax) * 100}%` }}
+                    aria-label={label}
+                    onMouseEnter={(event) => setTokenTip({ content: <TokenTipContent date={date} split={split} />, anchor: event.currentTarget })}
+                    onFocus={(event) => setTokenTip({ content: <TokenTipContent date={date} split={split} />, anchor: event.currentTarget })}
+                  >
+                    {/* column-reverse: plan is billed first → sits at the base; permanent stacks on top. */}
+                    {split.plan > 0 && <span className="token-bar__segment token-bar__segment--plan" style={{ height: `${planShare}%` }} />}
+                    {split.permanent > 0 && <span className="token-bar__segment token-bar__segment--permanent" style={{ height: `${permanentShare}%` }} />}
+                  </button>
                 );
               })}
             </div>

@@ -10,6 +10,7 @@ import "./styles/components/topbar.css";
 import "./styles/components/form.css";
 import "./styles/components/button.css";
 import "./styles/components/modal.css";
+import "./styles/components/popover.css";
 import "./styles/features/chat-home.css";
 import "./styles/components/chat-controls.css";
 import "./styles/components/composer.css";
@@ -26,8 +27,6 @@ import "./styles/features/ppt-editor/10-navigation-and-canvas.css";
 import "./styles/features/ppt-editor/20-slide-content.css";
 import "./styles/features/ppt-editor/30-agent-and-dialogs.css";
 import "./styles/features/ppt-editor/40-element-properties.css";
-import "./styles/features/ppt-editor/90-current-overrides.css";
-import "./styles/features/ppt-editor/95-from-global.css";
 import "./styles/features/ppt-editor/99-responsive.css";
 import "./styles/features/chart.css";
 

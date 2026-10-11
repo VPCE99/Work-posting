@@ -1,36 +1,30 @@
-/* Form controls: native select, FormSelect, template search. */
-
-
-
-/* Consistent select affordance: keep the chevron away from the control edge. */
+/* Form controls: native select, FormSelect, template search. */ /* Consistent select affordance: keep the chevron away from the control edge. */
 select:not([multiple]) {
   appearance: none;
   -webkit-appearance: none;
   padding-right: 38px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M2 2L6 6L10 2' stroke='%238E949E' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: var(--icon-chevron-dark);
   background-repeat: no-repeat;
   background-position: right 14px center;
   background-size: 12px 8px;
 }
-
 select:not([multiple])::-ms-expand {
- display: none; 
+  display: none;
 }
-
 .form-select {
- position: relative; width: 100%; 
+  position: relative;
+  width: 100%;
 }
-
 .form-select__trigger {
   width: 100%;
   min-height: 40px;
   display: flex;
   align-items: center;
   padding: 10px 38px 10px 12px;
-  border: 1px solid #343842;
-  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  border-radius: 28px;
   background-color: #0e1014;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M2 2L6 6L10 2' stroke='%238E949E' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: var(--icon-chevron-dark);
   background-repeat: no-repeat;
   background-position: right 14px center;
   background-size: 12px 8px;
@@ -40,104 +34,105 @@ select:not([multiple])::-ms-expand {
   text-align: left;
   cursor: pointer;
 }
-
 .form-select__trigger span {
- min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; 
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
 .form-select__menu {
   display: grid;
   gap: 2px;
   padding: 6px;
   overflow: auto;
   border: 1px solid #343842;
-  border-radius: 10px;
+  border-radius: 28px;
   background: #15181d;
   box-shadow: 0 8px 24px rgb(0 0 0 / 40%);
 }
-
 .form-select__menu button {
   min-height: 34px;
   display: flex;
   align-items: center;
   padding: 0 10px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 28px;
   background: transparent;
   color: #dde2e8;
   font-size: 13px;
   text-align: left;
   cursor: pointer;
 }
-
 .form-select__menu button:hover,
 .form-select__menu button[aria-selected="true"] {
- background: #20242b; 
+  background: #20242b;
 }
-
-.field-list .form-select {
- width: 92px; flex: 0 0 92px; 
-}
-
-.field-list .form-select__trigger {
- min-height: 0; padding: 4px 22px 4px 6px; background-position: right 6px center; font-size: 12px; 
-}
-
 .app[data-theme="light"] .form-select__trigger {
- border-color: #c7d2d5; background-color: #fff; color: #263b40; 
+  border-color: transparent;
+  background-color: var(--color-surface);
+  color: #263b40;
 }
-
 .app[data-theme="light"] .form-select__trigger:hover {
- border-color: #9eacb0; background-color: #eef3f4; 
+  border-color: transparent;
+  background-color: var(--color-surface-muted);
 }
-
 .app[data-theme="light"] .form-select__menu {
- border-color: #d7e0e2; background: #fff; 
+  border-color: var(--color-border);
+  background: var(--color-surface);
 }
-
 .app[data-theme="light"] .form-select__menu button {
- color: #263b40; 
+  color: #263b40;
 }
-
 .app[data-theme="light"] .form-select__menu button:hover,
 .app[data-theme="light"] .form-select__menu button[aria-selected="true"] {
- background: #eef3f4; 
-}
-
-/* Search fields: magnifier matches each input's font size. */
-.template-search {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.2 1.2 13.3 13.3' fill='none' stroke='%236f7580' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6.6' cy='6.6' r='4.35'/%3E%3Cpath d='M9.85 9.85 13.7 13.7'/%3E%3C/svg%3E");
+  background: var(--color-surface-muted);
+} /* Search fields: magnifier matches each input's font size. */
+.template-search,
+.template-search:hover,
+.template-search:focus,
+.template-search:focus-visible {
+  background-image: var(--icon-search-dark);
   background-repeat: no-repeat;
   background-position: 0.8em center;
   background-size: 1em 1em;
   padding-left: 2.5em;
+  border-color: transparent;
 }
-
-.app[data-theme="light"] .template-search {
-  background-color: #fff;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.2 1.2 13.3 13.3' fill='none' stroke='%23627278' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6.6' cy='6.6' r='4.35'/%3E%3Cpath d='M9.85 9.85 13.7 13.7'/%3E%3C/svg%3E");
-  color: #13272b;
+.app[data-theme="light"] .template-search,
+.app[data-theme="light"] .template-search:hover,
+.app[data-theme="light"] .template-search:focus,
+.app[data-theme="light"] .template-search:focus-visible {
+  border-color: transparent;
+  background-color: var(--color-surface);
+  background-image: var(--icon-search-light);
+  color: var(--color-text);
 }
-
 .app[data-theme="light"] select:not([multiple]) {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M2 2L6 6L10 2' stroke='%23627278' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: var(--icon-chevron-light);
 }
-
 .modal input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 .modal textarea,
 .modal select,
 .modal .form-select__trigger,
 .modal .button:not(.button--primary) {
   background-color: #0e1014;
+} /* Foundations radius write-back (§8) — matches prior computed 28px. */
+.modal input,
+.modal textarea,
+.modal select {
+  border-radius: 28px;
 }
-
-.app[data-theme="light"] .modal input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.app[data-theme="light"]
+  .modal
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 .app[data-theme="light"] .modal textarea,
 .app[data-theme="light"] .modal select,
 .app[data-theme="light"] .modal .form-select__trigger,
-.app[data-theme="light"] .modal input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover,
+.app[data-theme="light"]
+  .modal
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover,
 .app[data-theme="light"] .modal textarea:hover,
 .app[data-theme="light"] .modal select:hover,
 .app[data-theme="light"] .modal .form-select__trigger:hover {
-  background-color: #eef3f4;
+  background-color: var(--color-surface-muted);
 }

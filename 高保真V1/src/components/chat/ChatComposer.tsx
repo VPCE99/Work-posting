@@ -24,7 +24,52 @@ type ChatComposerCompactProps = ChatComposerBase & {
   compact: true;
 };
 
-export type ChatComposerProps = ChatComposerFullProps | ChatComposerCompactProps;
+type ChatComposerProps = ChatComposerFullProps | ChatComposerCompactProps;
+
+/** Images plus Excel / PPT / PDF — keep in sync with the file input accept list. */
+const COMPOSER_FILE_ACCEPT = [
+  "image/*",
+  ".pdf",
+  "application/pdf",
+  ".xls",
+  ".xlsx",
+  ".csv",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/csv",
+  ".ppt",
+  ".pptx",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+].join(",");
+
+function composerFileMark(file: File): string {
+  const name = file.name;
+  const lower = name.toLowerCase();
+  const type = file.type;
+  if (type.startsWith("image/") || /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(lower)) {
+    return `[图片] ${name}`;
+  }
+  if (type === "application/pdf" || lower.endsWith(".pdf")) {
+    return `[PDF] ${name}`;
+  }
+  if (
+    /\.(xlsx?|csv)$/i.test(lower)
+    || type.includes("spreadsheet")
+    || type.includes("excel")
+    || type === "text/csv"
+  ) {
+    return `[Excel] ${name}`;
+  }
+  if (
+    /\.pptx?$/i.test(lower)
+    || type.includes("presentation")
+    || type.includes("powerpoint")
+  ) {
+    return `[PPT] ${name}`;
+  }
+  return `[文件] ${name}`;
+}
 
 export function ChatComposer(props: ChatComposerProps) {
   const {
@@ -40,11 +85,11 @@ export function ChatComposer(props: ChatComposerProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const canSend = Boolean(value.trim());
 
-  const attachImage = (event: ChangeEvent<HTMLInputElement>) => {
+  const attachFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    const mark = `[图片] ${file.name}`;
+    const mark = composerFileMark(file);
     onChange(value.trim() ? `${value.trim()}\n${mark}` : mark);
   };
 
@@ -67,9 +112,9 @@ export function ChatComposer(props: ChatComposerProps) {
         <div className="composer__tools">
           {!compact && (
             <>
-              <input ref={fileRef} className="composer__file" type="file" accept="image/*" onChange={attachImage} />
-              <button className="button button--small" type="button" onClick={() => fileRef.current?.click()}>
-                <MenuIcon name="upload" />上传图片
+              <input ref={fileRef} className="composer__file" type="file" accept={COMPOSER_FILE_ACCEPT} onChange={attachFile} />
+              <button className="button button--small" type="button" onClick={() => fileRef.current?.click()} aria-label="上传文件">
+                <MenuIcon name="upload" />上传文件
               </button>
               <ConnectionToggle online={props.online} onToggle={props.onToggleOnline} />
               <ModelSelect placement={props.modelPlacement ?? "down"} />
