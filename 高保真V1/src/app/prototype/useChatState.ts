@@ -34,6 +34,18 @@ export function useChatState() {
     setConversations((items) => items.map((item) => item.id === conversationId ? { ...item, projectId } : item));
   }, []);
 
+  /** Keeps a new chat in the in-memory sidebar until a server history API exists. */
+  const startConversation = useCallback((prompt: string) => {
+    const text = prompt.trim();
+    const id = `chat-${Date.now()}`;
+    const titleSource = text.replace(/^请使用「[^」]+」：/, "").trim() || "新对话";
+    const title = titleSource.length > 18 ? `${titleSource.slice(0, 18)}…` : titleSource;
+    const preview = titleSource.length > 24 ? `${titleSource.slice(0, 24)}…` : titleSource;
+    const conversation: Conversation = { id, title, group: "今天", preview, prompt: text };
+    setConversations((items) => [conversation, ...items]);
+    return id;
+  }, []);
+
   return {
     pinnedConversationIds,
     togglePinnedConversation,
@@ -44,6 +56,7 @@ export function useChatState() {
     renameChatProject,
     deleteChatProject,
     moveConversationToProject,
+    startConversation,
   } satisfies {
     pinnedConversationIds: string[];
     togglePinnedConversation: (id: string) => void;
@@ -54,5 +67,6 @@ export function useChatState() {
     renameChatProject: (id: string, name: string) => void;
     deleteChatProject: (id: string) => void;
     moveConversationToProject: (conversationId: string, projectId: string | null) => void;
+    startConversation: (prompt: string) => string;
   };
 }

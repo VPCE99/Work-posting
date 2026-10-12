@@ -35,6 +35,7 @@ export {
 
 export {
   buildBlankSlideElements,
+  buildCoverSlideElements,
   buildSlideElements,
   countDocumentAssets,
   createInsertedElement,
@@ -60,6 +61,7 @@ export {
   buildGeneratedElementPatch,
   createBlankEditorDocument,
   createInitialEditorDocument,
+  createProjectEditorDocument,
   editorReducer,
   elementsForSlide,
   formatSavedLabel,

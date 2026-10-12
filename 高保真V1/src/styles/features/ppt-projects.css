@@ -137,6 +137,123 @@
 .ppt-project-item__preview--cover .ppt-project-item__preview-open > span {
   display: none;
 }
+.ppt-cover-art {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 8px;
+  padding: 14px 12px 12px 14px;
+  background: #121619;
+  color: #f7f8fa;
+  pointer-events: none;
+}
+.ppt-cover-art__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.ppt-cover-art__title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+}
+.ppt-cover-art__rule {
+  display: block;
+  width: 42px;
+  height: 2px;
+  border-radius: 999px;
+  background: #00c9c3;
+}
+.ppt-cover-art__subtitle {
+  color: #aeb6c0;
+  font-size: 10px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.ppt-cover-art__visual {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+.ppt-cover-art__chart {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+.ppt-cover-art__bar {
+  fill: #0f8f8a;
+}
+.ppt-cover-art__line {
+  fill: none;
+  stroke: #f7f8fa;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ppt-cover-art__point,
+.ppt-cover-art__arrow {
+  fill: #f7f8fa;
+}
+.ppt-cover-art__area {
+  stroke: none;
+}
+.ppt-cover-art__series {
+  fill: none;
+  stroke: #f7f8fa;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ppt-cover-art__series--soft {
+  stroke: #4aa8c4;
+  stroke-width: 1.35;
+  opacity: 0.8;
+}
+.ppt-cover-art__halo {
+  fill: #00c9c3;
+  opacity: 0.16;
+}
+.ppt-cover-art__bubble {
+  stroke: rgb(255 255 255 / 16%);
+  stroke-width: 1;
+}
+.ppt-cover-art__bubble--lead {
+  stroke: #f4f7fa;
+  stroke-width: 1.25;
+}
+.ppt-cover-art--monthly-report {
+  background: linear-gradient(145deg, #141a22, #0e1218);
+}
+.ppt-cover-art--competition-map {
+  background: linear-gradient(155deg, #15181f, #10131a 60%, #0d1016);
+}
+.ppt-cover-art--slide {
+  position: absolute;
+  inset: 0;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 20px;
+  padding: 48px 40px 40px 48px;
+}
+.ppt-cover-art--slide .ppt-cover-art__title {
+  font-size: 40px;
+}
+.ppt-cover-art--slide .ppt-cover-art__rule {
+  width: 88px;
+  height: 3px;
+}
+.ppt-cover-art--slide .ppt-cover-art__subtitle {
+  font-size: 16px;
+  color: #9aa3ad;
+}
 .ppt-project-item__preview-open {
   position: absolute;
   inset: 0;
@@ -161,22 +278,37 @@
   width: 22px;
   height: 22px;
 }
-.ppt-project-item__favorite:hover {
+.ppt-project-item__favorite:hover,
+.ppt-project-item__favorite--on:hover {
   border-color: transparent;
   background: #172226;
+  color: var(--color-focus);
 }
-.ppt-project-item__more {
+.ppt-project-item__favorite:hover .favorite-star-icon,
+.ppt-project-item__favorite--on .favorite-star-icon {
+  fill: currentColor;
+}
+.ppt-project-item__delete {
   display: grid;
   place-items: center;
   overflow: hidden;
   line-height: 0;
+  color: #aeb4bd;
 }
-.ppt-project-item__more svg {
-  width: 18px;
-  height: 4px;
+.ppt-project-item__delete svg {
+  width: 16px;
+  height: 16px;
   display: block;
   overflow: visible;
-  fill: currentColor;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ppt-project-item__delete:hover {
+  color: #f16c78;
+  background: #2a171b;
 }
 .ppt-project-item__preview-pages,
 .ppt-project-item__source-label {
@@ -201,7 +333,9 @@
   gap: 8px;
   padding: 14px 0 0;
 }
-.ppt-projects--grid .ppt-project-item__title {
+.ppt-projects--grid .ppt-project-item__title,
+.ppt-projects--grid .ppt-project-item__title-form,
+.ppt-projects--grid .ppt-project-item__title-input {
   margin: 0;
   line-height: 22px;
 }
@@ -236,7 +370,7 @@
 .ppt-projects--grid .ppt-project-item__footer > small {
   line-height: 20px;
 }
-.ppt-projects--grid .ppt-project-item__footer .project-menu-anchor {
+.ppt-projects--grid .ppt-project-item__footer .ppt-project-item__delete {
   flex: 0 0 auto;
 }
 .ppt-projects--grid .ppt-project-item__footer .icon-button {
@@ -248,14 +382,20 @@
 .ppt-projects--list .ppt-project-item__preview--cover {
   background: #0b0d10;
 }
-.ppt-projects--list .ppt-project-item__preview--cover .ppt-project-item__cover {
-  object-fit: contain;
-  object-position: center;
-}
 .ppt-projects--list
   .ppt-project-item__preview--cover
   .ppt-project-item__preview-pages {
   display: none;
+}
+.ppt-projects--list .ppt-project-item__preview--cover .ppt-cover-art {
+  padding: 10px 8px;
+  gap: 6px;
+}
+.ppt-projects--list .ppt-project-item__preview--cover .ppt-cover-art__title {
+  font-size: 14px;
+}
+.ppt-projects--list .ppt-project-item__preview--cover .ppt-cover-art__subtitle {
+  font-size: 9px;
 }
 .ppt-projects--list .ppt-project-item__preview-open {
   display: flex;
@@ -295,7 +435,9 @@
   gap: 10px;
   padding: 20px;
 }
-.ppt-projects--list .ppt-project-item__title {
+.ppt-projects--list .ppt-project-item__title,
+.ppt-projects--list .ppt-project-item__title-form,
+.ppt-projects--list .ppt-project-item__title-input {
   width: 100%;
   margin: 0;
   font-size: 18px;
@@ -326,28 +468,7 @@
   height: 38px;
   padding: 0;
 }
-.project-menu {
-  width: 170px;
-  gap: 2px;
-  padding: 6px;
-  border: 1px solid #3a3d45;
-  border-radius: 28px;
-  background: #1a1d23;
-  box-shadow: 0 10px 24px rgb(0 0 0 / 50%);
-}
-.project-menu button {
-  min-height: 32px;
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 28px;
-  color: #d9dde3;
-  background: #1a1d23;
-  font-size: 13px;
-}
-.project-menu .project-menu__danger {
-  color: #ff7a8a;
-  background: #25171b;
-} /* New PPT dialog */
+/* New PPT dialog */
 .modal--new-ppt {
   width: min(780px, calc(100vw - 48px));
   height: 760px;
@@ -878,28 +999,27 @@
 .app[data-theme="light"] .ppt-project-item__favorite {
   border-color: transparent;
   background: var(--color-surface);
-  color: #00a29c;
+  color: #8a969c;
 }
-.app[data-theme="light"] .ppt-project-item__favorite:hover {
+.app[data-theme="light"] .ppt-project-item__favorite:hover,
+.app[data-theme="light"] .ppt-project-item__favorite--on,
+.app[data-theme="light"] .ppt-project-item__favorite--on:hover {
   border-color: transparent;
   background: #e8f7f6;
+  color: #00a29c;
 }
-.app[data-theme="light"] .project-menu {
-  border-color: var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
-  box-shadow: 0 12px 32px rgb(28 54 60 / 12%);
+.app[data-theme="light"] .ppt-project-item__delete {
+  color: #8a969c;
 }
-.app[data-theme="light"] .project-menu button {
-  background: transparent;
-  color: #263b40;
-}
-.app[data-theme="light"] .project-menu button:hover {
-  background: var(--color-surface-muted);
-}
-.app[data-theme="light"] .project-menu .project-menu__danger {
+.app[data-theme="light"] .ppt-project-item__delete:hover {
+  color: #e45b6a;
   background: #fff2f3;
-  color: #c84251;
+}
+.app[data-theme="light"] .ppt-project-item__title-input {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text);
+  box-shadow: none;
 }
 .app[data-theme="light"] .modal--new-ppt,
 .app[data-theme="light"] .modal--import-ppt,
@@ -1109,11 +1229,14 @@
   border: 1px solid transparent;
   border-radius: 28px;
   background: #15181d;
-  color: var(--color-focus);
+  color: #aeb4bd;
   cursor: pointer;
   position: absolute;
   top: 12px;
   right: 12px;
+}
+.ppt-project-item__favorite--on {
+  color: var(--color-focus);
 }
 .ppt-projects--list {
   width: 100%;
@@ -1323,19 +1446,37 @@
   align-content: start;
   padding: 12px 0 0;
 }
-.ppt-project-item__title {
+.ppt-project-item__title-form {
+  display: block;
+  min-width: 0;
+  margin: 0 0 7px;
+}
+.ppt-project-item__title,
+.ppt-project-item__title-input {
+  display: block;
+  width: 100%;
   overflow: hidden;
   padding: 0;
   border: 0;
+  border-radius: 0;
   color: var(--color-text);
   background: transparent;
+  box-shadow: none;
+  font: inherit;
   font-size: 15px;
   font-weight: 700;
+  line-height: inherit;
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
+  outline: none;
+}
+.ppt-project-item__title {
   cursor: pointer;
   margin-bottom: 7px;
+}
+.ppt-project-item__title-input {
+  margin: 0;
 }
 .ppt-project-item__info > small {
   display: block;

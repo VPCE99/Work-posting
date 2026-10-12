@@ -25,6 +25,7 @@ type PrototypeContextValue = {
   renameChatProject: (id: string, name: string) => void;
   deleteChatProject: (id: string) => void;
   moveConversationToProject: (conversationId: string, projectId: string | null) => void;
+  startConversation: (prompt: string) => string;
   tasks: ScheduledTask[];
   saveTask: (task: ScheduledTask) => void;
   deleteTask: (id: string) => void;
@@ -100,6 +101,7 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     renameChatProject: chat.renameChatProject,
     deleteChatProject: chat.deleteChatProject,
     moveConversationToProject: chat.moveConversationToProject,
+    startConversation: chat.startConversation,
     saveTask: task.saveTask,
     deleteTask: task.deleteTask,
     toggleTask: task.toggleTask,
@@ -127,6 +129,7 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     chat.renameChatProject,
     chat.deleteChatProject,
     chat.moveConversationToProject,
+    chat.startConversation,
     task.saveTask,
     task.deleteTask,
     task.toggleTask,

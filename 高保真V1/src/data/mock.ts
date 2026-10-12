@@ -4,6 +4,7 @@ import type {
   Conversation,
   Plan,
   PptProject,
+  PptProjectDeck,
   PptTemplate,
   ScheduledTask,
   Skill,
@@ -56,11 +57,59 @@ export const initialProjects: PptProject[] = [
     updatedAt: "10 分钟前",
     favorite: true,
     recentlyViewed: true,
-    coverUrl: "/covers/ppt-cover-industry-2026.jpg",
   },
   { id: "monthly", name: "客户月报", source: "空画布", pages: 12, status: "自动保存失败", updatedAt: "昨天", favorite: false, recentlyViewed: true },
   { id: "competition", name: "竞品分析", source: "上传 PPT", pages: 8, status: "解析中", updatedAt: "刚刚", favorite: false, recentlyViewed: false },
 ];
+
+/**
+ * Project decks: first slide is the canonical cover.
+ * Library cards derive the theme thumbnail from slide 0 (not a separate coverUrl).
+ */
+export const pptProjectDecks: Record<string, PptProjectDeck> = {
+  "industry-2026": {
+    coverLayout: "industry-outlook",
+    coverSubtitle: "Industry Outlook · 趋势与机遇",
+    slideTitles: [
+      "2026 行业报告",
+      "核心结论",
+      "市场规模",
+      "区域表现",
+      "重点项目",
+      "投资建议",
+      "风险提示",
+      "附录",
+    ],
+  },
+  monthly: {
+    coverLayout: "monthly-report",
+    coverSubtitle: "Monthly Brief · 经营回顾",
+    slideTitles: [
+      "客户月报",
+      "本月概览",
+      "关键指标",
+      "异常追踪",
+      "行动项",
+      "下月计划",
+    ],
+  },
+  competition: {
+    coverLayout: "competition-map",
+    coverSubtitle: "Competitive Map · 格局扫描",
+    slideTitles: [
+      "竞品分析",
+      "玩家地图",
+      "产品对比",
+      "融资动态",
+      "机会判断",
+      "行动建议",
+    ],
+  },
+};
+
+export function getProjectDeck(projectId: string): PptProjectDeck | null {
+  return pptProjectDecks[projectId] ?? null;
+}
 
 /** Cover thumbnails for templates (manager + new-PPT picker). */
 export const templateCoverUrls: Record<string, string> = {

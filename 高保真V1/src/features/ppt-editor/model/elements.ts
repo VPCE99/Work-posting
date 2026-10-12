@@ -1,3 +1,4 @@
+import type { PptCoverLayout } from "../../../types";
 import { defaultChartRows, DEFAULT_SLIDE_TITLES, textDefaults } from "./defaults";
 import type { EditorToolName, SlideElement, SlideElementKind, SlideMeta } from "./types";
 
@@ -14,6 +15,77 @@ export function createSlideMetas(titles: string[] = DEFAULT_SLIDE_TITLES): Slide
     id: `slide-${index + 1}`,
     title,
   }));
+}
+
+/** Cover slide seed for project decks — mirrored by ProjectCoverArt / ProjectCoverSlide. */
+export function buildCoverSlideElements(
+  layout: PptCoverLayout,
+  title: string,
+  subtitle: string,
+): SlideElement[] {
+  const slideIndex = 0;
+  const chartContent =
+    layout === "industry-outlook" ? "增长趋势"
+      : layout === "monthly-report" ? "月度走势"
+        : "竞争格局";
+  return [
+    {
+      ...textDefaults,
+      id: elementId(slideIndex, "title"),
+      label: elementLabel(slideIndex, 1),
+      content: title,
+      x: 48,
+      y: 132,
+      w: 340,
+      h: 56,
+      fontSize: "34",
+      lineHeight: "1.2",
+      bold: true,
+      aiGenerated: true,
+    },
+    {
+      ...textDefaults,
+      id: elementId(slideIndex, "subtitle"),
+      label: elementLabel(slideIndex, 2),
+      content: subtitle,
+      x: 48,
+      y: 214,
+      w: 320,
+      h: 28,
+      fontSize: "14",
+      textColor: "#9aa3ad",
+      aiGenerated: true,
+    },
+    {
+      ...textDefaults,
+      id: elementId(slideIndex, "accent"),
+      label: elementLabel(slideIndex, 3),
+      kind: "shape",
+      content: "",
+      x: 48,
+      y: 196,
+      w: 88,
+      h: 3,
+      bgTransparent: false,
+      textColor: "#00c9c3",
+      shapeVariant: "rect",
+    },
+    {
+      ...textDefaults,
+      id: elementId(slideIndex, "chart"),
+      label: elementLabel(slideIndex, 4),
+      kind: "chart",
+      content: chartContent,
+      x: 400,
+      y: 72,
+      w: 300,
+      h: 280,
+      aiGenerated: true,
+      chartType: layout === "competition-map" ? "pie" : layout === "monthly-report" ? "area" : "column",
+      chartHeaders: ["类别", "平均出租率", "时点出租率"],
+      chartRows: defaultChartRows.map((row) => ({ ...row })),
+    },
+  ];
 }
 
 export function buildSlideElements(slideIndex: number, title = DEFAULT_SLIDE_TITLES[slideIndex] ?? "幻灯片"): SlideElement[] {

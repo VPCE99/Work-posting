@@ -261,7 +261,7 @@
   height: 61px;
   min-height: 61px;
   padding: 17px 2px 10px;
-  border-bottom: 1px solid #25272d;
+  border-bottom: 0;
   border-radius: 0;
   font-size: 14px;
 }

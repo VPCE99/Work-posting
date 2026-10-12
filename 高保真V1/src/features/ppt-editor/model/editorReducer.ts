@@ -1,5 +1,7 @@
+import { getProjectDeck } from "../../../data/mock";
 import {
   buildBlankSlideElements,
+  buildCoverSlideElements,
   buildSlideElements,
   createInsertedElement,
   createLayoutElements,
@@ -131,6 +133,43 @@ export function createInitialEditorDocument(slideCount = DEFAULT_SLIDE_TITLES.le
   const elementsBySlide: Record<number, SlideElement[]> = {};
   for (let index = 0; index < slides.length; index += 1) {
     elementsBySlide[index] = buildSlideElements(index, slides[index]?.title);
+  }
+  const safeActive = Math.min(Math.max(activeSlide, 0), Math.max(slides.length - 1, 0));
+  return {
+    slides,
+    activeSlide: safeActive,
+    elementsBySlide,
+    selectedElementId: null,
+    propsSections: defaultTextSections,
+    chartDataEditing: false,
+    elementAiPrompt: "",
+    activeTool: "pointer",
+    presentMode: false,
+    saveStatus: "saved",
+    savedLabel: formatSavedLabel(),
+    past: [],
+    future: [],
+  };
+}
+
+/** Hydrate editor from a project deck — slide 0 is the canonical cover/theme. */
+export function createProjectEditorDocument(
+  projectId: string,
+  slideCount: number,
+  activeSlide = 0,
+): EditorDocumentState {
+  const deck = getProjectDeck(projectId);
+  if (!deck) return createInitialEditorDocument(slideCount, activeSlide);
+
+  const titles = deck.slideTitles.slice(0, slideCount);
+  while (titles.length < slideCount) titles.push(`幻灯片 ${titles.length + 1}`);
+  const slides = createSlideMetas(titles);
+  const elementsBySlide: Record<number, SlideElement[]> = {};
+  for (let index = 0; index < slides.length; index += 1) {
+    const title = slides[index]?.title ?? `幻灯片 ${index + 1}`;
+    elementsBySlide[index] = index === 0
+      ? buildCoverSlideElements(deck.coverLayout, title, deck.coverSubtitle)
+      : buildSlideElements(index, title);
   }
   const safeActive = Math.min(Math.max(activeSlide, 0), Math.max(slides.length - 1, 0));
   return {

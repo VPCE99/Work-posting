@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { usePrototype } from "../../app/PrototypeContext";
 import { ChatComposer } from "../../components/chat/ChatComposer";
 import { Brand } from "../../components/ui/Brand";
 
@@ -8,17 +9,20 @@ const prompts = ["对比不同园区的出租率差异", "解释收入增长的�
 export function HomePage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { startConversation } = usePrototype();
   const composerRef = useRef<HTMLDivElement>(null);
   const seeded = (location.state as { skillDraft?: string } | null)?.skillDraft ?? "";
   const [prompt, setPrompt] = useState(seeded);
   const [online, setOnline] = useState(true);
 
   const send = () => {
-    if (!prompt.trim()) return;
+    const text = prompt.trim();
+    if (!text) return;
+    const id = startConversation(text);
     const rect = composerRef.current?.getBoundingClientRect();
-    navigate("/chat/new", {
+    navigate(`/chat/${id}`, {
       state: {
-        prompt,
+        prompt: text,
         origin: rect
           ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
           : undefined,

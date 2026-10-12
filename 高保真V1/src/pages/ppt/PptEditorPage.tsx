@@ -20,6 +20,7 @@ import { useEditorDialogs } from "../../features/ppt-editor/hooks/useEditorDialo
 import { useEditorDocumentController } from "../../features/ppt-editor/hooks/useEditorDocumentController";
 import { useEditorKeyboardShortcuts } from "../../features/ppt-editor/hooks/useEditorKeyboardShortcuts";
 import { useEditorZoom } from "../../features/ppt-editor/hooks/useEditorZoom";
+import { getProjectDeck } from "../../data/mock";
 import {
   countDocumentAssets,
   type EditorToolName,
@@ -100,17 +101,20 @@ export function PptEditorPage() {
     navigate("/ppt", { replace: true });
   }, [project, navigate, notify]);
 
+  const projectDeck = project ? getProjectDeck(project.id) : null;
+
   useEffect(() => {
     if (!project || hydratedProjectId.current === project.id) return;
     hydratedProjectId.current = project.id;
     if (project.blankTemplate) {
-      hydrateForProject(1, 0, true);
+      hydrateForProject(1, 0, { blank: true });
       return;
     }
     const pages = Math.max(1, project.pages);
-    const activeSlide = Math.min(2, pages - 1);
-    hydrateForProject(pages, activeSlide);
-  }, [project, hydrateForProject]);
+    // Open on the cover when the project has a deck theme; otherwise keep the seeded middle slide.
+    const activeSlide = projectDeck ? 0 : Math.min(2, pages - 1);
+    hydrateForProject(pages, activeSlide, { projectId: project.id });
+  }, [project, projectDeck, hydrateForProject]);
 
   useEffect(() => {
     if (project?.status === "解析中") setParseOpen(true);
@@ -219,6 +223,9 @@ export function PptEditorPage() {
               canUndo={doc.past.length > 0}
               canRedo={doc.future.length > 0}
               canvasStageRef={canvasStageRef}
+              coverLayout={projectDeck?.coverLayout ?? null}
+              coverTitle={projectDeck?.slideTitles[0] ?? project?.name ?? ""}
+              coverSubtitle={projectDeck?.coverSubtitle ?? ""}
               onClearSelection={clearSelection}
               onSelectElement={selectElement}
               onApplyTool={applyTool}

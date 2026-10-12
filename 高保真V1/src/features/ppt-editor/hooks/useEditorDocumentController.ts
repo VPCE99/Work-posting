@@ -3,6 +3,7 @@ import {
   buildGeneratedElementPatch,
   createBlankEditorDocument,
   createInitialEditorDocument,
+  createProjectEditorDocument,
   editorReducer,
   elementsForSlide,
   selectedElementOf,
@@ -22,9 +23,20 @@ export function useEditorDocumentController() {
   const currentSlideTitle = slideTitleOf(doc);
   const propsOpen = Boolean(selectedElement) && !doc.presentMode;
 
-  const hydrateForProject = useCallback((pages: number, activeSlide: number, blank?: boolean) => {
-    if (blank) {
+  const hydrateForProject = useCallback((
+    pages: number,
+    activeSlide: number,
+    options?: { blank?: boolean; projectId?: string },
+  ) => {
+    if (options?.blank) {
       dispatch({ type: "hydrateDocument", document: createBlankEditorDocument() });
+      return;
+    }
+    if (options?.projectId) {
+      dispatch({
+        type: "hydrateDocument",
+        document: createProjectEditorDocument(options.projectId, pages, activeSlide),
+      });
       return;
     }
     dispatch({

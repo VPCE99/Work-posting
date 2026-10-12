@@ -154,6 +154,53 @@
 }
 .ppt-editor .slide-canvas--light .market-slide__rule {
   background: #d5dde0;
+}
+.project-cover-slide {
+  position: absolute;
+  inset: 0;
+}
+.project-cover-slide__hit {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.project-cover-slide__hit--title {
+  left: calc(48px * var(--slide-scale));
+  top: calc(132px * var(--slide-scale));
+  width: calc(340px * var(--slide-scale));
+  height: calc(56px * var(--slide-scale));
+}
+.project-cover-slide__hit--subtitle {
+  left: calc(48px * var(--slide-scale));
+  top: calc(214px * var(--slide-scale));
+  width: calc(320px * var(--slide-scale));
+  height: calc(28px * var(--slide-scale));
+}
+.project-cover-slide__hit--accent {
+  left: calc(48px * var(--slide-scale));
+  top: calc(196px * var(--slide-scale));
+  width: calc(88px * var(--slide-scale));
+  height: calc(10px * var(--slide-scale));
+}
+.project-cover-slide__hit--chart {
+  left: calc(400px * var(--slide-scale));
+  top: calc(72px * var(--slide-scale));
+  width: calc(300px * var(--slide-scale));
+  height: calc(280px * var(--slide-scale));
+}
+.project-cover-slide__extra {
+  position: absolute;
+  margin: 0;
+  color: #f7f8fa;
+  font-size: calc(14px * var(--slide-scale));
+}
+.project-cover-slide__hit.slide-element--selected,
+.project-cover-slide__extra.slide-element--selected {
+  outline: 1.5px solid var(--color-focus);
+  outline-offset: 2px;
 } /* --- Migrated from 90-current-overrides.css (checklist §9; values unchanged) --- */
 .ppt-editor .slide-canvas {
   border-radius: 0 !important;

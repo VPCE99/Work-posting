@@ -5,6 +5,8 @@ export type Conversation = {
   preview: string;
   /** Chat-folder project id; null/undefined = unfiled (shows under 历史聊天). */
   projectId?: string | null;
+  /** Session-only question text for chats started in this visit. Not written to storage. */
+  prompt?: string;
 };
 
 /** Sidebar folder for grouping conversations (not PPT projects). */
@@ -25,6 +27,9 @@ export type ScheduledTask = {
   result: "已生成报告" | "等待运行" | "运行失败" | "刚刚完成";
 };
 
+/** First-slide cover layout used both in the editor and as the project card theme. */
+export type PptCoverLayout = "industry-outlook" | "monthly-report" | "competition-map";
+
 export type PptProject = {
   id: string;
   name: string;
@@ -34,10 +39,15 @@ export type PptProject = {
   updatedAt: string;
   favorite: boolean;
   recentlyViewed: boolean;
-  /** Optional first-slide cover thumbnail for library cards. */
-  coverUrl?: string;
   /** Created without a preset template — editor opens a blank deck. */
   blankTemplate?: boolean;
+};
+
+/** Mock deck seed: cover layout + slide titles. Card theme is derived from slide 0. */
+export type PptProjectDeck = {
+  coverLayout: PptCoverLayout;
+  slideTitles: string[];
+  coverSubtitle: string;
 };
 
 /** One page inside a template mock preview. */

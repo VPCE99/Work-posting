@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import type { PptCoverLayout } from "../../../types";
 import { useCanvasElementDrag } from "../hooks/useCanvasElementDrag";
 import { LucideIcon } from "../icons/LucideIcon";
 import {
@@ -10,6 +11,7 @@ import {
   type SlideElement,
 } from "../model";
 import { MarketScaleSlide } from "./MarketScaleSlide";
+import { ProjectCoverSlide } from "./ProjectCoverSlide";
 import { SlideElementView } from "./SlideElementView";
 
 export function SlideCanvas({
@@ -23,6 +25,9 @@ export function SlideCanvas({
   canUndo,
   canRedo,
   canvasStageRef,
+  coverLayout = null,
+  coverTitle = "",
+  coverSubtitle = "",
   onClearSelection,
   onSelectElement,
   onApplyTool,
@@ -39,13 +44,17 @@ export function SlideCanvas({
   canUndo: boolean;
   canRedo: boolean;
   canvasStageRef: RefObject<HTMLDivElement | null>;
+  coverLayout?: PptCoverLayout | null;
+  coverTitle?: string;
+  coverSubtitle?: string;
   onClearSelection: () => void;
   onSelectElement: (element: SlideElement) => void;
   onApplyTool: (tool: EditorToolName) => void;
   onMoveElement: (elementId: string, x: number, y: number) => void;
   onMoveElementEnd: (elementId: string, x: number, y: number, origin: { x: number; y: number }) => void;
 }) {
-  const isMarketSlide = activeSlide === 2;
+  const isCoverSlide = activeSlide === 0 && Boolean(coverLayout);
+  const isMarketSlide = activeSlide === 2 && !isCoverSlide;
   const dragEnabled = !presentMode && activeTool === "pointer";
   const { bindDrag } = useCanvasElementDrag({
     scale,
@@ -103,7 +112,17 @@ export function SlideCanvas({
             ["--slide-scale" as string]: String(scale),
           }}
         >
-          {isMarketSlide ? (
+          {isCoverSlide && coverLayout ? (
+            <ProjectCoverSlide
+              layout={coverLayout}
+              title={coverTitle}
+              subtitle={coverSubtitle}
+              elements={currentElements}
+              selectedId={selectedElementId}
+              onSelect={onSelectElement}
+              {...(dragEnabled ? { bindDrag } : {})}
+            />
+          ) : isMarketSlide ? (
             <MarketScaleSlide
               elements={currentElements}
               selectedId={selectedElementId}
