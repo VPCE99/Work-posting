@@ -1,5 +1,17 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
-import type { ChatProject, Conversation, PptProject, ScheduledTask, Skill, ToastMessage } from "../types";
+import type {
+  AuthLoginInput,
+  AuthRegisterInput,
+  AuthStatus,
+  AuthUser,
+  ChatProject,
+  Conversation,
+  PptProject,
+  ScheduledTask,
+  Skill,
+  ToastMessage,
+} from "../types";
+import { useAuthState } from "./prototype/useAuthState";
 import { useChatState } from "./prototype/useChatState";
 import { useChromeState } from "./prototype/useChromeState";
 import { useDocumentTheme, syncDocumentTheme } from "./prototype/useDocumentTheme";
@@ -16,6 +28,12 @@ type PrototypeContextValue = {
   setMobileSidebarOpen: (value: boolean) => void;
   activeDialog: "binding" | "chart" | null;
   setActiveDialog: (dialog: "binding" | "chart" | null) => void;
+  authStatus: AuthStatus;
+  authenticated: boolean;
+  user: AuthUser | null;
+  login: (input: AuthLoginInput) => AuthUser;
+  register: (input: AuthRegisterInput) => { displayName: string; account: string };
+  logout: () => void;
   pinnedConversationIds: string[];
   togglePinnedConversation: (id: string) => void;
   conversations: Conversation[];
@@ -54,6 +72,7 @@ const PrototypeContext = createContext<PrototypeContextValue | null>(null);
 
 export function PrototypeProvider({ children }: { children: ReactNode }) {
   const chrome = useChromeState();
+  const auth = useAuthState();
   const chat = useChatState();
   const task = useTaskState();
   const ppt = usePptProjectState();
@@ -65,14 +84,18 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     sidebarCollapsed: chrome.sidebarCollapsed,
     mobileSidebarOpen: chrome.mobileSidebarOpen,
     activeDialog: chrome.activeDialog,
-    pinnedConversationIds: chat.pinnedConversationIds,
-    conversations: chat.conversations,
-    chatProjects: chat.chatProjects,
-    tasks: task.tasks,
-    projects: ppt.projects,
-    favoriteTemplateIds: ppt.favoriteTemplateIds,
-    customTemplates: ppt.customTemplates,
-    skills: skill.skills,
+    authStatus: auth.authStatus,
+    authenticated: auth.authenticated,
+    user: auth.user,
+    // Account-bound lists stay empty until a session exists.
+    pinnedConversationIds: auth.authenticated ? chat.pinnedConversationIds : [],
+    conversations: auth.authenticated ? chat.conversations : [],
+    chatProjects: auth.authenticated ? chat.chatProjects : [],
+    tasks: auth.authenticated ? task.tasks : [],
+    projects: auth.authenticated ? ppt.projects : [],
+    favoriteTemplateIds: auth.authenticated ? ppt.favoriteTemplateIds : [],
+    customTemplates: auth.authenticated ? ppt.customTemplates : [],
+    skills: auth.authenticated ? skill.skills : [],
     theme: chrome.theme,
     toasts: chrome.toasts,
   }), [
@@ -81,6 +104,9 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     chrome.activeDialog,
     chrome.theme,
     chrome.toasts,
+    auth.authStatus,
+    auth.authenticated,
+    auth.user,
     chat.pinnedConversationIds,
     chat.conversations,
     chat.chatProjects,
@@ -95,6 +121,9 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     setSidebarCollapsed: chrome.setSidebarCollapsed,
     setMobileSidebarOpen: chrome.setMobileSidebarOpen,
     setActiveDialog: chrome.setActiveDialog,
+    login: auth.login,
+    register: auth.register,
+    logout: auth.logout,
     togglePinnedConversation: chat.togglePinnedConversation,
     renameConversation: chat.renameConversation,
     addChatProject: chat.addChatProject,
@@ -123,6 +152,9 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     chrome.setActiveDialog,
     chrome.toggleTheme,
     chrome.notify,
+    auth.login,
+    auth.register,
+    auth.logout,
     chat.togglePinnedConversation,
     chat.renameConversation,
     chat.addChatProject,

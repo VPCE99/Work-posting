@@ -958,9 +958,40 @@
 .sidebar-account-menu > button:hover {
   background: var(--color-surface-muted);
 }
-.sidebar-account-menu > button:last-child {
+.sidebar-account-menu > button.sidebar-account-menu__danger {
   color: #ff7a8a;
   background: #25171b;
+}
+.sidebar-history--guest .sidebar-history__scroll {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+}
+.sidebar-history--guest .history-empty {
+  margin: 0;
+  padding: 24px 16px;
+  text-align: center;
+}
+.account-avatar--guest {
+  background: #2a2f38;
+  color: #d7dbe2;
+  font-size: 10px;
+}
+.auth-form .muted {
+  margin: 0;
+}
+.auth-form__switch {
+  justify-self: start;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-focus);
+  font-size: var(--text-helper);
+  line-height: var(--lh-helper);
+  cursor: pointer;
+}
+.auth-form__error {
+  color: #f16c78;
 }
 .sidebar-account__trigger {
   border-radius: 28px;
@@ -1128,9 +1159,13 @@
 .app[data-theme="light"] .history-context-menu > button:hover {
   background: var(--color-surface-muted);
 }
-.app[data-theme="light"] .sidebar-account-menu > button:last-child {
+.app[data-theme="light"] .sidebar-account-menu > button.sidebar-account-menu__danger {
   background: #fff2f3;
   color: #c84251;
+}
+.app[data-theme="light"] .account-avatar--guest {
+  background: #e8eef0;
+  color: #4d6168;
 }
 .app--ppt-editor[data-theme="light"] .sidebar {
   border-color: var(--color-border);

@@ -34,38 +34,53 @@ export function Sidebar() {
           startNewConversation={c.startNewConversation}
         />
 
-        <SidebarHistory
-          historyQuery={c.historyQuery}
-          setHistoryQuery={c.setHistoryQuery}
-          sidebarCollapsed={c.sidebarCollapsed}
-          mobileSidebarOpen={c.mobileSidebarOpen}
-          pinnedConversations={c.pinnedConversations}
-          chatProjects={c.chatProjects}
-          expandedProjectIds={c.expandedProjectIds}
-          pinnedConversationIds={c.pinnedConversationIds}
-          unfiledConversations={c.unfiledConversations}
-          conversationsInProject={c.conversationsInProject}
-          historyMenu={c.historyMenu}
-          projectMenu={c.projectMenu}
-          openCreateProject={c.openCreateProject}
-          toggleProjectExpanded={c.toggleProjectExpanded}
-          openProjectMenu={c.openProjectMenu}
-          openProjectMenuFromButton={c.openProjectMenuFromButton}
-          openHistoryMenu={c.openHistoryMenu}
-          openHistoryMenuFromButton={c.openHistoryMenuFromButton}
-          openConversation={c.openConversation}
-          togglePinnedConversation={c.togglePinnedConversation}
-        />
+        {c.authenticated ? (
+          <SidebarHistory
+            historyQuery={c.historyQuery}
+            setHistoryQuery={c.setHistoryQuery}
+            sidebarCollapsed={c.sidebarCollapsed}
+            mobileSidebarOpen={c.mobileSidebarOpen}
+            pinnedConversations={c.pinnedConversations}
+            chatProjects={c.chatProjects}
+            expandedProjectIds={c.expandedProjectIds}
+            pinnedConversationIds={c.pinnedConversationIds}
+            unfiledConversations={c.unfiledConversations}
+            conversationsInProject={c.conversationsInProject}
+            historyMenu={c.historyMenu}
+            projectMenu={c.projectMenu}
+            openCreateProject={c.openCreateProject}
+            toggleProjectExpanded={c.toggleProjectExpanded}
+            openProjectMenu={c.openProjectMenu}
+            openProjectMenuFromButton={c.openProjectMenuFromButton}
+            openHistoryMenu={c.openHistoryMenu}
+            openHistoryMenuFromButton={c.openHistoryMenuFromButton}
+            openConversation={c.openConversation}
+            togglePinnedConversation={c.togglePinnedConversation}
+          />
+        ) : (
+          <section
+            className="sidebar-history sidebar-history--guest"
+            aria-label="常驻历史聊天"
+            inert={c.sidebarCollapsed && !c.mobileSidebarOpen ? true : undefined}
+          >
+            <div className="sidebar-history__scroll">
+              <small className="history-empty">登录后可查看历史聊天与项目</small>
+            </div>
+          </section>
+        )}
 
         <SidebarAccount
           accountOpen={c.accountOpen}
           setAccountOpen={c.setAccountOpen}
+          authenticated={c.authenticated}
+          user={c.user}
           setActiveDialog={c.setActiveDialog}
           closeMobile={c.closeMobile}
           navigate={c.navigate}
           location={c.location}
           notify={c.notify}
           setLogoutOpen={c.setLogoutOpen}
+          setAuthDialog={c.setAuthDialog}
         />
       </aside>
 
@@ -112,6 +127,11 @@ export function Sidebar() {
         logoutOpen={c.logoutOpen}
         setLogoutOpen={c.setLogoutOpen}
         navigate={c.navigate}
+        authDialog={c.authDialog}
+        setAuthDialog={c.setAuthDialog}
+        login={c.login}
+        register={c.register}
+        logout={c.logout}
       />
     </>
   );

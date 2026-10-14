@@ -30,6 +30,11 @@ export function useSidebarController() {
     setMobileSidebarOpen,
     activeDialog,
     setActiveDialog,
+    authenticated,
+    user,
+    login,
+    register,
+    logout,
     pinnedConversationIds,
     togglePinnedConversation,
     conversations,
@@ -45,6 +50,7 @@ export function useSidebarController() {
   const [historyQuery, setHistoryQuery] = useState("");
   const [accountOpen, setAccountOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [authDialog, setAuthDialog] = useState<"login" | "register" | null>(null);
   const [historyMenu, setHistoryMenu] = useState<HistoryMenuState | null>(null);
   const [projectMenu, setProjectMenu] = useState<ProjectMenuState | null>(null);
   const [expandedProjectIds, setExpandedProjectIds] = useState<string[]>(["proj-reits"]);
@@ -282,6 +288,11 @@ export function useSidebarController() {
     mobileSidebarOpen,
     activeDialog,
     setActiveDialog,
+    authenticated,
+    user,
+    login,
+    register,
+    logout,
     pinnedConversationIds,
     togglePinnedConversation,
     conversations,
@@ -295,6 +306,8 @@ export function useSidebarController() {
     setAccountOpen,
     logoutOpen,
     setLogoutOpen,
+    authDialog,
+    setAuthDialog,
     historyMenu,
     setHistoryMenu,
     projectMenu,

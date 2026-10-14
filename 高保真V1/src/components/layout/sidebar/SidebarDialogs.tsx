@@ -1,3 +1,5 @@
+import { LoginDialog } from "../../account/LoginDialog";
+import { RegisterDialog } from "../../account/RegisterDialog";
 import { ConfirmDialog, Modal } from "../../ui/Modal";
 import type { SidebarController } from "./useSidebarController";
 
@@ -19,6 +21,11 @@ type Props = Pick<
   | "logoutOpen"
   | "setLogoutOpen"
   | "navigate"
+  | "authDialog"
+  | "setAuthDialog"
+  | "login"
+  | "register"
+  | "logout"
 >;
 
 export function SidebarDialogs(props: Props) {
@@ -39,6 +46,11 @@ export function SidebarDialogs(props: Props) {
     logoutOpen,
     setLogoutOpen,
     navigate,
+    authDialog,
+    setAuthDialog,
+    login,
+    register,
+    logout,
   } = props;
 
   return (
@@ -87,7 +99,50 @@ export function SidebarDialogs(props: Props) {
           }}
         />
       )}
-      {logoutOpen && <ConfirmDialog title="退出登录" message="确定退出当前测试账号吗？本原型不会清除任何真实数据。" confirmText="退出登录" onClose={() => setLogoutOpen(false)} onConfirm={() => { setLogoutOpen(false); navigate("/chat"); }} />}
+      {authDialog === "login" && (
+        <LoginDialog
+          onClose={() => setAuthDialog(null)}
+          onSwitchToRegister={() => setAuthDialog("register")}
+          onSubmit={(input) => {
+            try {
+              login(input);
+              setAuthDialog(null);
+              notify("登录成功", "success");
+            } catch (error) {
+              notify(error instanceof Error ? error.message : "登录失败");
+            }
+          }}
+        />
+      )}
+      {authDialog === "register" && (
+        <RegisterDialog
+          onClose={() => setAuthDialog(null)}
+          onSwitchToLogin={() => setAuthDialog("login")}
+          onSubmit={(input) => {
+            try {
+              register(input);
+              setAuthDialog(null);
+              notify("注册成功", "success");
+            } catch (error) {
+              notify(error instanceof Error ? error.message : "注册失败");
+            }
+          }}
+        />
+      )}
+      {logoutOpen && (
+        <ConfirmDialog
+          title="退出登录"
+          message="确定退出当前测试账号吗？本原型不会清除任何真实数据，退出后历史与项目会暂时隐藏。"
+          confirmText="退出登录"
+          onClose={() => setLogoutOpen(false)}
+          onConfirm={() => {
+            logout();
+            setLogoutOpen(false);
+            notify("已退出登录");
+            navigate("/chat");
+          }}
+        />
+      )}
     </>
   );
 }

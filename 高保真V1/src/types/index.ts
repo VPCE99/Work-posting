@@ -93,3 +93,24 @@ export type ToastMessage = {
   text: string;
   tone?: "neutral" | "success" | "danger";
 };
+
+/** Session user shown in the sidebar after a successful mock login. */
+export type AuthUser = {
+  id: string;
+  displayName: string;
+  planLabel: string;
+  account: string;
+};
+
+export type AuthStatus = "authenticated" | "unauthenticated";
+
+export type AuthLoginInput = {
+  account: string;
+  password: string;
+};
+
+export type AuthRegisterInput = {
+  displayName: string;
+  account: string;
+  password: string;
+};
