@@ -9,8 +9,9 @@ import { DropSlot } from "./DropSlot";
 import { FieldGroup } from "./FieldGroup";
 
 export function ChartDialog() {
-  const { notify, setActiveDialog } = usePrototype();
-  const [openDatasets, setOpenDatasets] = useState<string[]>(datasets.map((dataset) => dataset.id));
+  const { authenticated, notify, setActiveDialog } = usePrototype();
+  const availableDatasets = authenticated ? datasets : [];
+  const [openDatasets, setOpenDatasets] = useState<string[]>(() => availableDatasets.map((dataset) => dataset.id));
   const [title, setTitle] = useState("");
   const [slots, setSlots] = useState(emptySlots);
   const [over, setOver] = useState<Slot | null>(null);
@@ -18,10 +19,10 @@ export function ChartDialog() {
   const [fieldMenuId, setFieldMenuId] = useState<string | null>(null);
 
   const close = () => setActiveDialog(null);
-  const xField = fieldById(slots.x);
-  const leftField = fieldById(slots.yLeft);
-  const rightField = fieldById(slots.yRight);
-  const canGenerate = Boolean(xField && leftField);
+  const xField = availableDatasets.length ? fieldById(slots.x) : null;
+  const leftField = availableDatasets.length ? fieldById(slots.yLeft) : null;
+  const rightField = availableDatasets.length ? fieldById(slots.yRight) : null;
+  const canGenerate = Boolean(authenticated && xField && leftField);
 
   const assign = (slot: Slot, id: string) => {
     const field = fieldById(id);
@@ -61,9 +62,9 @@ export function ChartDialog() {
   };
 
   const datasetOf = (fieldId: string): Dataset => {
-    const matched = datasets.find((dataset) => dataset.fields.some((field) => field.id === fieldId));
+    const matched = availableDatasets.find((dataset) => dataset.fields.some((field) => field.id === fieldId));
     if (matched) return matched;
-    const fallback = datasets[0];
+    const fallback = availableDatasets[0];
     if (!fallback) throw new Error("Chart datasets are empty");
     return fallback;
   };
@@ -87,7 +88,7 @@ export function ChartDialog() {
       <div className="chart-dialog">
         <aside className="chart-sources">
           <h2>数据集</h2>
-          {datasets.map((dataset) => {
+          {availableDatasets.length ? availableDatasets.map((dataset) => {
             const open = openDatasets.includes(dataset.id);
             const dimensions = dataset.fields.filter((field) => field.kind === "dimension");
             const measures = dataset.fields.filter((field) => field.kind === "measure");
@@ -123,7 +124,9 @@ export function ChartDialog() {
                 )}
               </section>
             );
-          })}
+          }) : (
+            <p className="chart-sources__empty">登录后可使用对话中的数据集作图</p>
+          )}
         </aside>
 
         <main className="chart-canvas">
@@ -132,7 +135,7 @@ export function ChartDialog() {
           ) : (
             <div className="chart-canvas__empty">
               <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 34V18M20 34V12M30 34V22M38 34H8" /></svg>
-              <p>拖拽或点击左侧字段到右侧配置区</p>
+              <p>{authenticated ? "拖拽或点击左侧字段到右侧配置区" : "登录后可加载数据集并生成图表"}</p>
             </div>
           )}
         </main>

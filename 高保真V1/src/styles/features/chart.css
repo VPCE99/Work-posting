@@ -88,6 +88,12 @@
   font-size: 13px;
   font-weight: 600;
 }
+.chart-sources__empty {
+  margin: 16px 0 0;
+  color: #8e949e;
+  font-size: var(--text-helper);
+  line-height: var(--lh-helper);
+}
 .chart-source {
   margin-top: 14px;
 }
@@ -362,6 +368,9 @@
 .app[data-theme="light"] .chart-source__toggle,
 .app[data-theme="light"] .chart-result strong {
   color: var(--color-text);
+}
+.app[data-theme="light"] .chart-sources__empty {
+  color: var(--color-text-muted);
 }
 .app[data-theme="light"] .chart-chip--dimension {
   background: #e6f6f4;

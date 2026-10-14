@@ -1,5 +1,7 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { usePrototype } from "../../app/PrototypeContext";
+import { EmptyState } from "../../components/ui/EmptyState";
 import { DAILY_PLAN_TOKEN_CAP_K, formatTokenK, todayTokenUsageLabel } from "../../data/mock";
 
 const RANGE_DAYS = 30;
@@ -87,6 +89,7 @@ function TokenTipContent({ date, split }: { date: string; split: TokenSplit }) {
 
 export function AccountPage() {
   const navigate = useNavigate();
+  const { authenticated } = usePrototype();
   const [activityTip, setActivityTip] = useState<TipState | null>(null);
   const [tokenTip, setTokenTip] = useState<TipState | null>(null);
   const [orderTab, setOrderTab] = useState<"有效订单" | "全部订单">("有效订单");
@@ -96,9 +99,16 @@ export function AccountPage() {
     <section className="page-stack account-page">
         <header className="page-header">
           <div><p className="eyebrow">账户</p><h1>客户后台</h1><p>统一查看套餐、用量、余额和订单。</p></div>
-          <div className="button-row"><Link className="button" to="/chat">返回对话</Link><button className="button button--primary" onClick={() => navigate("/account/plans", { state: { backgroundLocation: "/account" } })}>购买套餐</button></div>
+          <div className="button-row"><Link className="button" to="/chat">返回对话</Link>{authenticated && <button className="button button--primary" onClick={() => navigate("/account/plans", { state: { backgroundLocation: "/account" } })}>购买套餐</button>}</div>
         </header>
 
+        {!authenticated ? (
+          <EmptyState
+            title="登录后查看客户后台"
+            description="套餐、用量、余额和订单都与账户绑定，登录后即可同步显示。"
+          />
+        ) : (
+        <>
         <div className="metric-grid">
           <Metric title="当前套餐" value="试用版" detail="50 次/日" />
           <Metric title="今日用量" value={todayTokenUsageLabel} detail="12 次对话 · 更新于 14:32" />
@@ -165,6 +175,8 @@ export function AccountPage() {
           <div className="panel__title"><h2>购买记录</h2><div className="tab-row" role="tablist" aria-label="订单范围">{(["有效订单", "全部订单"] as const).map((tab) => <button key={tab} type="button" role="tab" aria-selected={orderTab === tab} className={orderTab === tab ? "tab tab--active" : "tab"} onClick={() => setOrderTab(tab)}>{tab}</button>)}</div></div>
           <div className="table-scroll"><table><thead><tr><th>商品</th><th>金额</th><th>状态</th><th>创建时间</th><th>发票</th><th>操作</th></tr></thead><tbody>{visibleOrders.map((order) => <tr key={order.product}><td>{order.product}</td><td>{order.amount}</td><td><span className={order.closed ? "status" : "status status--success"}>{order.status}</span></td><td>{order.created}</td><td>{order.invoice}</td><td><button className="text-button" type="button">查看</button>{!order.closed && <> <button className="text-button" type="button">申请发票</button></>}</td></tr>)}</tbody></table></div>
         </article>
+        </>
+        )}
     </section>
   );
 }

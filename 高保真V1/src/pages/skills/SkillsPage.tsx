@@ -91,7 +91,7 @@ type SkillDraft = {
 
 export function SkillsPage() {
   const navigate = useNavigate();
-  const { skills, addSkill, updateSkill, deleteSkill, notify } = usePrototype();
+  const { authenticated, skills, addSkill, updateSkill, deleteSkill, notify } = usePrototype();
   const [tab, setTab] = useState<Skill["kind"]>("公用技能");
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("全部类型");
@@ -122,7 +122,18 @@ export function SkillsPage() {
       <section className="page-stack skills-page">
         <header className="page-header">
           <div><p className="eyebrow">能力中心</p><h1>我的技能</h1><p>管理用于对话分析、写作与研究的技能</p></div>
-          <button className="button button--primary" onClick={() => setEditor({ mode: "create" })}>＋ 新建自定义技能</button>
+          <button
+            className="button button--primary"
+            onClick={() => {
+              if (!authenticated) {
+                notify("请先登录后再创建自定义技能");
+                return;
+              }
+              setEditor({ mode: "create" });
+            }}
+          >
+            ＋ 新建自定义技能
+          </button>
         </header>
 
         <div className="toolbar skills-toolbar">

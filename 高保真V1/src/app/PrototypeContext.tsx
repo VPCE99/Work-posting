@@ -95,7 +95,8 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     projects: auth.authenticated ? ppt.projects : [],
     favoriteTemplateIds: auth.authenticated ? ppt.favoriteTemplateIds : [],
     customTemplates: auth.authenticated ? ppt.customTemplates : [],
-    skills: auth.authenticated ? skill.skills : [],
+    // Public catalog stays visible; personal / locked skills wait for a session.
+    skills: auth.authenticated ? skill.skills : skill.skills.filter((item) => item.kind === "公用技能"),
     theme: chrome.theme,
     toasts: chrome.toasts,
   }), [
