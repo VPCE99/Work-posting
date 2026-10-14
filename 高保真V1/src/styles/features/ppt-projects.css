@@ -144,8 +144,8 @@
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: 8px;
   padding: 14px 12px 12px 14px;
-  background: #121619;
-  color: #f7f8fa;
+  background: linear-gradient(145deg, #f7fafb, #eef4f5 55%, #e8f1f2);
+  color: #13272b;
   pointer-events: none;
 }
 .ppt-cover-art__copy {
@@ -168,10 +168,10 @@
   width: 42px;
   height: 2px;
   border-radius: 999px;
-  background: #00c9c3;
+  background: #00afa9;
 }
 .ppt-cover-art__subtitle {
-  color: #aeb6c0;
+  color: #627278;
   font-size: 10px;
   line-height: 1.35;
   white-space: nowrap;
@@ -189,26 +189,29 @@
   height: auto;
   max-height: 100%;
 }
+.ppt-cover-art__grid {
+  stroke: #d5e0e3;
+}
 .ppt-cover-art__bar {
   fill: #0f8f8a;
 }
 .ppt-cover-art__line {
   fill: none;
-  stroke: #f7f8fa;
+  stroke: #0f5f6a;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 .ppt-cover-art__point,
 .ppt-cover-art__arrow {
-  fill: #f7f8fa;
+  fill: #0f5f6a;
 }
 .ppt-cover-art__area {
   stroke: none;
 }
 .ppt-cover-art__series {
   fill: none;
-  stroke: #f7f8fa;
+  stroke: #0f5f6a;
   stroke-width: 1.75;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -216,25 +219,25 @@
 .ppt-cover-art__series--soft {
   stroke: #4aa8c4;
   stroke-width: 1.35;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 .ppt-cover-art__halo {
   fill: #00c9c3;
-  opacity: 0.16;
+  opacity: 0.18;
 }
 .ppt-cover-art__bubble {
-  stroke: rgb(255 255 255 / 16%);
+  stroke: rgb(19 39 43 / 12%);
   stroke-width: 1;
 }
 .ppt-cover-art__bubble--lead {
-  stroke: #f4f7fa;
+  stroke: #0f5f6a;
   stroke-width: 1.25;
 }
 .ppt-cover-art--monthly-report {
-  background: linear-gradient(145deg, #141a22, #0e1218);
+  background: linear-gradient(145deg, #f8fbfc, #edf5f6 58%, #e6f0f2);
 }
 .ppt-cover-art--competition-map {
-  background: linear-gradient(155deg, #15181f, #10131a 60%, #0d1016);
+  background: linear-gradient(155deg, #f6fafb, #eef4f6 60%, #e7f0f2);
 }
 .ppt-cover-art--slide {
   position: absolute;
@@ -252,7 +255,7 @@
 }
 .ppt-cover-art--slide .ppt-cover-art__subtitle {
   font-size: 16px;
-  color: #9aa3ad;
+  color: #627278;
 }
 .ppt-project-item__preview-open {
   position: absolute;
@@ -275,13 +278,13 @@
   font-weight: 800;
 }
 .ppt-project-item__favorite .favorite-star-icon {
-  width: 22px;
-  height: 22px;
+  width: 17.5px;
+  height: 17.5px;
 }
 .ppt-project-item__favorite:hover,
 .ppt-project-item__favorite--on:hover {
   border-color: transparent;
-  background: #172226;
+  background: transparent;
   color: var(--color-focus);
 }
 .ppt-project-item__favorite:hover .favorite-star-icon,
@@ -415,16 +418,14 @@
   font-weight: 700;
 }
 .ppt-projects--list .ppt-project-item__favorite {
-  width: 30px;
-  height: 30px;
-  top: 12px;
-  right: 12px;
+  width: 21px;
+  height: 21px;
   border: 0;
   background: transparent;
 }
 .ppt-projects--list .ppt-project-item__favorite .favorite-star-icon {
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
 }
 .ppt-projects--list .ppt-project-item__info {
   min-width: 0;
@@ -998,14 +999,14 @@
 }
 .app[data-theme="light"] .ppt-project-item__favorite {
   border-color: transparent;
-  background: var(--color-surface);
+  background: transparent;
   color: #8a969c;
 }
 .app[data-theme="light"] .ppt-project-item__favorite:hover,
 .app[data-theme="light"] .ppt-project-item__favorite--on,
 .app[data-theme="light"] .ppt-project-item__favorite--on:hover {
   border-color: transparent;
-  background: #e8f7f6;
+  background: transparent;
   color: #00a29c;
 }
 .app[data-theme="light"] .ppt-project-item__delete {
@@ -1221,19 +1222,18 @@
 }
 .ppt-project-item__favorite {
   z-index: 2;
-  width: 40px;
-  height: 40px;
+  width: 17.5px;
+  height: 17.5px;
   display: grid;
   place-items: center;
+  margin-left: auto;
   padding: 0;
-  border: 1px solid transparent;
-  border-radius: 28px;
-  background: #15181d;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: #aeb4bd;
   cursor: pointer;
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  position: static;
 }
 .ppt-project-item__favorite--on {
   color: var(--color-focus);

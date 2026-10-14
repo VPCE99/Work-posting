@@ -977,22 +977,6 @@
   color: #d7dbe2;
   font-size: 10px;
 }
-.auth-form .muted {
-  margin: 0;
-}
-.auth-form__switch {
-  justify-self: start;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--color-focus);
-  font-size: var(--text-helper);
-  line-height: var(--lh-helper);
-  cursor: pointer;
-}
-.auth-form__error {
-  color: #f16c78;
-}
 .sidebar-account__trigger {
   border-radius: 28px;
 } /* Sidebar account avatar — sole owner (DOM only in Sidebar; was overridden by account.css). */

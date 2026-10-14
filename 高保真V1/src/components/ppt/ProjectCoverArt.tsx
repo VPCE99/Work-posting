@@ -47,12 +47,12 @@ function IndustryOutlookVisual({ gradId }: { gradId: string }) {
     <svg className="ppt-cover-art__chart" viewBox="0 0 200 120" role="img" aria-label="增长趋势图">
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#1fd4c8" />
-          <stop offset="55%" stopColor="#127f9a" />
-          <stop offset="100%" stopColor="#0b3d6e" />
+          <stop offset="0%" stopColor="#2ad4c8" />
+          <stop offset="55%" stopColor="#14a0a8" />
+          <stop offset="100%" stopColor="#0d6f8a" />
         </linearGradient>
       </defs>
-      <g className="ppt-cover-art__grid" stroke="#2a3038" strokeWidth="1">
+      <g className="ppt-cover-art__grid" strokeWidth="1">
         <path d="M8 20H192" />
         <path d="M8 48H192" />
         <path d="M8 76H192" />
@@ -110,12 +110,12 @@ function MonthlyReportVisual({ gradId }: { gradId: string }) {
     <svg className="ppt-cover-art__chart" viewBox="0 0 200 120" role="img" aria-label="月报指标图">
       <defs>
         <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#1fd4c8" stopOpacity="0.42" />
-          <stop offset="70%" stopColor="#127f9a" stopOpacity="0.12" />
-          <stop offset="100%" stopColor="#0b3d6e" stopOpacity="0" />
+          <stop offset="0%" stopColor="#2ad4c8" stopOpacity="0.38" />
+          <stop offset="70%" stopColor="#14a0a8" stopOpacity="0.14" />
+          <stop offset="100%" stopColor="#0d6f8a" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <g className="ppt-cover-art__grid" stroke="#2a3038" strokeWidth="1">
+      <g className="ppt-cover-art__grid" strokeWidth="1">
         <path d="M8 22H192" />
         <path d="M8 48H192" />
         <path d="M8 74H192" />
@@ -137,12 +137,12 @@ function MonthlyReportVisual({ gradId }: { gradId: string }) {
 function CompetitionMapVisual({ gradId }: { gradId: string }) {
   const leadId = `${gradId}-lead`;
   const bubbles: Array<{ cx: number; cy: number; r: number; fill: string; lead?: boolean }> = [
-    { cx: 52, cy: 78, r: 8, fill: "#2a3440" },
-    { cx: 78, cy: 58, r: 11, fill: "#1a4d5c" },
+    { cx: 52, cy: 78, r: 8, fill: "#c5d4da" },
+    { cx: 78, cy: 58, r: 11, fill: "#8ebcc8" },
     { cx: 112, cy: 38, r: 16, fill: `url(#${leadId})`, lead: true },
-    { cx: 148, cy: 54, r: 12, fill: "#146878" },
-    { cx: 168, cy: 80, r: 7, fill: "#31404c" },
-    { cx: 96, cy: 86, r: 6, fill: "#24303a" },
+    { cx: 148, cy: 54, r: 12, fill: "#5aa8b4" },
+    { cx: 168, cy: 80, r: 7, fill: "#b7c8d0" },
+    { cx: 96, cy: 86, r: 6, fill: "#d0dce0" },
   ];
   return (
     <svg className="ppt-cover-art__chart" viewBox="0 0 200 120" role="img" aria-label="竞品格局图">
@@ -150,10 +150,10 @@ function CompetitionMapVisual({ gradId }: { gradId: string }) {
         <radialGradient id={leadId} cx="38%" cy="32%" r="70%">
           <stop offset="0%" stopColor="#7af0e6" />
           <stop offset="42%" stopColor="#14b8b0" />
-          <stop offset="100%" stopColor="#0b4e6e" />
+          <stop offset="100%" stopColor="#0d6f8a" />
         </radialGradient>
       </defs>
-      <g className="ppt-cover-art__grid" stroke="#2a3038" strokeWidth="1">
+      <g className="ppt-cover-art__grid" strokeWidth="1">
         <path d="M16 24H186" />
         <path d="M16 52H186" />
         <path d="M16 80H186" />

@@ -8,9 +8,18 @@ describe("agentReplyFor", () => {
     expect(reply.text).toContain("市场规模");
   });
 
-  it("selects chart reply for 图表 prompts", () => {
+  it("returns a pending chart preview for 图表 prompts", () => {
     const reply = agentReplyFor("为当前页生成图表", "封面");
-    expect(reply.title).toBe("图表生成计划");
+    expect(reply.title).toBe("图表已生成，请确认");
+    expect(reply.preview?.kind).toBe("chart");
+    expect(reply.previewStatus).toBe("pending");
+  });
+
+  it("returns a pending image preview for 配图 prompts", () => {
+    const reply = agentReplyFor("为当前页生成配图", "总结");
+    expect(reply.title).toBe("配图已生成，请确认");
+    expect(reply.preview?.kind).toBe("image");
+    expect(reply.previewStatus).toBe("pending");
   });
 
   it("falls back to a generic reply", () => {

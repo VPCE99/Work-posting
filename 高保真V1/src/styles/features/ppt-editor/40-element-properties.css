@@ -147,7 +147,7 @@ body.is-dragging-slide-element .slide-element {
 }
 .ppt-element-props__header .icon-button:hover {
   background: #15181d;
-  color: #f7f8fa;
+  color: var(--color-text);
 }
 .ppt-element-props__body {
   flex: 1;
@@ -596,8 +596,8 @@ body.is-dragging-slide-element .slide-element {
   cursor: pointer;
 }
 .editor-quick-actions button:hover:not(:disabled) {
-  border-color: #3a4450;
-  color: #f7f8fa;
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
 }
 .editor-quick-actions button:disabled {
   opacity: 0.45;

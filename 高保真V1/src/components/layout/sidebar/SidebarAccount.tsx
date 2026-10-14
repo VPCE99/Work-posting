@@ -1,4 +1,7 @@
+import { useRef } from "react";
 import { Reveal } from "../../ui/Reveal";
+import { useDismissibleLayer } from "../../ui/useDismissibleLayer";
+import { useEscapeKey } from "../../ui/useEscapeKey";
 import type { SidebarController } from "./useSidebarController";
 
 /** 头像内固定展示两个字：中文名取末两字，其它取前两字。 */
@@ -42,9 +45,13 @@ export function SidebarAccount({
   const displayName = authenticated ? (user?.displayName ?? "测试账号") : "未登录";
   const planLabel = authenticated ? (user?.planLabel ?? "试用版") : "登录后同步账户内容";
   const avatarLabel = authenticated ? avatarInitials("用户") : "登录";
+  const accountRef = useRef<HTMLDivElement>(null);
+  const closeAccount = () => setAccountOpen(false);
+  useDismissibleLayer(accountOpen, closeAccount, [accountRef]);
+  useEscapeKey(accountOpen, closeAccount);
 
   return (
-    <div className="sidebar-account popover-anchor">
+    <div className="sidebar-account popover-anchor" ref={accountRef}>
       <button
         type="button"
         className="sidebar-account__trigger"

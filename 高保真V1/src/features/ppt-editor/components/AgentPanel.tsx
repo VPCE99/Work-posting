@@ -3,7 +3,13 @@ import { Brand } from "../../../components/ui/Brand";
 import { ChatComposer } from "../../../components/chat/ChatComposer";
 import { ThinkingMark } from "../../../components/ui/ThinkingMark";
 import { LucideIcon } from "../icons/LucideIcon";
-import { agentQuickActions, type AgentChatMessage, type AgentPanelMode } from "../model";
+import { ChartMiniPreview } from "./ChartMiniPreview";
+import {
+  agentQuickActions,
+  type AgentChatMessage,
+  type AgentPanelMode,
+  type AgentPreviewStatus,
+} from "../model";
 
 export function AgentPanel({
   agentMode,
@@ -14,6 +20,8 @@ export function AgentPanel({
   onCollapse,
   onDraftChange,
   onSend,
+  onConfirmPreview,
+  onDiscardPreview,
 }: {
   agentMode: AgentPanelMode;
   agentMessages: AgentChatMessage[];
@@ -23,6 +31,8 @@ export function AgentPanel({
   onCollapse: () => void;
   onDraftChange: (value: string) => void;
   onSend: (prompt: string) => void;
+  onConfirmPreview: (messageId: string, kind: "chart" | "image") => void;
+  onDiscardPreview: (messageId: string) => void;
 }) {
   return (
     <aside
@@ -67,6 +77,13 @@ export function AgentPanel({
                   <strong>{message.title ?? "AI 助手"}</strong>
                 </header>
                 <p>{message.text}</p>
+                {message.preview && (
+                  <AgentAssetPreviewCard
+                    message={message}
+                    onConfirm={() => onConfirmPreview(message.id, message.preview!.kind)}
+                    onDiscard={() => onDiscardPreview(message.id)}
+                  />
+                )}
               </article>
             )
           ))}
@@ -100,5 +117,56 @@ export function AgentPanel({
       </div>
       <span className="ppt-agent__morph-logo" aria-hidden="true"><Brand compact /></span>
     </aside>
+  );
+}
+
+function previewStatusLabel(status: AgentPreviewStatus | undefined) {
+  if (status === "inserted") return "已插入当前页";
+  if (status === "discarded") return "已放弃本次生成";
+  return null;
+}
+
+function AgentAssetPreviewCard({
+  message,
+  onConfirm,
+  onDiscard,
+}: {
+  message: AgentChatMessage;
+  onConfirm: () => void;
+  onDiscard: () => void;
+}) {
+  const preview = message.preview;
+  if (!preview) return null;
+  const status = message.previewStatus ?? "pending";
+  const settled = status !== "pending";
+  const statusLabel = previewStatusLabel(status);
+
+  return (
+    <div className={`ppt-agent-preview${settled ? ` ppt-agent-preview--${status}` : ""}`}>
+      <div className="ppt-agent-preview__media" aria-hidden="true">
+        {preview.kind === "chart" ? (
+          <ChartMiniPreview chartType={preview.chartType ?? "column"} />
+        ) : (
+          <div className="ppt-agent-preview__image">
+            <LucideIcon name="image" size={28} />
+            <span>示意图预览</span>
+          </div>
+        )}
+      </div>
+      <div className="ppt-agent-preview__meta">
+        <strong>{preview.kind === "chart" ? "图表预览" : "图片预览"}</strong>
+        <small>{preview.caption}</small>
+      </div>
+      {settled ? (
+        <p className="ppt-agent-preview__status">{statusLabel}</p>
+      ) : (
+        <div className="ppt-agent-preview__actions">
+          <button type="button" className="button" onClick={onDiscard}>放弃</button>
+          <button type="button" className="button button--primary" onClick={onConfirm}>
+            插入当前页
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

@@ -103,6 +103,7 @@ export function SidebarDialogs(props: Props) {
         <LoginDialog
           onClose={() => setAuthDialog(null)}
           onSwitchToRegister={() => setAuthDialog("register")}
+          onNotice={notify}
           onSubmit={(input) => {
             try {
               login(input);
@@ -118,6 +119,7 @@ export function SidebarDialogs(props: Props) {
         <RegisterDialog
           onClose={() => setAuthDialog(null)}
           onSwitchToLogin={() => setAuthDialog("login")}
+          onNotice={notify}
           onSubmit={(input) => {
             try {
               register(input);

@@ -13,7 +13,8 @@ export type ModalVariant =
   | "new-ppt"
   | "import-ppt"
   | "template-manager"
-  | "template-preview";
+  | "template-preview"
+  | "auth";
 
 type ModalProps = {
   title: string;
@@ -23,9 +24,11 @@ type ModalProps = {
   size?: "sm" | "md" | "lg" | "xl";
   /** Explicit modal chrome variant; prefer this over inferring from body content. */
   variant?: ModalVariant;
+  /** Split or custom dialogs render their own header instead of the shared chrome. */
+  frameless?: boolean;
 };
 
-export function Modal({ title, children, onClose, footer, size = "md", variant = "default" }: ModalProps) {
+export function Modal({ title, children, onClose, footer, size = "md", variant = "default", frameless = false }: ModalProps) {
   const { panelRef, veilRef } = useModalReveal();
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -70,12 +73,16 @@ export function Modal({ title, children, onClose, footer, size = "md", variant =
         tabIndex={-1}
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <header className="modal__header">
-          <h2>{title}</h2>
-          <button className="icon-button" onClick={onClose} aria-label="关闭弹窗">×</button>
-        </header>
-        <div className="modal__body">{children}</div>
-        {footer && <footer className="modal__footer">{footer}</footer>}
+        {frameless ? children : (
+          <>
+            <header className="modal__header">
+              <h2>{title}</h2>
+              <button className="icon-button" onClick={onClose} aria-label="关闭弹窗">×</button>
+            </header>
+            <div className="modal__body">{children}</div>
+            {footer && <footer className="modal__footer">{footer}</footer>}
+          </>
+        )}
       </section>
     </div>
   );

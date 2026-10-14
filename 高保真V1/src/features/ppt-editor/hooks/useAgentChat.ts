@@ -7,6 +7,7 @@ import {
   initialAgentMessages,
   type AgentChatMessage,
   type AgentPanelMode,
+  type AgentPreviewStatus,
 } from "../model";
 
 export function useAgentChat(slideTitle: string) {
@@ -65,6 +66,14 @@ export function useAgentChat(slideTitle: string) {
     }, AGENT_THINK_MS);
   }, [slideTitle, agentThinking, scheduleThink]);
 
+  const resolvePreview = useCallback((messageId: string, status: Exclude<AgentPreviewStatus, "pending">) => {
+    setAgentMessages((current) => current.map((message) => (
+      message.id === messageId && message.previewStatus === "pending"
+        ? { ...message, previewStatus: status }
+        : message
+    )));
+  }, []);
+
   return {
     agentMode,
     agentDraft,
@@ -77,5 +86,6 @@ export function useAgentChat(slideTitle: string) {
     collapseAgent,
     expandAgent,
     sendAgentMessage,
+    resolvePreview,
   };
 }

@@ -309,7 +309,7 @@
   content: "";
   position: absolute;
   left: 0;
-  bottom: -1px;
+  bottom: 0;
   width: 44px;
   height: 2px;
   background: var(--color-focus);
@@ -394,33 +394,42 @@
   color: #00a29c;
 }
 .app[data-theme="light"] .slide-canvas-stage,
-.app[data-theme="light"] .ppt-left-panel__content,
 .app[data-theme="light"] .ppt-agent__stream {
   scrollbar-width: thin;
   scrollbar-color: #c5ced0 var(--color-surface-muted);
 }
+.app[data-theme="light"] .ppt-left-panel__content {
+  scrollbar-width: thin;
+  scrollbar-color: #c5ced0 var(--color-surface);
+}
 .app[data-theme="light"] .slide-canvas-stage::-webkit-scrollbar,
-.app[data-theme="light"] .ppt-left-panel__content::-webkit-scrollbar,
-.app[data-theme="light"] .ppt-agent__stream::-webkit-scrollbar {
+.app[data-theme="light"] .ppt-agent__stream::-webkit-scrollbar,
+.app[data-theme="light"] .ppt-left-panel__content::-webkit-scrollbar {
+  display: block;
   height: 10px;
   width: 10px;
 }
 .app[data-theme="light"] .slide-canvas-stage::-webkit-scrollbar-track,
-.app[data-theme="light"] .ppt-left-panel__content::-webkit-scrollbar-track,
 .app[data-theme="light"] .ppt-agent__stream::-webkit-scrollbar-track {
   background: var(--color-surface-muted);
 }
+.app[data-theme="light"] .ppt-left-panel__content::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
 .app[data-theme="light"] .slide-canvas-stage::-webkit-scrollbar-thumb,
-.app[data-theme="light"] .ppt-left-panel__content::-webkit-scrollbar-thumb,
 .app[data-theme="light"] .ppt-agent__stream::-webkit-scrollbar-thumb {
   background: #c5ced0;
   border-radius: 999px;
   border: 2px solid var(--color-surface-muted);
 }
+.app[data-theme="light"] .ppt-left-panel__content::-webkit-scrollbar-thumb {
+  background: #c5ced0;
+  border-radius: 999px;
+  border: 2px solid var(--color-surface);
+}
 .app[data-theme="light"] .slide-canvas-stage::-webkit-scrollbar-thumb:hover,
-.app[data-theme="light"]
-  .ppt-left-panel__content::-webkit-scrollbar-thumb:hover,
-.app[data-theme="light"] .ppt-agent__stream::-webkit-scrollbar-thumb:hover {
+.app[data-theme="light"] .ppt-agent__stream::-webkit-scrollbar-thumb:hover,
+.app[data-theme="light"] .ppt-left-panel__content::-webkit-scrollbar-thumb:hover {
   background: #aeb8bb;
 }
 .slide-thumb--active {
@@ -439,8 +448,15 @@
 .ppt-left-panel__content {
   min-height: 0;
   flex: 1;
+  overflow-x: hidden;
   overflow-y: auto;
   padding: var(--space-3);
+  scrollbar-width: none;
+}
+.ppt-left-panel__content::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 .ppt-outline-list {
   display: grid;
@@ -516,14 +532,33 @@
 .ppt-page-view-tabs {
   height: 41px;
   border-bottom: 0;
+  overflow: hidden;
 }
 .ppt-page-view-tabs .tab {
   padding-inline: 4px;
   margin-right: 20px;
 }
+.slide-thumb {
+  box-sizing: border-box;
+  max-width: 100%;
+  grid-template-columns: 46px minmax(0, 1fr);
+  overflow: hidden;
+}
+.slide-thumb__meta {
+  min-width: 0;
+  width: auto;
+}
+.slide-thumb__meta strong {
+  width: 100%;
+  max-width: 100%;
+}
+.slide-thumb__preview,
 .slide-thumb div {
-  width: 136px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: 76px;
+  box-sizing: border-box;
   padding: 10px;
   background: #20242b;
 }

@@ -1,7 +1,9 @@
 /** Explicit feature public API — keep in sync with current call sites. */
 export type {
+  AgentAssetPreview,
   AgentChatMessage,
   AgentPanelMode,
+  AgentPreviewStatus,
   ChartRow,
   ChartType,
   EditorToolName,

@@ -1,4 +1,4 @@
-import type { AgentChatMessage } from "./types";
+import type { AgentAssetPreview, AgentChatMessage, ChartType } from "./types";
 
 export const AGENT_COLLAPSE_MS = 580;
 export const AGENT_THINK_MS = 900;
@@ -7,6 +7,7 @@ export const agentQuickActions = [
   { label: "优化排版", prompt: "优化当前页排版" },
   { label: "改写文案", prompt: "改写当前页文案" },
   { label: "生成图表", prompt: "为当前页生成图表" },
+  { label: "生成图片", prompt: "为当前页生成配图" },
   { label: "提取结论", prompt: "提取当前页核心结论" },
 ] as const;
 
@@ -19,8 +20,54 @@ export const initialAgentMessages: AgentChatMessage[] = [
   },
 ];
 
-export function agentReplyFor(prompt: string, slideLabel: string): Pick<AgentChatMessage, "title" | "text"> {
+function detectAssetKind(prompt: string): AgentAssetPreview["kind"] | null {
+  if (/图表|柱状|折线|饼图|条形|面积图|散点/.test(prompt)) return "chart";
+  if (/图片|配图|插图|封面图|示意图/.test(prompt)) return "image";
+  return null;
+}
+
+function chartTypeFor(prompt: string): ChartType {
+  if (prompt.includes("折线")) return "line";
+  if (prompt.includes("饼")) return "pie";
+  if (prompt.includes("条形")) return "bar";
+  if (prompt.includes("面积")) return "area";
+  if (prompt.includes("散点")) return "scatter";
+  return "column";
+}
+
+export function agentReplyFor(
+  prompt: string,
+  slideLabel: string,
+): Pick<AgentChatMessage, "title" | "text" | "preview" | "previewStatus"> {
   const normalized = prompt.trim();
+  const assetKind = detectAssetKind(normalized);
+
+  if (assetKind === "chart") {
+    const chartType = chartTypeFor(normalized);
+    return {
+      title: "图表已生成，请确认",
+      text: `已为「${slideLabel}」准备出租率与规模对比图。预览确认后即可插入当前页；也可放弃本次结果。`,
+      preview: {
+        kind: "chart",
+        chartType,
+        caption: "出租率与规模 · 近五年",
+      },
+      previewStatus: "pending",
+    };
+  }
+
+  if (assetKind === "image") {
+    return {
+      title: "配图已生成，请确认",
+      text: `已为「${slideLabel}」生成一张配套示意图。预览确认后即可插入当前页；也可放弃本次结果。`,
+      preview: {
+        kind: "image",
+        caption: "园区运营示意图",
+      },
+      previewStatus: "pending",
+    };
+  }
+
   if (normalized.includes("排版")) {
     return {
       title: "排版调整方案",
@@ -31,12 +78,6 @@ export function agentReplyFor(prompt: string, slideLabel: string): Pick<AgentCha
     return {
       title: "文案改写建议",
       text: `已重写「${slideLabel}」说明文字，语气更偏投资结论导向。若要更短或更正式，直接补充偏好即可。`,
-    };
-  }
-  if (normalized.includes("图表")) {
-    return {
-      title: "图表生成计划",
-      text: `准备在「${slideLabel}」插入规模与出租率双轴图，并同步标注 2025 改善点。确认后我可以继续细化配色与图注。`,
     };
   }
   if (normalized.includes("结论")) {

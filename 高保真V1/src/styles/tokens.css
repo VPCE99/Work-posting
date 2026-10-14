@@ -10,22 +10,22 @@
   --lh-title: 1.25;
   --lh-body: 1.55;
   --lh-helper: 1.4;
-  /* Default to dark to match PrototypeContext initial theme before .app mounts. */
-  --color-bg: #0b0d10;
-  --color-surface: #111318;
-  --color-surface-muted: #171a20;
-  --color-text: #f7f8fa;
-  --color-text-muted: #8e949e;
-  --color-text-subtle: #b7bec7;
-  --color-message-user-bg: #1c2430;
-  --color-message-user-text: #f4f7f8;
-  --color-border: #252931;
-  --color-border-strong: #3a3e47;
-  --color-primary: #00c9c3;
-  --color-primary-contrast: #061113;
-  --color-success: #43d8a4;
-  --color-danger: #f16c78;
-  --color-warning: #f0b35f;
+  /* Default to light to match PrototypeContext initial theme before .app mounts. */
+  --color-bg: #f4f7f8;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef3f4;
+  --color-text: #13272b;
+  --color-text-muted: #627278;
+  --color-text-subtle: #3d555c;
+  --color-message-user-bg: #d5e4e8;
+  --color-message-user-text: #13272b;
+  --color-border: #d7e0e2;
+  --color-border-strong: #9eacb0;
+  --color-primary: #00afa9;
+  --color-primary-contrast: #071012;
+  --color-success: #0ba99a;
+  --color-danger: #e45b6a;
+  --color-warning: #d49a38;
   --color-focus: #00c9c3;
   --shadow-modal: 0 24px 80px rgb(4 10 13 / 34%);
   --radius-sm: 28px;
@@ -43,7 +43,7 @@
   --icon-search-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.2 1.2 13.3 13.3' fill='none' stroke='%23627278' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6.6' cy='6.6' r='4.35'/%3E%3Cpath d='M9.85 9.85 13.7 13.7'/%3E%3C/svg%3E");
   --icon-chevron-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M2 2L6 6L10 2' stroke='%238E949E' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --icon-chevron-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M2 2L6 6L10 2' stroke='%23627278' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* Theme tokens must live on .app only — never on <html> — so chrome and

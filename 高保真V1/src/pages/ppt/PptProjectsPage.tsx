@@ -205,15 +205,6 @@ function ProjectCard({ project, onOpen, onToggleFavorite, onRename, onDelete }: 
           )}
           <small className="ppt-project-item__preview-pages">{project.pages} 页</small>
         </button>
-        <button
-          className={`ppt-project-item__favorite${project.favorite ? " ppt-project-item__favorite--on" : ""}`}
-          type="button"
-          aria-label={project.favorite ? `取消收藏 ${project.name}` : `收藏 ${project.name}`}
-          aria-pressed={project.favorite}
-          onClick={onToggleFavorite}
-        >
-          <FavoriteStarIcon />
-        </button>
       </div>
       <div className="ppt-project-item__info">
         {renaming ? (
@@ -250,6 +241,15 @@ function ProjectCard({ project, onOpen, onToggleFavorite, onRename, onDelete }: 
       </div>
       <footer className="ppt-project-item__footer">
         <small>{project.updatedAt}</small>
+        <button
+          className={`ppt-project-item__favorite${project.favorite ? " ppt-project-item__favorite--on" : ""}`}
+          type="button"
+          aria-label={project.favorite ? `取消收藏 ${project.name}` : `收藏 ${project.name}`}
+          aria-pressed={project.favorite}
+          onClick={onToggleFavorite}
+        >
+          <FavoriteStarIcon />
+        </button>
         <button className="icon-button ppt-project-item__delete" type="button" aria-label={`删除 ${project.name}`} onClick={onDelete}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 6h18" />

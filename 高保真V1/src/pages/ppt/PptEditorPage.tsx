@@ -33,7 +33,7 @@ export function PptEditorPage() {
   const project = projects.find((item) => item.id === projectId);
   const [leftTab, setLeftTab] = useState<"pages" | "design" | "draft">("pages");
   const [pageView, setPageView] = useState<"thumbnail" | "outline">("thumbnail");
-  const [slideTone, setSlideTone] = useState<"dark" | "light">("dark");
+  const [slideTone, setSlideTone] = useState<"dark" | "light">("light");
   const {
     actionsOpen,
     toggleActions,
@@ -89,6 +89,7 @@ export function PptEditorPage() {
     collapseAgent,
     expandAgent,
     sendAgentMessage,
+    resolvePreview,
   } = useAgentChat(currentSlideTitle);
 
   const useLightSlide = slideTone === "light";
@@ -262,6 +263,11 @@ export function PptEditorPage() {
               onCollapse={collapseAgent}
               onDraftChange={setAgentDraft}
               onSend={sendAgentMessage}
+              onConfirmPreview={(messageId, kind) => {
+                applyTool(kind);
+                resolvePreview(messageId, "inserted");
+              }}
+              onDiscardPreview={(messageId) => resolvePreview(messageId, "discarded")}
             />
           )}
         </div>

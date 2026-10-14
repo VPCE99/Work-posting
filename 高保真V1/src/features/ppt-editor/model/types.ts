@@ -3,11 +3,26 @@ import type { ChartType as SharedChartType, OccupancyChartRow } from "../../../c
 export type AgentPanelMode = "open" | "closing" | "closed" | "opening";
 type AgentChatRole = "user" | "assistant";
 
+export type TextAlign = "left" | "center" | "right";
+export type ChartType = SharedChartType;
+export type ChartRow = OccupancyChartRow;
+
+/** Chart/image draft shown in the agent panel before the user inserts it. */
+export type AgentAssetPreview = {
+  kind: "chart" | "image";
+  chartType?: ChartType;
+  caption: string;
+};
+
+export type AgentPreviewStatus = "pending" | "inserted" | "discarded";
+
 export type AgentChatMessage = {
   id: string;
   role: AgentChatRole;
   text: string;
   title?: string;
+  preview?: AgentAssetPreview;
+  previewStatus?: AgentPreviewStatus;
 };
 
 export type EditorToolName =
@@ -22,10 +37,6 @@ export type EditorToolName =
   | "hand"
   | "undo"
   | "redo";
-
-export type TextAlign = "left" | "center" | "right";
-export type ChartType = SharedChartType;
-export type ChartRow = OccupancyChartRow;
 
 export type SlideElementKind = "text" | "chart" | "table" | "image" | "shape";
 

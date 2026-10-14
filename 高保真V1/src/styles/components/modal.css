@@ -114,6 +114,13 @@
 .modal--xl {
   width: min(1320px, calc(100vw - 120px));
 }
+.modal.modal--auth {
+  width: min(1120px, calc(100vw - 48px));
+  height: min(680px, calc(100vh - 48px));
+  max-height: calc(100vh - 48px);
+  border-color: transparent;
+  border-radius: 28px;
+}
 .modal--chart {
   border-radius: 28px;
 }

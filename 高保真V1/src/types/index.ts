@@ -107,6 +107,7 @@ export type AuthStatus = "authenticated" | "unauthenticated";
 export type AuthLoginInput = {
   account: string;
   password: string;
+  displayName?: string;
 };
 
 export type AuthRegisterInput = {

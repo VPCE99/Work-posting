@@ -5,9 +5,6 @@
 .app--ppt-editor .topbar {
   padding: 0 20px 0 18px;
 }
-.app--ppt-editor .topbar__actions {
-  display: grid;
-}
 .app--ppt-editor .topbar .brand {
   display: inline-flex;
   align-items: center;
@@ -145,9 +142,6 @@
   font-weight: 400;
   line-height: 0;
 }
-.app--ppt-editor .topbar__actions {
-  display: grid;
-}
 .ppt-editor__top-actions > .button:not(.button--primary) {
   border-color: transparent;
   background: #15181d;
@@ -180,13 +174,13 @@
   line-height: 16px;
 }
 .ppt-editor__status > span:nth-child(1) {
-  left: 20px;
+  left: calc(var(--sidebar-collapsed-width) + 16px);
   color: #d9dde3;
   font-size: var(--text-helper);
   line-height: var(--lh-helper);
 }
 .ppt-editor__status > span:nth-child(2) {
-  left: 122px;
+  left: calc(var(--sidebar-collapsed-width) + 118px);
   color: #8e949e;
   font-size: var(--text-helper);
   line-height: var(--lh-helper);
@@ -645,8 +639,17 @@
 }
 .app--ppt-editor .topbar {
   height: 48px;
+  padding-right: var(--space-3);
 }
 .app--ppt-editor .topbar__actions {
+  width: auto;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.app--ppt-editor .topbar__actions .usage-indicator {
   display: none;
 }
 .app--ppt-editor .topbar__brand > a {

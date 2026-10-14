@@ -161,6 +161,87 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+.ppt-agent-preview {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.35);
+}
+.ppt-agent-preview__media {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+.ppt-agent-preview__media .ppt-props-chart-preview__svg {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+}
+.ppt-agent-preview__image {
+  display: grid;
+  gap: 8px;
+  place-items: center;
+  width: 100%;
+  min-height: 120px;
+  padding: 18px 12px;
+  color: #c7d2de;
+  text-align: center;
+  background:
+    linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(14, 165, 233, 0.08)),
+    repeating-linear-gradient(
+      -12deg,
+      transparent,
+      transparent 10px,
+      rgba(148, 163, 184, 0.08) 10px,
+      rgba(148, 163, 184, 0.08) 11px
+    );
+}
+.ppt-agent-preview__image span {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.ppt-agent-preview__meta {
+  display: grid;
+  gap: 2px;
+}
+.ppt-agent-preview__meta strong {
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 650;
+}
+.ppt-agent-preview__meta small {
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.ppt-agent-preview__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.ppt-agent-preview__actions .button {
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.ppt-agent-preview__status {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #7dd3fc;
+}
+.ppt-agent-preview--discarded .ppt-agent-preview__status {
+  color: #94a3b8;
+}
 .ppt-agent .follow-up-thinking {
   margin: 4px 0 0;
   transform: scale(0.72);
@@ -449,6 +530,37 @@
 .app[data-theme="light"] .canvas-agent-dock:hover {
   border-color: var(--color-primary);
   background: #eef8f8;
+}
+.app[data-theme="light"] .ppt-agent-preview {
+  border-color: #c7d9d6;
+  background: #ffffff;
+}
+.app[data-theme="light"] .ppt-agent-preview__media {
+  background: #f4f8f8;
+}
+.app[data-theme="light"] .ppt-agent-preview__image {
+  color: #355056;
+  background:
+    linear-gradient(135deg, rgba(0, 201, 195, 0.12), rgba(0, 175, 169, 0.06)),
+    repeating-linear-gradient(
+      -12deg,
+      transparent,
+      transparent 10px,
+      rgba(148, 163, 184, 0.1) 10px,
+      rgba(148, 163, 184, 0.1) 11px
+    );
+}
+.app[data-theme="light"] .ppt-agent-preview__meta strong {
+  color: #13272b;
+}
+.app[data-theme="light"] .ppt-agent-preview__meta small {
+  color: #627278;
+}
+.app[data-theme="light"] .ppt-agent-preview__status {
+  color: #0b8f8a;
+}
+.app[data-theme="light"] .ppt-agent-preview--discarded .ppt-agent-preview__status {
+  color: #819095;
 } /* --- Migrated from 95-from-global.css (checklist §9; values unchanged) --- */
 .ppt-agent {
   border-left: 1px solid var(--color-border);

@@ -7,7 +7,7 @@ export function useChromeState() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeDialog, setActiveDialog] = useState<"binding" | "chart" | null>(null);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const { schedule: scheduleToast } = useTimeoutRegistry();
 

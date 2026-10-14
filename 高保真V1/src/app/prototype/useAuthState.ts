@@ -17,7 +17,7 @@ export function useAuthState() {
     }
     const next: AuthUser = {
       id: `user-${account}`,
-      displayName: "测试账号",
+      displayName: input.displayName?.trim() || "测试账号",
       planLabel: "试用版",
       account,
     };
