@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Modal } from "../ui/Modal";
-import { AuthField, ChatIcon, LockIcon, LoginVisual, MailIcon } from "./AuthDialogParts";
+import { AuthField, AuthThinkingMark, ChatIcon, LockIcon, LoginVisual, MailIcon } from "./AuthDialogParts";
 import { WeChatAuthDialog } from "./WeChatAuthDialog";
 
 type Props = {
@@ -28,6 +28,7 @@ export function LoginDialog({ onClose, onSubmit, onSwitchToRegister, onNotice }:
     <Modal title="登录" variant="auth" frameless onClose={onClose}>
       <div className="auth-dialog">
         <LoginVisual />
+        <AuthThinkingMark />
         <div className="auth-dialog__panel">
           <form className="auth-dialog__form" onSubmit={submit}>
             <h2 className="auth-dialog__title">登录 ChopChat</h2>

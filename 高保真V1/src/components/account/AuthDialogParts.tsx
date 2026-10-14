@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { Brand } from "../ui/Brand";
 
 function Icon({ children }: { children: ReactNode }) {
@@ -45,23 +45,6 @@ export function ChatIcon() {
   );
 }
 
-function SparkIcon() {
-  return (
-    <Icon>
-      <path d="M12 3.5 13.4 8 18 9.2 13.4 10.6 12 15.2 10.6 10.6 6 9.2 10.6 8Z" />
-      <path d="M18 14.5 18.6 16.4 20.5 17 18.6 17.6 18 19.5 17.4 17.6 15.5 17 17.4 16.4Z" />
-    </Icon>
-  );
-}
-
-function LoaderIcon() {
-  return (
-    <Icon>
-      <path d="M21 12a9 9 0 1 1-6.2-8.5" />
-    </Icon>
-  );
-}
-
 function CheckIcon() {
   return (
     <Icon>
@@ -90,6 +73,47 @@ export function AuthField({
   );
 }
 
+export function AuthThinkingMark() {
+  const gradientId = useId().replace(/:/g, "");
+
+  return (
+    <div className="auth-dialog__mark" aria-hidden="true">
+      <svg viewBox="0 0 104 104">
+        <defs>
+          <linearGradient id={`${gradientId}-petal-1`} x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stopColor="#08BBD1" />
+            <stop offset="1" stopColor="#1ED7C7" />
+          </linearGradient>
+          <linearGradient id={`${gradientId}-petal-2`} x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stopColor="#16CFA7" />
+            <stop offset="1" stopColor="#52E779" />
+          </linearGradient>
+          <linearGradient id={`${gradientId}-petal-3`} x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stopColor="#1679F5" />
+            <stop offset="1" stopColor="#1CA7F2" />
+          </linearGradient>
+          <linearGradient id={`${gradientId}-petal-4`} x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stopColor="#08B8D6" />
+            <stop offset="1" stopColor="#19D0B8" />
+          </linearGradient>
+          <linearGradient id={`${gradientId}-bars`} x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stopColor="#0EA5F4" />
+            <stop offset="1" stopColor="#21D488" />
+          </linearGradient>
+        </defs>
+        <ellipse className="thinking-petal thinking-petal--1" cx="29" cy="29" rx="29" ry="29" fill={`url(#${gradientId}-petal-1)`} />
+        <ellipse className="thinking-petal thinking-petal--2" cx="75" cy="29" rx="29" ry="29" fill={`url(#${gradientId}-petal-2)`} />
+        <ellipse className="thinking-petal thinking-petal--3" cx="29" cy="75" rx="29" ry="29" fill={`url(#${gradientId}-petal-3)`} />
+        <ellipse className="thinking-petal thinking-petal--4" cx="75" cy="75" rx="29" ry="29" fill={`url(#${gradientId}-petal-4)`} />
+        <path d="M52 26c15 0 27 11 27 26 0 6-2 12-6 16l5 13-13-5c-4 3-8 4-13 4-15 0-27-12-27-27 0-15 12-27 27-27z" fill="#F8FCFD" stroke="#D8F4F4" strokeWidth="2" />
+        <rect className="thinking-bar thinking-bar--1" x="35" y="53.432" width="8" height="16" rx="4" fill={`url(#${gradientId}-bars)`} />
+        <rect className="thinking-bar thinking-bar--2" x="48" y="45.649" width="8" height="23" rx="4" fill={`url(#${gradientId}-bars)`} />
+        <rect className="thinking-bar thinking-bar--3" x="61" y="37" width="8" height="32" rx="4" fill={`url(#${gradientId}-bars)`} />
+      </svg>
+    </div>
+  );
+}
+
 export function LoginVisual() {
   return (
     <aside className="auth-dialog__visual">
@@ -97,22 +121,6 @@ export function LoginVisual() {
       <p className="auth-dialog__kicker">CONTINUE YOUR WORK</p>
       <h2 className="auth-dialog__headline">欢迎回来，继续未完成的思考。</h2>
       <p className="auth-dialog__lead">对话、任务与文件已在工作区中保持同步。</p>
-      <div className="auth-preview" aria-hidden="true">
-        <div className="auth-preview__meta">
-          <span>RECENT THREAD</span>
-          <span className="auth-preview__dot" />
-        </div>
-        <div className="auth-preview__row">
-          <span className="auth-preview__avatar"><SparkIcon /></span>
-          <div className="auth-preview__bubble">
-            <span />
-            <span />
-          </div>
-        </div>
-        <p className="auth-preview__user">继续完善行业研究报告</p>
-        <p className="auth-preview__status"><LoaderIcon />正在恢复上下文…</p>
-        <div className="auth-preview__track"><span /></div>
-      </div>
       <p className="auth-dialog__note">端到端会话隔离 · 数据仅用于当前工作区</p>
     </aside>
   );
