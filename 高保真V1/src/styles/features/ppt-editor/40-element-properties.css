@@ -38,14 +38,15 @@ body.is-dragging-slide-element .slide-element {
   white-space: nowrap;
   pointer-events: none;
 }
-.slide-canvas__placeholder .slide-element {
+.slide-canvas__placeholder:not(.slide-canvas__placeholder--live) .slide-element {
   position: relative;
   display: block;
   max-width: 100%;
   width: auto;
 }
 .slide-canvas__placeholder--live {
-  position: relative;
+  position: absolute;
+  inset: 0;
 }
 .slide-canvas__live-table {
   overflow: auto;

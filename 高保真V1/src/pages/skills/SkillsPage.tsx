@@ -89,6 +89,26 @@ type SkillDraft = {
   prompt: string;
 };
 
+type SkillEditorState =
+  | { mode: "create" }
+  | { mode: "customize"; source: Skill }
+  | { mode: "edit"; skill: Skill };
+
+const MY_SKILL_LIMIT = 20;
+
+function draftFromPublicSkill(skill: Skill): SkillDraft {
+  const prompt = skill.prompt?.trim() || [
+    `用途：${skill.description}`,
+    "输入要求：提供研究主题、材料或需要分析的数据。",
+    "输出预期：结构化结论、关键依据和可继续追问的问题。",
+  ].join("\n");
+  return {
+    name: `${skill.name}（定制）`,
+    description: skill.description,
+    prompt,
+  };
+}
+
 export function SkillsPage() {
   const navigate = useNavigate();
   const { authenticated, skills, addSkill, updateSkill, deleteSkill, notify } = usePrototype();
@@ -96,8 +116,9 @@ export function SkillsPage() {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("全部类型");
   const [detail, setDetail] = useState<Skill | null>(null);
-  const [editor, setEditor] = useState<{ mode: "create" } | { mode: "edit"; skill: Skill } | null>(null);
+  const [editor, setEditor] = useState<SkillEditorState | null>(null);
   const [deleting, setDeleting] = useState<Skill | null>(null);
+  const mySkillCount = skills.filter((skill) => skill.kind === "我的技能").length;
 
   const visible = skills.filter((item) => {
     if (item.kind !== tab) return false;
@@ -115,6 +136,19 @@ export function SkillsPage() {
     setDetail(null);
     navigate("/chat", { state: { skillDraft: `请使用「${skill.name}」：${skill.description}` } });
     notify(`已将「${skill.name}」带入新对话`, "success");
+  };
+
+  const customizePublicSkill = (skill: Skill) => {
+    if (!authenticated) {
+      notify("请先登录后再定制技能");
+      return;
+    }
+    if (mySkillCount >= MY_SKILL_LIMIT) {
+      notify(`我的技能已达上限 ${MY_SKILL_LIMIT} 个`);
+      return;
+    }
+    setDetail(null);
+    setEditor({ mode: "customize", source: skill });
   };
 
   return (
@@ -137,7 +171,7 @@ export function SkillsPage() {
         </header>
 
         <div className="toolbar skills-toolbar">
-          <div className="tab-row">{(["公用技能", "我的技能", "未开通"] as const).map((item) => <button key={item} className={tab === item ? "tab tab--active" : "tab"} onClick={() => setTab(item)}>{item}{item === "我的技能" ? ` ${skills.filter((skill) => skill.kind === item).length}/20` : ""}</button>)}</div>
+          <div className="tab-row">{(["公用技能", "我的技能", "未开通"] as const).map((item) => <button key={item} className={tab === item ? "tab tab--active" : "tab"} onClick={() => setTab(item)}>{item}{item === "我的技能" ? ` ${mySkillCount}/${MY_SKILL_LIMIT}` : ""}</button>)}</div>
           <div className="skills-toolbar__filters">
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索技能" />
             <FormSelect label="技能类型" options={["全部类型", "研究分析", "内容生成"]} value={typeFilter} onChange={setTypeFilter} />
@@ -177,6 +211,9 @@ export function SkillsPage() {
           footer={
             <>
               <button className="button" onClick={() => setDetail(null)}>关闭</button>
+              {detail.kind === "公用技能" && (
+                <button className="button" onClick={() => customizePublicSkill(detail)}>基于此定制</button>
+              )}
               {detail.kind !== "未开通" && <button className="button button--primary" onClick={() => useSkill(detail)}>用于新问题</button>}
             </>
           }
@@ -193,14 +230,27 @@ export function SkillsPage() {
       {editor && (
         <SkillDialog
           mode={editor.mode}
-          initial={editor.mode === "edit" ? {
-            name: editor.skill.name,
-            description: editor.skill.description,
-            prompt: editor.skill.prompt ?? "",
-          } : { name: "", description: "", prompt: "" }}
+          initial={
+            editor.mode === "edit"
+              ? {
+                  name: editor.skill.name,
+                  description: editor.skill.description,
+                  prompt: editor.skill.prompt ?? "",
+                }
+              : editor.mode === "customize"
+                ? draftFromPublicSkill(editor.source)
+                : { name: "", description: "", prompt: "" }
+          }
           onClose={() => setEditor(null)}
           onSave={(draft) => {
-            if (editor.mode === "create") {
+            if (editor.mode === "edit") {
+              updateSkill(editor.skill.id, {
+                name: draft.name,
+                description: draft.description,
+                prompt: draft.prompt,
+              });
+              notify("技能已更新", "success");
+            } else {
               addSkill({
                 id: `skill-${Date.now()}`,
                 name: draft.name,
@@ -208,14 +258,8 @@ export function SkillsPage() {
                 prompt: draft.prompt,
                 kind: "我的技能",
               });
-              notify("技能已保存", "success");
-            } else {
-              updateSkill(editor.skill.id, {
-                name: draft.name,
-                description: draft.description,
-                prompt: draft.prompt,
-              });
-              notify("技能已更新", "success");
+              notify(editor.mode === "customize" ? "已保存到我的技能" : "技能已保存", "success");
+              setTab("我的技能");
             }
             setEditor(null);
           }}
@@ -242,7 +286,7 @@ function SkillDialog({
   onClose,
   onSave,
 }: {
-  mode: "create" | "edit";
+  mode: SkillEditorState["mode"];
   initial: SkillDraft;
   onClose: () => void;
   onSave: (draft: SkillDraft) => void;
@@ -256,6 +300,10 @@ function SkillDialog({
     name !== initial.name ||
     description !== initial.description ||
     prompt !== initial.prompt;
+  const dialogTitle =
+    mode === "edit" ? "编辑自定义技能"
+      : mode === "customize" ? "基于公用技能定制"
+        : "新建自定义技能";
 
   const requestClose = () => {
     if (dirty) setDiscardOpen(true);
@@ -272,16 +320,21 @@ function SkillDialog({
   return (
     <>
       <Modal
-        title={mode === "edit" ? "编辑自定义技能" : "新建自定义技能"}
+        title={dialogTitle}
         onClose={requestClose}
         footer={
           <>
             <button className="button" onClick={requestClose}>取消</button>
-            <button className="button button--primary" type="submit" form="skill-form">保存技能</button>
+            <button className="button button--primary" type="submit" form="skill-form">
+              {mode === "customize" ? "保存到我的技能" : "保存技能"}
+            </button>
           </>
         }
       >
         <form id="skill-form" className="form-stack" onSubmit={submit}>
+          {mode === "customize" && (
+            <small className="skill-customize-hint">已预填公用技能内容，修改后将保存为你的自定义技能。</small>
+          )}
           <label>
             <span className="field-label-row">
               <span>技能名称 *</span>

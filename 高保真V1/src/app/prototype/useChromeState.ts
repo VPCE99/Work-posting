@@ -14,7 +14,7 @@ export function useChromeState() {
   const notify = useCallback((text: string, tone: ToastMessage["tone"] = "neutral") => {
     const id = Date.now();
     setToasts((items) => [...items, { id, text, tone }]);
-    scheduleToast(`toast-${id}`, () => setToasts((items) => items.filter((item) => item.id !== id)), 2600);
+    scheduleToast(`toast-${id}`, () => setToasts((items) => items.filter((item) => item.id !== id)), 4000);
   }, [scheduleToast]);
 
   const toggleTheme = useCallback(() => {

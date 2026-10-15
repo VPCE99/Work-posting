@@ -9,9 +9,6 @@
   margin: 0;
 }
 .market-slide h2 {
-  left: calc(34px * var(--slide-scale));
-  top: calc(30px * var(--slide-scale));
-  width: calc(500px * var(--slide-scale));
   color: #f7f8fa;
   font-size: calc(22px * var(--slide-scale));
   line-height: calc(30px * var(--slide-scale));
@@ -90,14 +87,12 @@
   background: #ef4444;
 }
 .market-slide__chart-hit {
-  left: calc(356px * var(--slide-scale));
-  top: calc(120px * var(--slide-scale));
-  width: calc(360px * var(--slide-scale));
-  height: calc(260px * var(--slide-scale));
   z-index: 5;
   padding: 0;
   border: 0;
   background: transparent;
+  cursor: grab;
+  touch-action: none;
 }
 .market-slide__chart-hit.slide-element--selected {
   z-index: 6;
@@ -159,45 +154,49 @@
   position: absolute;
   inset: 0;
 }
-.project-cover-slide__hit {
+/* Live cover: keep art as background only; editable layers use element x/y. */
+.project-cover-slide--live .ppt-cover-art__copy,
+.project-cover-slide--live .ppt-cover-art__visual {
+  visibility: hidden;
+}
+.project-cover-slide__live-text,
+.project-cover-slide__live-accent,
+.project-cover-slide__live-chart {
   position: absolute;
   margin: 0;
+  box-sizing: border-box;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.project-cover-slide__live-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.project-cover-slide__live-chart {
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: calc(8px * var(--slide-scale)) calc(10px * var(--slide-scale));
+  border-radius: 8px;
+  background: rgb(255 255 255 / 42%);
+}
+.project-cover-slide__live-chart .market-slide__live-chart {
+  flex: 1;
+  min-height: 0;
   padding: 0;
-  border: 0;
   background: transparent;
-  cursor: pointer;
-}
-.project-cover-slide__hit--title {
-  left: calc(48px * var(--slide-scale));
-  top: calc(132px * var(--slide-scale));
-  width: calc(340px * var(--slide-scale));
-  height: calc(56px * var(--slide-scale));
-}
-.project-cover-slide__hit--subtitle {
-  left: calc(48px * var(--slide-scale));
-  top: calc(214px * var(--slide-scale));
-  width: calc(320px * var(--slide-scale));
-  height: calc(28px * var(--slide-scale));
-}
-.project-cover-slide__hit--accent {
-  left: calc(48px * var(--slide-scale));
-  top: calc(196px * var(--slide-scale));
-  width: calc(88px * var(--slide-scale));
-  height: calc(10px * var(--slide-scale));
-}
-.project-cover-slide__hit--chart {
-  left: calc(400px * var(--slide-scale));
-  top: calc(72px * var(--slide-scale));
-  width: calc(300px * var(--slide-scale));
-  height: calc(280px * var(--slide-scale));
 }
 .project-cover-slide__extra {
   position: absolute;
   margin: 0;
-  color: #f7f8fa;
+  color: #13272b;
   font-size: calc(14px * var(--slide-scale));
 }
-.project-cover-slide__hit.slide-element--selected,
+.project-cover-slide__live-text.slide-element--selected,
+.project-cover-slide__live-accent.slide-element--selected,
+.project-cover-slide__live-chart.slide-element--selected,
 .project-cover-slide__extra.slide-element--selected {
   outline: 1.5px solid var(--color-focus);
   outline-offset: 2px;

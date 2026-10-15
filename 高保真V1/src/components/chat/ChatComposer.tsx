@@ -1,7 +1,16 @@
-import { useRef, type ChangeEvent, type Ref } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent, type Ref, type SyntheticEvent } from "react";
+import { usePrototype } from "../../app/PrototypeContext";
+import type { Skill } from "../../types";
 import { ConnectionToggle } from "../ui/ConnectionToggle";
 import { MenuIcon } from "../ui/MenuIcon";
 import { ModelSelect } from "../ui/ModelSelect";
+import {
+  applySkillToDraft,
+  getSkillSlashMatch,
+  SkillPickerMenu,
+  skillPickerItems,
+  type SkillPickerSection,
+} from "./SkillPickerMenu";
 
 type ChatComposerBase = {
   value: string;
@@ -71,6 +80,14 @@ function composerFileMark(file: File): string {
   return `[文件] ${name}`;
 }
 
+function filterSkills(skills: Skill[], query: string): Skill[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return skills;
+  return skills.filter(
+    (skill) => skill.name.toLowerCase().includes(q) || skill.description.toLowerCase().includes(q),
+  );
+}
+
 export function ChatComposer(props: ChatComposerProps) {
   const {
     value,
@@ -82,8 +99,53 @@ export function ChatComposer(props: ChatComposerProps) {
     rows = 3,
   } = props;
   const compact = props.compact === true;
+  const { skills } = usePrototype();
   const fileRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [cursor, setCursor] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [pickerDismissed, setPickerDismissed] = useState(false);
   const canSend = Boolean(value.trim());
+
+  const slashMatch = compact ? null : getSkillSlashMatch(value, cursor);
+  const sections = useMemo<SkillPickerSection[]>(() => {
+    const query = slashMatch?.query ?? "";
+    return [
+      { title: "公共技能库", skills: filterSkills(skills.filter((item) => item.kind === "公用技能"), query) },
+      { title: "用户创建的技能", skills: filterSkills(skills.filter((item) => item.kind === "我的技能"), query) },
+    ];
+  }, [skills, slashMatch?.query]);
+  const pickerItems = skillPickerItems(sections);
+  const showSkillPicker = Boolean(slashMatch) && !pickerDismissed && !compact;
+
+  useEffect(() => {
+    setActiveIndex(0);
+    setPickerDismissed(false);
+  }, [slashMatch?.start, slashMatch?.query]);
+
+  useEffect(() => {
+    if (activeIndex >= pickerItems.length) {
+      setActiveIndex(Math.max(0, pickerItems.length - 1));
+    }
+  }, [activeIndex, pickerItems.length]);
+
+  const syncCursor = (event: SyntheticEvent<HTMLTextAreaElement>) => {
+    setCursor(event.currentTarget.selectionStart ?? 0);
+  };
+
+  const selectSkill = (skill: Skill) => {
+    const next = applySkillToDraft(value, cursor, skill);
+    onChange(next);
+    setPickerDismissed(true);
+    requestAnimationFrame(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      el.focus();
+      const pos = next.length;
+      el.setSelectionRange(pos, pos);
+      setCursor(pos);
+    });
+  };
 
   const attachFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -93,20 +155,62 @@ export function ChatComposer(props: ChatComposerProps) {
     onChange(value.trim() ? `${value.trim()}\n${mark}` : mark);
   };
 
+  const onTextareaKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (showSkillPicker) {
+      if (event.key === "ArrowDown" && pickerItems.length > 0) {
+        event.preventDefault();
+        setActiveIndex((current) => (current + 1) % pickerItems.length);
+        return;
+      }
+      if (event.key === "ArrowUp" && pickerItems.length > 0) {
+        event.preventDefault();
+        setActiveIndex((current) => (current - 1 + pickerItems.length) % pickerItems.length);
+        return;
+      }
+      if ((event.key === "Enter" || event.key === "Tab") && pickerItems[activeIndex] && !event.shiftKey) {
+        event.preventDefault();
+        selectSkill(pickerItems[activeIndex]);
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setPickerDismissed(true);
+        return;
+      }
+    }
+
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    if (canSend) onSubmit();
+  };
+
   return (
     <div className={className ? `composer ${className}` : "composer"} ref={composerRef}>
+      {showSkillPicker && (
+        <SkillPickerMenu
+          sections={sections}
+          activeIndex={activeIndex}
+          onHover={setActiveIndex}
+          onSelect={selectSkill}
+        />
+      )}
       <textarea
+        ref={textareaRef}
         value={value}
         rows={compact ? Math.min(rows, 3) : rows}
         placeholder={placeholder}
-        title="Enter 发送，Shift+Enter 换行"
+        title="Enter 发送，Shift+Enter 换行；输入 / 调用技能"
         aria-keyshortcuts="Enter"
-        onChange={(event) => onChange(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
-          event.preventDefault();
-          if (canSend) onSubmit();
+        aria-expanded={showSkillPicker}
+        aria-controls={showSkillPicker ? "skill-picker" : undefined}
+        onChange={(event) => {
+          onChange(event.target.value);
+          setCursor(event.target.selectionStart ?? event.target.value.length);
         }}
+        onClick={syncCursor}
+        onKeyUp={syncCursor}
+        onSelect={syncCursor}
+        onKeyDown={onTextareaKeyDown}
       />
       <div className="composer__toolbar">
         <div className="composer__tools">

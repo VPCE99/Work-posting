@@ -62,7 +62,7 @@ export function AgentPanel({
         </button>
       </header>
       <div className="ppt-agent-main">
-        <div className="ppt-agent__stream message-stream" ref={agentStreamRef} aria-live="polite">
+        <div className="ppt-agent__stream" ref={agentStreamRef} aria-live="polite">
           {agentMessages.map((message) => (
             message.role === "user" ? (
               <article className="message message--user ppt-agent__bubble" key={message.id}>

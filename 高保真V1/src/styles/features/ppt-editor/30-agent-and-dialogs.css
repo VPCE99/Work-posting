@@ -15,6 +15,8 @@
     border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .ppt-agent-tabs {
+  position: relative;
+  z-index: 2;
   height: 48px;
   flex: 0 0 48px;
   display: flex;
@@ -23,6 +25,7 @@
   gap: 8px;
   padding: 0 12px 0 20px;
   border-bottom: 1px solid #2f3238;
+  background: inherit;
 }
 .ppt-agent-tabs button:not(.ppt-agent-collapse) {
   width: 88px;
@@ -80,13 +83,15 @@
   gap: 0;
   padding: 0;
   overflow: hidden;
+  background: inherit;
   transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .ppt-agent__stream {
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -102,6 +107,7 @@
   background: #2f3238;
 }
 .ppt-agent .message.ppt-agent__bubble {
+  flex: 0 0 auto;
   width: 100%;
   max-width: 100%;
   margin: 0;
@@ -112,9 +118,9 @@
   max-width: 92%;
   margin-left: auto;
   padding: 10px 12px;
+  border: 0;
   border-radius: 12px 12px 4px 12px;
   background: #1a222c;
-  border: 1px solid #2a3140;
 }
 .ppt-agent .message--user.ppt-agent__bubble p {
   margin: 0;
@@ -126,7 +132,7 @@
 }
 .ppt-agent .message--assistant.ppt-agent__bubble {
   padding: 12px;
-  border: 1px solid #24414a;
+  border: 0;
   border-radius: 12px 12px 12px 4px;
   background: #152126;
 }
@@ -248,24 +254,29 @@
   transform-origin: left center;
 }
 .ppt-agent__composer-wrap {
+  position: relative;
+  z-index: 1;
   flex: 0 0 auto;
   display: grid;
   gap: 10px;
   padding: 10px 12px 14px;
   border-top: 0;
-  background: transparent;
+  background: inherit;
 }
-.ppt-agent .composer--agent {
+.ppt-agent .composer--agent,
+.ppt-agent .composer--agent:focus-within {
   width: 100%;
   padding: 10px 10px 10px;
+  border: 0;
   border-radius: 12px;
-  box-shadow: none;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
 }
 .ppt-agent .composer--agent textarea {
   min-height: 52px;
   height: auto;
   max-height: 120px;
   padding: 8px 10px 10px;
+  border-radius: 0;
   resize: none;
   font-size: 13px;
   line-height: 1.5;
@@ -419,9 +430,14 @@
     grid-template-columns: 1fr;
   }
 } /* --- Migrated from 90-current-overrides.css (checklist §9; values unchanged) --- */
-.ppt-agent .composer--agent textarea {
+.ppt-agent .composer--agent textarea,
+.ppt-agent .composer--agent textarea:hover,
+.ppt-agent .composer--agent textarea:focus,
+.ppt-agent .composer--agent textarea:focus-visible {
   border: 0;
+  border-radius: 0;
   background: transparent;
+  background-color: transparent;
   color: #f7f8fa;
   font-weight: 400;
 }
@@ -464,14 +480,24 @@
 }
 .app[data-theme="light"] .ppt-agent__composer-wrap {
   border-top: 0;
-  background: transparent;
+  background: inherit;
 }
-.app[data-theme="light"] .ppt-agent .composer--agent {
-  border-color: #c7d2d5;
+.app[data-theme="light"] .ppt-agent .composer--agent,
+.app[data-theme="light"] .ppt-agent .composer--agent:focus-within {
+  border: 0;
+  border-color: transparent;
   background: var(--color-surface);
+  box-shadow: 0 8px 24px rgb(28 54 60 / 12%);
 }
-.app[data-theme="light"] .ppt-agent .composer--agent textarea {
+.app[data-theme="light"] .ppt-agent .composer--agent textarea,
+.app[data-theme="light"] .ppt-agent .composer--agent textarea:hover,
+.app[data-theme="light"] .ppt-agent .composer--agent textarea:focus,
+.app[data-theme="light"] .ppt-agent .composer--agent textarea:focus-visible {
   padding: 8px 10px 10px;
+  border-radius: 0;
+  background: transparent;
+  background-color: transparent;
+  color: var(--color-text);
 }
 .app[data-theme="light"] .ppt-agent {
   border-left-color: var(--color-border);
@@ -500,21 +526,18 @@
   background: var(--color-border);
   color: #8a969b;
 }
-.app[data-theme="light"] .ppt-agent .composer--agent textarea {
-  color: var(--color-text);
-}
 .app[data-theme="light"] .ppt-agent .composer--agent textarea::placeholder {
   color: #819095;
 }
 .app[data-theme="light"] .ppt-agent .message--user.ppt-agent__bubble {
+  border: 0;
   background: #e8edef;
-  border-color: var(--color-border);
 }
 .app[data-theme="light"] .ppt-agent .message--user.ppt-agent__bubble p {
   color: var(--color-text);
 }
 .app[data-theme="light"] .ppt-agent .message--assistant.ppt-agent__bubble {
-  border-color: #8bcac4;
+  border: 0;
   background: #edf9f7;
 }
 .app[data-theme="light"] .ppt-agent .message--assistant.ppt-agent__bubble > p {
@@ -599,7 +622,10 @@
   min-height: 0;
   position: relative;
   flex: 1;
-  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
 }
 .ppt-agent-main textarea {
   height: 96px;
@@ -609,7 +635,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px 12px;
-  margin-top: 16px;
+  margin-top: 0;
 }
 .editor-quick-actions button {
   height: 32px;

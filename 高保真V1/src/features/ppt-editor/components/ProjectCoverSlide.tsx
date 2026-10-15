@@ -2,11 +2,13 @@ import type { MouseEvent as ReactMouseEvent } from "react";
 import { ProjectCoverArt } from "../../../components/ppt/ProjectCoverArt";
 import type { PptCoverLayout } from "../../../types";
 import type { DragBind } from "../hooks/useCanvasElementDrag";
-import { elementId, slideElementClass, type SlideElement } from "../model";
+import { elementBoxStyle, elementId, elementTextStyle, slideElementClass, type SlideElement } from "../model";
+import { LiveSlideChart } from "./LiveSlideChart";
+import { SlideElementView } from "./SlideElementView";
 
 const SEED_KEYS = ["title", "subtitle", "accent", "chart"] as const;
 
-/** Editable first-slide cover that matches the project card theme art. */
+/** Editable first-slide cover — hit boxes and visuals share element x/y so drag works. */
 export function ProjectCoverSlide({
   layout,
   title,
@@ -40,7 +42,7 @@ export function ProjectCoverSlide({
   const extras = elements.filter((item) => !seedIds.has(item.id));
 
   return (
-    <div className="project-cover-slide">
+    <div className="project-cover-slide project-cover-slide--live">
       <ProjectCoverArt
         layout={layout}
         title={titleEl?.content || title}
@@ -49,47 +51,56 @@ export function ProjectCoverSlide({
       />
       {titleEl && (
         <div
-          className={slideElementClass("project-cover-slide__hit project-cover-slide__hit--title", selectedId, titleEl.id)}
+          className={slideElementClass("project-cover-slide__live-text", selectedId, titleEl.id)}
           data-label={titleEl.label}
+          style={elementTextStyle(titleEl)}
           {...interact(titleEl)}
+        >
+          {titleEl.content}
+        </div>
+      )}
+      {accentEl && (
+        <div
+          className={slideElementClass("project-cover-slide__live-accent", selectedId, accentEl.id)}
+          data-label={accentEl.label}
+          style={{
+            ...elementBoxStyle(accentEl),
+            background: accentEl.textColor || "#00c9c3",
+            height: `calc(${Math.max(accentEl.h, 3)}px * var(--slide-scale))`,
+            minHeight: 0,
+            borderRadius: 999,
+          }}
+          {...interact(accentEl)}
         />
       )}
       {subtitleEl && (
         <div
-          className={slideElementClass("project-cover-slide__hit project-cover-slide__hit--subtitle", selectedId, subtitleEl.id)}
+          className={slideElementClass("project-cover-slide__live-text", selectedId, subtitleEl.id)}
           data-label={subtitleEl.label}
+          style={elementTextStyle(subtitleEl)}
           {...interact(subtitleEl)}
-        />
-      )}
-      {accentEl && (
-        <div
-          className={slideElementClass("project-cover-slide__hit project-cover-slide__hit--accent", selectedId, accentEl.id)}
-          data-label={accentEl.label}
-          {...interact(accentEl)}
-        />
+        >
+          {subtitleEl.content}
+        </div>
       )}
       {chartEl && (
         <div
-          className={slideElementClass("project-cover-slide__hit project-cover-slide__hit--chart", selectedId, chartEl.id)}
+          className={slideElementClass("project-cover-slide__live-chart", selectedId, chartEl.id)}
           data-label={chartEl.label}
+          style={elementBoxStyle(chartEl)}
           {...interact(chartEl)}
-        />
+        >
+          <LiveSlideChart element={chartEl} positioned={false} />
+        </div>
       )}
       {extras.map((element) => (
-        <div
+        <SlideElementView
           key={element.id}
-          className={slideElementClass("project-cover-slide__extra", selectedId, element.id)}
-          data-label={element.label}
-          style={{
-            left: `calc(${element.x}px * var(--slide-scale))`,
-            top: `calc(${element.y}px * var(--slide-scale))`,
-            width: `calc(${element.w}px * var(--slide-scale))`,
-            height: `calc(${element.h}px * var(--slide-scale))`,
-          }}
-          {...interact(element)}
-        >
-          {element.content}
-        </div>
+          element={element}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          {...(bindDrag ? { bindDrag } : {})}
+        />
       ))}
     </div>
   );
