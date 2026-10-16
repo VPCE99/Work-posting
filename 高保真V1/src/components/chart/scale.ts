@@ -1,15 +1,23 @@
 import type { OccupancyChartRow, OccupancySeriesPoint } from "./model";
 
 export function occupancyChartSeries(rows: OccupancyChartRow[]): OccupancySeriesPoint[] {
-  return rows.map((row) => ({
+  return rows.map((row) => {
+    const point: OccupancySeriesPoint = {
     category: row.category,
     avg: Number.parseFloat(row.avg) || 0,
     spot: Number.parseFloat(row.spot) || 0,
-  }));
+    };
+    if (row.extras) point.extras = row.extras.map((value) => Number.parseFloat(value) || 0);
+    return point;
+  });
+}
+
+export function seriesNumbersOf(point: OccupancySeriesPoint): number[] {
+  return [point.avg, point.spot, ...(point.extras ?? [])];
 }
 
 export function occupancyValueDomain(points: OccupancySeriesPoint[]) {
-  const values = points.flatMap((row) => [row.avg, row.spot]);
+  const values = points.flatMap((row) => seriesNumbersOf(row));
   const min = Math.min(...values, 0);
   const max = Math.max(...values, 1);
   const span = max - min || 1;

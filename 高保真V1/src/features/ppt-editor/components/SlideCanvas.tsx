@@ -33,6 +33,7 @@ export function SlideCanvas({
   onApplyTool,
   onMoveElement,
   onMoveElementEnd,
+  onPatchElement,
 }: {
   activeSlide: number;
   scale: number;
@@ -52,10 +53,12 @@ export function SlideCanvas({
   onApplyTool: (tool: EditorToolName) => void;
   onMoveElement: (elementId: string, x: number, y: number) => void;
   onMoveElementEnd: (elementId: string, x: number, y: number, origin: { x: number; y: number }) => void;
+  onPatchElement: (elementId: string, patch: Partial<SlideElement>) => void;
 }) {
   const isCoverSlide = activeSlide === 0 && Boolean(coverLayout);
   const isMarketSlide = activeSlide === 2 && !isCoverSlide;
   const dragEnabled = !presentMode && activeTool === "pointer";
+  const chartEditable = !presentMode;
   const { bindDrag } = useCanvasElementDrag({
     scale,
     enabled: dragEnabled,
@@ -63,6 +66,7 @@ export function SlideCanvas({
     onMove: onMoveElement,
     onMoveEnd: onMoveElementEnd,
   });
+  const chartPatch = chartEditable ? onPatchElement : undefined;
 
   return (
     <div className={presentMode ? "slide-work-area slide-work-area--present" : "slide-work-area"}>
@@ -120,6 +124,7 @@ export function SlideCanvas({
               elements={currentElements}
               selectedId={selectedElementId}
               onSelect={onSelectElement}
+              {...(chartPatch ? { onPatch: chartPatch } : {})}
               {...(dragEnabled ? { bindDrag } : {})}
             />
           ) : isMarketSlide ? (
@@ -127,6 +132,7 @@ export function SlideCanvas({
               elements={currentElements}
               selectedId={selectedElementId}
               onSelect={onSelectElement}
+              {...(chartPatch ? { onPatch: chartPatch } : {})}
               {...(dragEnabled ? { bindDrag } : {})}
             />
           ) : (
@@ -138,6 +144,7 @@ export function SlideCanvas({
                   element={element}
                   selectedId={selectedElementId}
                   onSelect={onSelectElement}
+                  {...(chartPatch ? { onPatch: chartPatch } : {})}
                   {...(dragEnabled ? { bindDrag } : {})}
                 />
               ))}

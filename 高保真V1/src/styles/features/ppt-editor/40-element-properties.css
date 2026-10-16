@@ -220,6 +220,8 @@ body.is-dragging-slide-element .slide-element {
   line-height: 1;
 }
 .ppt-element-props input[type="number"],
+.ppt-element-props input[type="text"],
+.ppt-element-props input:not([type]),
 .ppt-element-props textarea {
   width: 100%;
   box-sizing: border-box;
@@ -229,7 +231,9 @@ body.is-dragging-slide-element .slide-element {
   color: #f7f8fa;
   font-size: 13px;
 }
-.ppt-element-props input[type="number"] {
+.ppt-element-props input[type="number"],
+.ppt-element-props input[type="text"],
+.ppt-element-props input:not([type]) {
   height: 36px;
   padding: 0 10px;
 }
@@ -362,6 +366,8 @@ body.is-dragging-slide-element .slide-element {
   color: var(--color-text);
 }
 .app[data-theme="light"] .ppt-element-props input[type="number"],
+.app[data-theme="light"] .ppt-element-props input[type="text"],
+.app[data-theme="light"] .ppt-element-props input:not([type]),
 .app[data-theme="light"] .ppt-element-props textarea,
 .app[data-theme="light"] .ppt-element-props .form-select__trigger {
   border-color: transparent;
@@ -447,18 +453,24 @@ body.is-dragging-slide-element .slide-element {
   background: var(--color-focus);
   color: #061214;
 }
+.ppt-props-legend-fields {
+  display: grid;
+  gap: 10px;
+}
 .ppt-props-data-table {
   display: grid;
   gap: 0;
   border: 1px solid #2f3238;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
   background: #15181d;
 }
 .ppt-props-data-table__row {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr 1.1fr;
+  grid-template-columns: repeat(var(--ppt-data-cols, 3), minmax(72px, 1fr));
   gap: 0;
+  min-width: max-content;
+  width: 100%;
   min-height: 34px;
   align-items: center;
   border-top: 1px solid #252931;
@@ -494,13 +506,47 @@ body.is-dragging-slide-element .slide-element {
   border-radius: 0;
   background: #111318;
 }
+.ppt-props-data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ppt-props-data-actions small {
+  margin-left: auto;
+  color: #8e949e;
+  font-size: 11px;
+}
+.ppt-props-data-action {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid #2f3238;
+  border-radius: 7px;
+  background: #15181d;
+  color: #d9dde3;
+  font-size: 12px;
+  cursor: pointer;
+}
+.ppt-props-data-action:hover:not(:disabled) {
+  border-color: #3a4450;
+  color: #f7f8fa;
+}
+.ppt-props-data-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 .app[data-theme="light"] .ppt-props-data-edit,
+.app[data-theme="light"] .ppt-props-data-action,
 .app[data-theme="light"] .ppt-props-chart-types button,
 .app[data-theme="light"] .ppt-props-chart-preview,
 .app[data-theme="light"] .ppt-props-data-table {
   border-color: #c7d2d5;
   background: var(--color-surface);
   color: var(--color-text);
+}
+.app[data-theme="light"] .ppt-props-data-actions small {
+  color: var(--color-text-muted);
 }
 .app[data-theme="light"] .ppt-props-chart-preview {
   background: var(--color-surface-muted);

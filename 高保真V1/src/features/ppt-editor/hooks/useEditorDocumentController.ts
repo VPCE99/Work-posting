@@ -71,6 +71,10 @@ export function useEditorDocumentController() {
     dispatch({ type: "patchElement", elementId: doc.selectedElementId, patch });
   }, [doc.selectedElementId]);
 
+  const patchElement = useCallback((elementId: string, patch: Partial<SlideElement>) => {
+    dispatch({ type: "patchElement", elementId, patch });
+  }, []);
+
   const togglePropsSection = useCallback((key: PropsSectionKey) => {
     dispatch({ type: "togglePropsSection", key });
   }, []);
@@ -152,6 +156,7 @@ export function useEditorDocumentController() {
     moveElement,
     moveElementEnd,
     patchSelectedElement,
+    patchElement,
     togglePropsSection,
     patchChartRow,
     generateElementContent,

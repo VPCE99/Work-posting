@@ -10,11 +10,13 @@ export function MarketScaleSlide({
   elements,
   selectedId,
   onSelect,
+  onPatch,
   bindDrag,
 }: {
   elements: SlideElement[];
   selectedId: string | null;
   onSelect: (element: SlideElement) => void;
+  onPatch?: (elementId: string, patch: Partial<SlideElement>) => void;
   bindDrag?: DragBind;
 }) {
   const byKey = (key: (typeof SEED_KEYS)[number]) => elements.find((item) => item.id === elementId(2, key));
@@ -101,17 +103,19 @@ export function MarketScaleSlide({
         </div>
       )}
       {chart && (
-        <>
-          <button
-            type="button"
-            className={slideElementClass("market-slide__chart-hit", selectedId, chart.id)}
-            data-label={chart.label}
-            aria-label="选择图表元素"
-            style={elementBoxStyle(chart)}
-            {...interact(chart)}
+        <div
+          className={slideElementClass("market-slide__chart-hit", selectedId, chart.id)}
+          data-label={chart.label}
+          style={elementBoxStyle(chart)}
+          {...interact(chart)}
+        >
+          <LiveSlideChart
+            element={chart}
+            positioned={false}
+            editable={Boolean(onPatch)}
+            {...(onPatch ? { onPatch: (patch: Partial<SlideElement>) => onPatch(chart.id, patch) } : {})}
           />
-          <LiveSlideChart element={chart} />
-        </>
+        </div>
       )}
       {extras.map((element) => (
         <SlideElementView
@@ -119,6 +123,7 @@ export function MarketScaleSlide({
           element={element}
           selectedId={selectedId}
           onSelect={onSelect}
+          {...(onPatch ? { onPatch } : {})}
           {...(bindDrag ? { bindDrag } : {})}
         />
       ))}

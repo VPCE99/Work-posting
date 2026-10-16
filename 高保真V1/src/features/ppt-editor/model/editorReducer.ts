@@ -95,8 +95,14 @@ function cloneElements(map: Record<number, SlideElement[]>): Record<number, Slid
   for (const [key, list] of Object.entries(map)) {
     next[Number(key)] = list.map((item) => {
       const copy: SlideElement = { ...item };
-      if (item.chartRows) copy.chartRows = item.chartRows.map((row) => ({ ...row }));
-      if (item.chartHeaders) copy.chartHeaders = [item.chartHeaders[0], item.chartHeaders[1], item.chartHeaders[2]];
+      if (item.chartRows) {
+        copy.chartRows = item.chartRows.map((row) => {
+          const nextRow = { ...row };
+          if (row.extras) nextRow.extras = [...row.extras];
+          return nextRow;
+        });
+      }
+      if (item.chartHeaders) copy.chartHeaders = [...item.chartHeaders];
       return copy;
     });
   }

@@ -59,7 +59,8 @@ export type SlideElement = {
   align: TextAlign;
   aiGenerated?: boolean;
   chartType?: ChartType;
-  chartHeaders?: [string, string, string];
+  /** Category + one header per value series (avg / spot / extras…). */
+  chartHeaders?: string[];
   chartRows?: ChartRow[];
   shapeVariant?: "rect" | "ellipse";
 };

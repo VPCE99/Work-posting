@@ -1,3 +1,13 @@
+import {
+  addChartColumn,
+  createChartRow,
+  MAX_CHART_ROWS,
+  MAX_CHART_SERIES,
+  normalizeChartHeaders,
+  seriesValuesOf,
+  setChartCell,
+  setChartHeaderAt,
+} from "../../../components/chart/chartData";
 import { FormSelect } from "../../../components/ui/FormSelect";
 import { LucideIcon } from "../icons/LucideIcon";
 import {
@@ -36,8 +46,22 @@ export function ElementPropsPanel({
 }) {
   const isChart = element.kind === "chart";
   const chartType = element.chartType ?? "line";
-  const headers = element.chartHeaders ?? ["类别", "平均出租率", "时点出租率"];
+  const headers = normalizeChartHeaders(element.chartHeaders);
   const rows = element.chartRows ?? defaultChartRows;
+  const seriesLabels = headers.slice(1);
+  const canAddRow = rows.length < MAX_CHART_ROWS;
+  const canAddColumn = seriesLabels.length < MAX_CHART_SERIES;
+
+  const addRow = () => {
+    if (!canAddRow) return;
+    onChange({ chartHeaders: headers, chartRows: [...rows, createChartRow(rows, headers)] });
+  };
+
+  const addColumn = () => {
+    const next = addChartColumn(headers, rows);
+    if (!next) return;
+    onChange({ chartHeaders: next.headers, chartRows: next.rows });
+  };
 
   return (
     <aside className="ppt-element-props" aria-label={`元素属性 ${element.label}`}>
@@ -125,6 +149,25 @@ export function ElementPropsPanel({
                       ))}
                     </div>
                   </div>
+                  <label className="ppt-props-field">
+                    <span>图表名称</span>
+                    <input
+                      value={element.content}
+                      placeholder="例如：增长趋势"
+                      onChange={(event) => onChange({ content: event.target.value })}
+                    />
+                  </label>
+                  <div className="ppt-props-legend-fields">
+                    {seriesLabels.map((label, index) => (
+                      <label className="ppt-props-field" key={`legend-${index}`}>
+                        <span>图例 {index + 1}</span>
+                        <input
+                          value={label}
+                          onChange={(event) => onChange({ chartHeaders: setChartHeaderAt(headers, index + 1, event.target.value) })}
+                        />
+                      </label>
+                    ))}
+                  </div>
                 </div>
               )}
             </section>
@@ -141,32 +184,76 @@ export function ElementPropsPanel({
               </div>
               {sections.data && (
                 <div className="ppt-props-section__content">
-                  <div className="ppt-props-data-table" role="table" aria-label="图表数据">
+                  <div
+                    className="ppt-props-data-table"
+                    role="table"
+                    aria-label="图表数据"
+                    style={{ ["--ppt-data-cols" as string]: String(headers.length) }}
+                  >
                     <div className="ppt-props-data-table__row ppt-props-data-table__head" role="row">
-                      {headers.map((header) => <span role="columnheader" key={header}>{header}</span>)}
+                      {headers.map((header, headerIndex) => (
+                        dataEditing ? (
+                          <input
+                            key={`header-${headerIndex}`}
+                            role="columnheader"
+                            value={header}
+                            aria-label={`列标题 ${headerIndex + 1}`}
+                            onChange={(event) => onChange({ chartHeaders: setChartHeaderAt(headers, headerIndex, event.target.value) })}
+                          />
+                        ) : (
+                          <span role="columnheader" key={`header-${headerIndex}`}>{header}</span>
+                        )
+                      ))}
                     </div>
-                    {rows.map((row, index) => (
-                      <div className="ppt-props-data-table__row" role="row" key={`${row.category}-${index}`}>
-                        {([
-                          ["category", headers[0]],
-                          ["avg", headers[1]],
-                          ["spot", headers[2]],
-                        ] as const).map(([key, header]) => (
-                          dataEditing ? (
-                            <input
-                              key={key}
-                              role="cell"
-                              value={row[key]}
-                              onChange={(event) => onPatchChartRow(index, key, event.target.value)}
-                              aria-label={`${header} · 第 ${index + 1} 行`}
-                            />
-                          ) : (
-                            <span role="cell" key={key}>{row[key]}</span>
-                          )
-                        ))}
-                      </div>
-                    ))}
+                    {rows.map((row, index) => {
+                      const values = [row.category, ...seriesValuesOf(row)];
+                      while (values.length < headers.length) values.push("0");
+                      return (
+                        <div className="ppt-props-data-table__row" role="row" key={`${row.category}-${index}`}>
+                          {headers.map((header, columnIndex) => (
+                            dataEditing ? (
+                              <input
+                                key={`${index}-${columnIndex}`}
+                                role="cell"
+                                value={values[columnIndex] ?? ""}
+                                onChange={(event) => {
+                                  if (columnIndex === 0) {
+                                    onPatchChartRow(index, "category", event.target.value);
+                                    return;
+                                  }
+                                  if (columnIndex === 1) {
+                                    onPatchChartRow(index, "avg", event.target.value);
+                                    return;
+                                  }
+                                  if (columnIndex === 2) {
+                                    onPatchChartRow(index, "spot", event.target.value);
+                                    return;
+                                  }
+                                  onChange({ chartRows: setChartCell(rows, index, columnIndex, event.target.value) });
+                                }}
+                                aria-label={`${header} · 第 ${index + 1} 行`}
+                              />
+                            ) : (
+                              <span role="cell" key={`${index}-${columnIndex}`}>{values[columnIndex] ?? ""}</span>
+                            )
+                          ))}
+                        </div>
+                      );
+                    })}
                   </div>
+                  {dataEditing && (
+                    <div className="ppt-props-data-actions">
+                      <button type="button" className="ppt-props-data-action" disabled={!canAddRow} onClick={addRow}>
+                        加行
+                      </button>
+                      <button type="button" className="ppt-props-data-action" disabled={!canAddColumn} onClick={addColumn}>
+                        加列
+                      </button>
+                      <small>
+                        {rows.length}/{MAX_CHART_ROWS} 行 · {seriesLabels.length}/{MAX_CHART_SERIES} 系列
+                      </small>
+                    </div>
+                  )}
                 </div>
               )}
             </section>

@@ -16,6 +16,7 @@ export function ProjectCoverSlide({
   elements,
   selectedId,
   onSelect,
+  onPatch,
   bindDrag,
 }: {
   layout: PptCoverLayout;
@@ -24,6 +25,7 @@ export function ProjectCoverSlide({
   elements: SlideElement[];
   selectedId: string | null;
   onSelect: (element: SlideElement) => void;
+  onPatch?: (elementId: string, patch: Partial<SlideElement>) => void;
   bindDrag?: DragBind;
 }) {
   const byKey = (key: (typeof SEED_KEYS)[number]) => elements.find((item) => item.id === elementId(0, key));
@@ -90,7 +92,12 @@ export function ProjectCoverSlide({
           style={elementBoxStyle(chartEl)}
           {...interact(chartEl)}
         >
-          <LiveSlideChart element={chartEl} positioned={false} />
+          <LiveSlideChart
+            element={chartEl}
+            positioned={false}
+            editable={Boolean(onPatch)}
+            {...(onPatch ? { onPatch: (patch: Partial<SlideElement>) => onPatch(chartEl.id, patch) } : {})}
+          />
         </div>
       )}
       {extras.map((element) => (
@@ -99,6 +106,7 @@ export function ProjectCoverSlide({
           element={element}
           selectedId={selectedId}
           onSelect={onSelect}
+          {...(onPatch ? { onPatch } : {})}
           {...(bindDrag ? { bindDrag } : {})}
         />
       ))}

@@ -5,12 +5,12 @@ describe("shared chart scale", () => {
   it("parses occupancy series and falls back invalid numbers to 0", () => {
     expect(
       occupancyChartSeries([
-        { category: "A", avg: "90.5", spot: "bad" },
+        { category: "A", avg: "90.5", spot: "bad", extras: ["12.5"] },
         { category: "B", avg: "", spot: "10" },
       ]),
     ).toEqual([
-      { category: "A", avg: 90.5, spot: 0 },
-      { category: "B", avg: 0, spot: 10 },
+      { category: "A", avg: 90.5, spot: 0, extras: [12.5] },
+      { category: "B", avg: 0, spot: 10, extras: undefined },
     ]);
   });
 

@@ -8,11 +8,13 @@ export function SlideElementView({
   element,
   selectedId,
   onSelect,
+  onPatch,
   bindDrag,
 }: {
   element: SlideElement;
   selectedId: string | null;
   onSelect: (element: SlideElement) => void;
+  onPatch?: (elementId: string, patch: Partial<SlideElement>) => void;
   bindDrag?: DragBind;
 }) {
   const select = (event: ReactMouseEvent | KeyboardEvent) => {
@@ -35,7 +37,12 @@ export function SlideElementView({
         onKeyDown={select}
         {...dragProps}
       >
-        <LiveSlideChart element={element} positioned={false} />
+        <LiveSlideChart
+          element={element}
+          positioned={false}
+          editable={Boolean(onPatch)}
+          {...(onPatch ? { onPatch: (patch: Partial<SlideElement>) => onPatch(element.id, patch) } : {})}
+        />
       </div>
     );
   }

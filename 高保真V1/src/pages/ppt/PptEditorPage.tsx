@@ -64,6 +64,7 @@ export function PptEditorPage() {
     moveElement,
     moveElementEnd,
     patchSelectedElement,
+    patchElement,
     togglePropsSection,
     patchChartRow,
     generateElementContent,
@@ -232,6 +233,7 @@ export function PptEditorPage() {
               onApplyTool={applyTool}
               onMoveElement={moveElement}
               onMoveElementEnd={moveElementEnd}
+              onPatchElement={patchElement}
             />
           </main>
 
